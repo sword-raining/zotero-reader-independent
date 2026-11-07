@@ -1,0 +1,3 @@
+# Preserve baseline source bytes so rebuilding matches the bundled XPI.
+* -text
+*.xpi binary
