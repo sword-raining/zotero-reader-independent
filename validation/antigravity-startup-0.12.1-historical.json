@@ -1,0 +1,82 @@
+{
+  "success": true,
+  "version": "Antigravity CLI 1.5.1",
+  "model": "gemini-3.8-flash-low",
+  "calls": [
+    {
+      "kind": "version",
+      "exitCode": 0,
+      "updaterDisabled": false,
+      "updaterSpawned": false
+    },
+    {
+      "kind": "help",
+      "exitCode": 0,
+      "updaterDisabled": false,
+      "updaterSpawned": false
+    },
+    {
+      "kind": "models",
+      "exitCode": 0,
+      "updaterDisabled": false,
+      "updaterSpawned": false
+    },
+    {
+      "kind": "chat",
+      "exitCode": 0,
+      "updaterDisabled": true,
+      "updaterSpawned": false
+    },
+    {
+      "kind": "chat",
+      "exitCode": 0,
+      "updaterDisabled": true,
+      "updaterSpawned": false
+    }
+  ],
+  "tests": [
+    {
+      "name": "first",
+      "success": true,
+      "durationMs": 14174,
+      "timing": {
+        "preflightMs": 3,
+        "callMs": 14155,
+        "totalMs": 14164,
+        "preflightCached": true
+      }
+    },
+    {
+      "name": "repeat",
+      "success": true,
+      "durationMs": 11671,
+      "timing": {
+        "preflightMs": 8,
+        "callMs": 11649,
+        "totalMs": 11663,
+        "preflightCached": true
+      }
+    }
+  ],
+  "parentEnvironmentUnchanged": true,
+  "previousAttempt": {
+    "firstSuccess": true,
+    "repeatFailure": "Eligibility check failed: POST EOF (network connection ended)",
+    "updaterDisabledBoth": true,
+    "repeatRetestedSuccessfully": true
+  },
+  "beforeFixEvidence": [
+    {
+      "file": "cli-20261106_131824.log",
+      "event": "Spawned background update process with PID 18408"
+    },
+    {
+      "file": "cli-20261106_131949.log",
+      "event": "Last check was less than 15 minutes ago, skipping update (fast path)"
+    }
+  ],
+  "afterFixEvidence": [
+    "I1106 13:36:14.907052       1 auto_updater.go:247] Auto-update disabled via environment variable AGY_CLI_DISABLE_AUTO_UPDATE",
+    "I1106 13:36:29.086270       1 auto_updater.go:247] Auto-update disabled via environment variable AGY_CLI_DISABLE_AUTO_UPDATE"
+  ]
+}

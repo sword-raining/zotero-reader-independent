@@ -1,0 +1,249 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "isolated data directory",
+      "ok": true
+    },
+    {
+      "name": "startup and context menu",
+      "ok": true
+    },
+    {
+      "name": "installer accepts XPI manifest and compatibility",
+      "ok": true
+    },
+    {
+      "name": "credential save/read/replace/clear in disposable profile",
+      "ok": true
+    },
+    {
+      "name": "native fetch and bounded response reader without network",
+      "ok": true
+    },
+    {
+      "name": "full mock cloud parse with real Gecko files, ZIP, hash and cache",
+      "ok": true
+    },
+    {
+      "name": "persistent cache reused without key or network",
+      "ok": true
+    },
+    {
+      "name": "Gecko appends Antigravity update opt-out only to its child environment",
+      "ok": true
+    },
+    {
+      "name": "native Codex executable discovery and version",
+      "ok": true
+    },
+    {
+      "name": "Gecko Codex stdin EOF, dual pipe draining and Unicode result",
+      "ok": true
+    },
+    {
+      "name": "cached paper → generation → fresh verification → checked reading",
+      "ok": true
+    },
+    {
+      "name": "flagged verification remains a marked draft without reading.md",
+      "ok": true
+    },
+    {
+      "name": "major issues are corrected and the revised draft is independently rechecked",
+      "ok": true
+    },
+    {
+      "name": "minor expression suggestions do not force extra model calls",
+      "ok": true
+    },
+    {
+      "name": "an invalid correction cannot replace the last valid draft or pass checks",
+      "ok": true
+    },
+    {
+      "name": "verification network failure and malformed response cannot pass",
+      "ok": true
+    },
+    {
+      "name": "cancellation between stages prevents verification call",
+      "ok": true
+    },
+    {
+      "name": "Codex failure does not publish an answer or expose diagnostics",
+      "ok": true
+    },
+    {
+      "name": "missing and empty Codex final answer are rejected",
+      "ok": true
+    },
+    {
+      "name": "Gecko native process timeout and cancellation settle",
+      "ok": true
+    },
+    {
+      "name": "reading window keeps checks in the background without a report tab",
+      "ok": true
+    },
+    {
+      "name": "automatic reading is off by default and enabling does not scan old PDFs",
+      "ok": true
+    },
+    {
+      "name": "actual Zotero add events queue PDFs once and ignore notes, sync and modifications",
+      "ok": true
+    },
+    {
+      "name": "automatic queue runs serially and creates only one reading note per PDF",
+      "ok": true
+    },
+    {
+      "name": "same reading deduplicates notes and preserves manual edits",
+      "ok": true
+    },
+    {
+      "name": "missing PDF waits until a local file is available",
+      "ok": true
+    },
+    {
+      "name": "verification failure keeps the local draft without creating a Zotero note",
+      "ok": true
+    },
+    {
+      "name": "turning automation off cancels queued and active automatic tasks",
+      "ok": true
+    },
+    {
+      "name": "manual full workflow still works with automation disabled",
+      "ok": true
+    },
+    {
+      "name": "standalone PDF gets linked standalone notes without fabricated parent metadata",
+      "ok": true
+    },
+    {
+      "name": "single-note write rolls back on failure",
+      "ok": true
+    },
+    {
+      "name": "stored bibliographic snapshot is not silently replaced by later Zotero One updates",
+      "ok": true
+    },
+    {
+      "name": "older seven-section results remain readable and import without invented new sections",
+      "ok": true
+    },
+    {
+      "name": "readonly destination is rejected before writing notes",
+      "ok": true
+    },
+    {
+      "name": "batch selection expands parents and deduplicates mixed parent/PDF selections",
+      "ok": true
+    },
+    {
+      "name": "batch dialog supports exclusion and starts selected PDFs without enabling automation",
+      "ok": true
+    },
+    {
+      "name": "batch skips processed unchanged files and reuses queued jobs",
+      "ok": true
+    },
+    {
+      "name": "batch detects a changed PDF instead of skipping its old result",
+      "ok": true
+    },
+    {
+      "name": "one rejected selection does not prevent valid PDFs from entering a batch",
+      "ok": true
+    },
+    {
+      "name": "a failed batch job does not block subsequent PDFs",
+      "ok": true
+    },
+    {
+      "name": "stop batch cancels its active and pending jobs without cancelling unrelated work",
+      "ok": true
+    },
+    {
+      "name": "batch can explicitly rerun processed PDFs when skip is disabled",
+      "ok": true
+    },
+    {
+      "name": "paper selector excludes byte duplicates and defaults supplements including cloud files to off",
+      "ok": true
+    },
+    {
+      "name": "explicit supplement checkbox creates one combined reading with distinct source IDs and links",
+      "ok": true
+    },
+    {
+      "name": "selected supplemental changes invalidate skip and prevent importing stale checked content",
+      "ok": true
+    },
+    {
+      "name": "automatic intake skips supplemental/duplicate files and waits for ambiguous main choice",
+      "ok": true
+    },
+    {
+      "name": "both engine catalogs are discovered via their native protocols",
+      "ok": true
+    },
+    {
+      "name": "CLI preflight is cached and quick connectivity does not claim high-effort validation",
+      "ok": true
+    },
+    {
+      "name": "all nine preference menus open native popups and accept menu commands",
+      "ok": true
+    },
+    {
+      "name": "settings separate engines/models and persist editable template, delivery and names",
+      "ok": true
+    },
+    {
+      "name": "reasoning sliders restore saved values and reset when the selected model changes",
+      "ok": true
+    },
+    {
+      "name": "connection test button can cancel an ongoing request without changing reading settings",
+      "ok": true
+    },
+    {
+      "name": "cross-engine workflow saves Markdown without automatically writing notes",
+      "ok": true
+    },
+    {
+      "name": "edited Markdown imports with custom names and retains an unverified-edit label",
+      "ok": true
+    },
+    {
+      "name": "Antigravity cancellation terminates its owned child process tree",
+      "ok": true
+    },
+    {
+      "name": "queue state survives reload without reprocessing completed PDFs",
+      "ok": true
+    },
+    {
+      "name": "changed PDF invalidates cache",
+      "ok": true
+    },
+    {
+      "name": "ZIP traversal is rejected without writing outside generation",
+      "ok": true
+    },
+    {
+      "name": "preferences markup loaded and controls bound",
+      "ok": true
+    },
+    {
+      "name": "task window markup and preview",
+      "ok": true
+    },
+    {
+      "name": "no test token in preferences or cache manifest",
+      "ok": true
+    }
+  ]
+}

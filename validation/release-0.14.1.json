@@ -1,0 +1,34 @@
+{
+  "version": "0.14.1",
+  "change": "Cleanup button label, persistent explanatory text and unambiguous completion message; cleanup behavior unchanged.",
+  "automatedChecks": 104,
+  "portableRebuild": {
+    "version": "0.14.1",
+    "passed": 104,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "3f84fb58e7187aeba651e40764926d9466bfcbdb25e45c36555c46bbc9fb462f",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "nativeBaselineVersion": "0.14.0",
+  "nativeChecksRerun": false,
+  "scope": [
+    "104 checks executed from the handoff project under a different path. JavaScript syntax, XML and rebuilt XPI/source equality verified.",
+    "The 8 native cleanup and 61 native workflow checks from 0.14.0 are retained as baseline evidence; they were not rerun for this wording-only update.",
+    "Real two-computer cloud synchronization remains untested."
+  ],
+  "buttonLabel": "清理生成缓存",
+  "persistentHelp": "仅处理已成功保存到 Zotero 的笔记：清理生成它们时留下的 Markdown 草稿、核验中间文件和闲置解析缓存。原 PDF、已保存笔记、知识库文件不会删除；未导入或保存后又修改的稿件仍会保留。新任务导入成功后会自动清理，此按钮用于补清旧任务或重试清理。",
+  "changedPackageFiles": [
+    "manifest.json",
+    "content/engine-core.js",
+    "content/note-runtime.js",
+    "content/preferences.xhtml",
+    "content/runtime.js"
+  ],
+  "wikiProtectedFilesUnchanged": 40,
+  "xpiSHA256": "3f84fb58e7187aeba651e40764926d9466bfcbdb25e45c36555c46bbc9fb462f"
+}

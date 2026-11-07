@@ -1,0 +1,11 @@
+{
+  "version": "0.14.1",
+  "passed": 104,
+  "failed": 0,
+  "syntaxAndXML": true,
+  "packageMatchesSource": true,
+  "matchesBundledRelease": true,
+  "xpiSHA256": "3f84fb58e7187aeba651e40764926d9466bfcbdb25e45c36555c46bbc9fb462f",
+  "modelRequests": 0,
+  "zoteroLaunched": false
+}
