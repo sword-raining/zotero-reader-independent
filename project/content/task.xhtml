@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://zotero-reader-independent/content/ui.css" type="text/css"?>
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        class="zr-window" title="Zotero Reader · PDF 解析" width="860" height="720"
+        onload="window.arguments[0].app.bindTask(window)"
+        onunload="window.arguments[0].app.unbindTask(window)">
+  <html:main class="zr-dialog-shell">
+    <html:header><html:div class="zr-kicker">ZOTERO READER</html:div><html:h1>PDF 解析</html:h1>
+    <html:p id="zri-task-title" class="zr-caption"/></html:header>
+    <html:div id="zri-task-status" role="status" aria-live="polite"/>
+    <html:div class="zr-row">
+      <html:button id="zri-task-cancel" class="zr-quiet zr-danger">停止等待</html:button>
+      <html:button id="zri-task-folder" disabled="disabled">打开结果目录</html:button>
+    </html:div>
+    <html:div id="zri-task-detail" class="zr-caption"/>
+    <html:pre id="zri-task-preview" class="zr-source-preview"/>
+    <html:p class="zr-caption">MinerU 解析正文、结构化内容和图片保存在结果目录。这里显示原始 Markdown；关闭窗口不会停止任务。</html:p>
+  </html:main>
+</window>

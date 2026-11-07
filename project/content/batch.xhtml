@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero-reader-independent/content/ui.css" type="text/css"?>
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        class="zr-window" title="Zotero Reader · 批量精读" width="920" height="800"
+        onload="window.arguments[0].batch.bindWindow(window)"
+        onunload="window.arguments[0].batch.unbindWindow(window)">
+  <html:main class="zr-dialog-shell">
+    <html:header><html:div class="zr-kicker">ZOTERO READER</html:div><html:h1>选择文献与附件</html:h1>
+    <html:p id="zrb-summary" class="zr-caption"/></html:header>
+    <html:section class="zr-card">
+    <html:div class="zr-batch-options">
+      <html:label for="zrb-template">统一模板</html:label>
+      <menulist id="zrb-template" aria-label="统一模板" class="zr-select" native="true"><menupopup><menuitem value="ecology" label="生态与土壤微生物精读"/><menuitem value="general" label="通用论文精读"/></menupopup></menulist>
+      <html:label><html:input id="zrb-skip" type="checkbox" checked="checked"/> 跳过已处理且所选资料未变化的文献</html:label>
+    </html:div>
+    <html:details class="zr-details"><html:summary>附件处理说明</html:summary>不需要开启自动精读。默认只读正文；需要时勾选补充材料，合并生成一篇笔记，并区分依据来源。内容完全相同的 PDF 只读一次，不删除原附件。文件名仅辅助判断，多个不同正文版本需手动选择。未下载的附件需先在 Zotero 中下载。已在队列中的文献沿用原选择，需停止原任务后才能更换。</html:details>
+    <html:div class="zr-row">
+      <html:button id="zrb-all" class="zr-quiet">全选可处理项</html:button><html:button id="zrb-none" class="zr-quiet">全不选</html:button>
+    </html:div>
+    <html:div id="zrb-list" class="zr-batch-list"/></html:section>
+    <html:div class="zr-actions">
+      <html:button id="zrb-start" class="zr-primary">加入精读队列</html:button>
+      <html:button id="zrb-pause">暂停队列</html:button>
+      <html:button id="zrb-stop" class="zr-quiet zr-danger" disabled="disabled">停止本批次</html:button>
+    </html:div>
+    <html:div id="zrb-status" class="zr-status" role="status" aria-live="polite"/>
+    <html:div id="zrb-progress" class="zr-caption" role="status" aria-live="polite"/>
+    <html:p class="zr-caption">逐篇解析、精读、独立检查，按设置保存。发现问题时自动修订；仍需核对的内容保留为本地草稿。无解析缓存时，PDF 会上传至 MinerU。</html:p>
+  </html:main>
+</window>
