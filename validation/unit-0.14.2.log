@@ -1,0 +1,706 @@
+TAP version 13
+# Subtest: supplement labels are hints; duplicate bytes are eliminated without selecting supplements
+ok 1 - supplement labels are hints; duplicate bytes are eliminated without selecting supplements
+  ---
+  duration_ms: 2.0902
+  type: 'test'
+  ...
+# Subtest: different versions and unverified cloud duplicates require a main choice
+ok 2 - different versions and unverified cloud duplicates require a main choice
+  ---
+  duration_ms: 1.606
+  type: 'test'
+  ...
+# Subtest: source equality includes supplements, roles, hashes and chosen scope
+ok 3 - source equality includes supplements, roles, hashes and chosen scope
+  ---
+  duration_ms: 0.2764
+  type: 'test'
+  ...
+# Subtest: main and supplemental evidence retain distinct identities through verification and Wiki receipts
+ok 4 - main and supplemental evidence retain distinct identities through verification and Wiki receipts
+  ---
+  duration_ms: 1.1285
+  type: 'test'
+  ...
+# Subtest: mixed selections deduplicate by library and attachment key without merging separate records
+ok 5 - mixed selections deduplicate by library and attachment key without merging separate records
+  ---
+  duration_ms: 1.1899
+  type: 'test'
+  ...
+# Subtest: queued and running PDFs are reused regardless of the skip-completed setting
+ok 6 - queued and running PDFs are reused regardless of the skip-completed setting
+  ---
+  duration_ms: 0.1994
+  type: 'test'
+  ...
+# Subtest: completed work is skipped only when the current PDF matches its source snapshot
+ok 7 - completed work is skipped only when the current PDF matches its source snapshot
+  ---
+  duration_ms: 0.1192
+  type: 'test'
+  ...
+# Subtest: failed, cancelled and unseen PDFs can be explicitly added again
+ok 8 - failed, cancelled and unseen PDFs can be explicitly added again
+  ---
+  duration_ms: 0.1215
+  type: 'test'
+  ...
+# Subtest: batch progress includes failures, waiting files, reviews and cancellation
+ok 9 - batch progress includes failures, waiting files, reviews and cancellation
+  ---
+  duration_ms: 0.2401
+  type: 'test'
+  ...
+# Subtest: a later re-run does not change an earlier completed batch into running
+ok 10 - a later re-run does not change an earlier completed batch into running
+  ---
+  duration_ms: 0.1316
+  type: 'test'
+  ...
+# Subtest: batch UI provides template, selection, skip-completed and batch stop controls
+ok 11 - batch UI provides template, selection, skip-completed and batch stop controls
+  ---
+  duration_ms: 0.4966
+  type: 'test'
+  ...
+# Subtest: existing Zotero One fields provide metrics and author order without a network lookup
+ok 12 - existing Zotero One fields provide metrics and author order without a network lookup
+  ---
+  duration_ms: 2.1916
+  type: 'test'
+  ...
+# Subtest: publication date and provider update dates are not silently treated as metric years
+ok 13 - publication date and provider update dates are not silently treated as metric years
+  ---
+  duration_ms: 1.2906
+  type: 'test'
+  ...
+# Subtest: ordinary catalogues/call numbers are not invented impact factors or CAS divisions
+ok 14 - ordinary catalogues/call numbers are not invented impact factors or CAS divisions
+  ---
+  duration_ms: 0.2853
+  type: 'test'
+  ...
+# Subtest: absent parent metadata falls back to extracted title/authors and never invents correspondence
+ok 15 - absent parent metadata falls back to extracted title/authors and never invents correspondence
+  ---
+  duration_ms: 0.2916
+  type: 'test'
+  ...
+# Subtest: title/affiliation claims require independent coverage and original quotes
+ok 16 - title/affiliation claims require independent coverage and original quotes
+  ---
+  duration_ms: 1.8875
+  type: 'test'
+  ...
+# Subtest: bibliographic HTML is escaped and edited Markdown does not get a duplicate header
+ok 17 - bibliographic HTML is escaped and edited Markdown does not get a duplicate header
+  ---
+  duration_ms: 23.2714
+  type: 'test'
+  ...
+# Subtest: Codex desktop fallback derives user directories and selects the newest complete executable
+ok 18 - Codex desktop fallback derives user directories and selects the newest complete executable
+  ---
+  duration_ms: 40.4111
+  type: 'test'
+  ...
+# Subtest: explicit and PATH Codex installations take precedence and invalid custom paths never silently fall back
+ok 19 - explicit and PATH Codex installations take precedence and invalid custom paths never silently fall back
+  ---
+  duration_ms: 16.7654
+  type: 'test'
+  ...
+# Subtest: npm Codex shims still resolve to native binaries and Antigravity uses per-user fallback
+ok 20 - npm Codex shims still resolve to native binaries and Antigravity uses per-user fallback
+  ---
+  duration_ms: 34.2288
+  type: 'test'
+  ...
+# Subtest: missing CLI discovery invalidates old connectivity and retains cached model choices without success
+ok 21 - missing CLI discovery invalidates old connectivity and retains cached model choices without success
+  ---
+  duration_ms: 25.7131
+  type: 'test'
+  ...
+# Subtest: successful catalog refresh after failure cannot revive a previous connectivity success
+ok 22 - successful catalog refresh after failure cannot revive a previous connectivity success
+  ---
+  duration_ms: 15.3504
+  type: 'test'
+  ...
+# Subtest: a fresh successful connection clears old detection errors but does not claim a refreshed model catalog
+ok 23 - a fresh successful connection clears old detection errors but does not claim a refreshed model catalog
+  ---
+  duration_ms: 10.2221
+  type: 'test'
+  ...
+# Subtest: changing a path or replacing its binary invalidates both full and quick success
+ok 24 - changing a path or replacing its binary invalidates both full and quick success
+  ---
+  duration_ms: 20.9932
+  type: 'test'
+  ...
+# Subtest: a late catalog result from a changed path cannot overwrite newer detection state
+ok 25 - a late catalog result from a changed path cannot overwrite newer detection state
+  ---
+  duration_ms: 13.3424
+  type: 'test'
+  ...
+# Subtest: cancelled connection tests replace older green results without claiming model unavailability
+ok 26 - cancelled connection tests replace older green results without claiming model unavailability
+  ---
+  duration_ms: 13.4157
+  type: 'test'
+  ...
+# Subtest: persisted legacy successes and a same-version binary at a different path require retesting
+ok 27 - persisted legacy successes and a same-version binary at a different path require retesting
+  ---
+  duration_ms: 17.4647
+  type: 'test'
+  ...
+# Subtest: same-millisecond failed or cancelled checks cannot be hidden by full-test success
+ok 28 - same-millisecond failed or cancelled checks cannot be hidden by full-test success
+  ---
+  duration_ms: 0.2733
+  type: 'test'
+  ...
+# Subtest: a connection test waits for pending catalog failure then records its own newer result
+ok 29 - a connection test waits for pending catalog failure then records its own newer result
+  ---
+  duration_ms: 9.1361
+  type: 'test'
+  ...
+# Subtest: paper-only calls disable plugin prefetch and shell snapshots for this process
+ok 30 - paper-only calls disable plugin prefetch and shell snapshots for this process
+  ---
+  duration_ms: 1.0562
+  type: 'test'
+  ...
+# Subtest: reasoning strength is sent as a validated per-run CLI override, never a prompt hint
+ok 31 - reasoning strength is sent as a validated per-run CLI override, never a prompt hint
+  ---
+  duration_ms: 0.9711
+  type: 'test'
+  ...
+# Subtest: Antigravity update opt-out reaches child only and preserves inherited environment
+ok 32 - Antigravity update opt-out reaches child only and preserves inherited environment
+  ---
+  duration_ms: 375.2348
+  type: 'test'
+  ...
+# Subtest: full stdin including long Chinese text reaches child while both pipes are drained
+ok 33 - full stdin including long Chinese text reaches child while both pipes are drained
+  ---
+  duration_ms: 216.2176
+  type: 'test'
+  ...
+# Subtest: arguments are separate values, read-only, and never use approval/sandbox bypass
+ok 34 - arguments are separate values, read-only, and never use approval/sandbox bypass
+  ---
+  duration_ms: 0.6821
+  type: 'test'
+  ...
+# Subtest: empty and oversized source inputs rejected without truncation
+ok 35 - empty and oversized source inputs rejected without truncation
+  ---
+  duration_ms: 0.6709
+  type: 'test'
+  ...
+# Subtest: nonzero exit is preserved and authentication failure is sanitized
+ok 36 - nonzero exit is preserved and authentication failure is sanitized
+  ---
+  duration_ms: 226.4829
+  type: 'test'
+  ...
+# Subtest: timeout terminates the native child and returns a specific error
+ok 37 - timeout terminates the native child and returns a specific error
+  ---
+  duration_ms: 263.0026
+  type: 'test'
+  ...
+# Subtest: user cancellation terminates an active native child
+ok 38 - user cancellation terminates an active native child
+  ---
+  duration_ms: 263.1768
+  type: 'test'
+  ...
+# Subtest: already cancelled call does not spawn anything
+ok 39 - already cancelled call does not spawn anything
+  ---
+  duration_ms: 0.5148
+  type: 'test'
+  ...
+# Subtest: error categories remain distinguishable without emitting raw diagnostics
+ok 40 - error categories remain distinguishable without emitting raw diagnostics
+  ---
+  duration_ms: 0.4634
+  type: 'test'
+  ...
+# Subtest: split JSON events and failure events are handled
+ok 41 - split JSON events and failure events are handled
+  ---
+  duration_ms: 0.1212
+  type: 'test'
+  ...
+# Subtest: an early failed child does not deadlock while stdin is being written
+ok 42 - an early failed child does not deadlock while stdin is being written
+  ---
+  duration_ms: 110.1753
+  type: 'test'
+  ...
+# Subtest: upload → queue → running → download; credentials sent only to official API
+ok 43 - upload → queue → running → download; credentials sent only to official API
+  ---
+  duration_ms: 6.484
+  type: 'test'
+  ...
+# Subtest: missing or malformed credentials fail before any network request
+ok 44 - missing or malformed credentials fail before any network request
+  ---
+  duration_ms: 1.0543
+  type: 'test'
+  ...
+# Subtest: invalid and expired token codes are explained without echoing remote secrets
+ok 45 - invalid and expired token codes are explained without echoing remote secrets
+  ---
+  duration_ms: 1.3394
+  type: 'test'
+  ...
+# Subtest: a previously uploaded job resumes without another upload
+ok 46 - a previously uploaded job resumes without another upload
+  ---
+  duration_ms: 0.8546
+  type: 'test'
+  ...
+# Subtest: transient poll errors are retried, allocation POST is not duplicated
+ok 47 - transient poll errors are retried, allocation POST is not duplicated
+  ---
+  duration_ms: 0.9863
+  type: 'test'
+  ...
+# Subtest: failed upload does not mark the job as uploaded
+ok 48 - failed upload does not mark the job as uploaded
+  ---
+  duration_ms: 0.4616
+  type: 'test'
+  ...
+# Subtest: cancellation before start has no network side effect
+ok 49 - cancellation before start has no network side effect
+  ---
+  duration_ms: 0.4454
+  type: 'test'
+  ...
+# Subtest: failed job and result identity mismatch are not treated as successful parses
+ok 50 - failed job and result identity mismatch are not treated as successful parses
+  ---
+  duration_ms: 1.4227
+  type: 'test'
+  ...
+# Subtest: empty and oversized PDFs are rejected before upload
+ok 51 - empty and oversized PDFs are rejected before upload
+  ---
+  duration_ms: 0.6801
+  type: 'test'
+  ...
+# Subtest: signed URL validation and zip path validation reject dangerous inputs
+ok 52 - signed URL validation and zip path validation reject dangerous inputs
+  ---
+  duration_ms: 1.4768
+  type: 'test'
+  ...
+# Subtest: cache reuse requires matching attachment, PDF hash, settings and complete state
+ok 53 - cache reuse requires matching attachment, PDF hash, settings and complete state
+  ---
+  duration_ms: 0.5043
+  type: 'test'
+  ...
+# Subtest: unknown task states and missing Markdown download URL fail explicitly
+ok 54 - unknown task states and missing Markdown download URL fail explicitly
+  ---
+  duration_ms: 1.9877
+  type: 'test'
+  ...
+# Subtest: Zotero manifest has mandatory fields and a secure reserved update address
+ok 55 - Zotero manifest has mandatory fields and a secure reserved update address
+  ---
+  duration_ms: 0.923
+  type: 'test'
+  ...
+# Subtest: reasoning levels follow each returned model and survive cached catalog normalization
+ok 56 - reasoning levels follow each returned model and survive cached catalog normalization
+  ---
+  duration_ms: 3.6853
+  type: 'test'
+  ...
+# Subtest: Antigravity slider maps only advertised variants and leaves ungrouped models intact
+ok 57 - Antigravity slider maps only advertised variants and leaves ungrouped models intact
+  ---
+  duration_ms: 1.6692
+  type: 'test'
+  ...
+# Subtest: availability belongs to an actually tested engine/model and expires on time or CLI changes
+ok 58 - availability belongs to an actually tested engine/model and expires on time or CLI changes
+  ---
+  duration_ms: 0.3949
+  type: 'test'
+  ...
+# Subtest: Codex catalogs use returned IDs and filter hidden, duplicate and non-text models
+ok 59 - Codex catalogs use returned IDs and filter hidden, duplicate and non-text models
+  ---
+  duration_ms: 0.2255
+  type: 'test'
+  ...
+# Subtest: Antigravity model parsing does not invent IDs from headings or log text
+ok 60 - Antigravity model parsing does not invent IDs from headings or log text
+  ---
+  duration_ms: 0.3957
+  type: 'test'
+  ...
+# Subtest: Antigravity arguments use stream stdin, schema and restricted session settings
+ok 61 - Antigravity arguments use stream stdin, schema and restricted session settings
+  ---
+  duration_ms: 0.2567
+  type: 'test'
+  ...
+# Subtest: Antigravity stream reader accepts one final result and rejects multiple turns
+ok 62 - Antigravity stream reader accepts one final result and rejects multiple turns
+  ---
+  duration_ms: 0.277
+  type: 'test'
+  ...
+# Subtest: editable template preferences cannot remove the fixed evidence and verification instructions
+ok 63 - editable template preferences cannot remove the fixed evidence and verification instructions
+  ---
+  duration_ms: 0.5596
+  type: 'test'
+  ...
+# Subtest: note naming validates placeholders and preserves draft status even if omitted or truncated
+ok 64 - note naming validates placeholders and preserves draft status even if omitted or truncated
+  ---
+  duration_ms: 19.4275
+  type: 'test'
+  ...
+# Subtest: edited Markdown is rendered as text and cannot inject HTML or JavaScript
+ok 65 - edited Markdown is rendered as text and cannot inject HTML or JavaScript
+  ---
+  duration_ms: 0.6506
+  type: 'test'
+  ...
+# Subtest: Codex model discovery follows handshake, pagination and visibility rules
+ok 66 - Codex model discovery follows handshake, pagination and visibility rules
+  ---
+  duration_ms: 0.6753
+  type: 'test'
+  ...
+# Subtest: note HTML escapes model and source content and keeps only controlled links
+ok 67 - note HTML escapes model and source content and keeps only controlled links
+  ---
+  duration_ms: 30.2655
+  type: 'test'
+  ...
+# Subtest: note front sections and claim attribution survive import into Zotero HTML
+ok 68 - note front sections and claim attribution survive import into Zotero HTML
+  ---
+  duration_ms: 0.7255
+  type: 'test'
+  ...
+# Subtest: note titles visibly distinguish checked, needs-review and incomplete drafts
+ok 69 - note titles visibly distinguish checked, needs-review and incomplete drafts
+  ---
+  duration_ms: 0.8415
+  type: 'test'
+  ...
+# Subtest: a local recomputation cannot upgrade a previously flagged workflow
+ok 70 - a local recomputation cannot upgrade a previously flagged workflow
+  ---
+  duration_ms: 0.4366
+  type: 'test'
+  ...
+# Subtest: same-run markers are role-specific and reject path-like identifiers
+ok 71 - same-run markers are role-specific and reject path-like identifiers
+  ---
+  duration_ms: 0.3489
+  type: 'test'
+  ...
+# Subtest: automatic capture is limited to newly added local PDFs while enabled
+ok 72 - automatic capture is limited to newly added local PDFs while enabled
+  ---
+  duration_ms: 0.1886
+  type: 'test'
+  ...
+# Subtest: duplicate add notifications do not enqueue repeated model runs
+ok 73 - duplicate add notifications do not enqueue repeated model runs
+  ---
+  duration_ms: 0.3168
+  type: 'test'
+  ...
+# Subtest: a growing or missing file remains pending until stable
+ok 74 - a growing or missing file remains pending until stable
+  ---
+  duration_ms: 0.2109
+  type: 'test'
+  ...
+# Subtest: FIFO queue respects pause, active work and disabled automatic processing
+ok 75 - FIFO queue respects pause, active work and disabled automatic processing
+  ---
+  duration_ms: 0.2378
+  type: 'test'
+  ...
+# Subtest: interrupted jobs are not silently rerun on restart
+ok 76 - interrupted jobs are not silently rerun on restart
+  ---
+  duration_ms: 0.4882
+  type: 'test'
+  ...
+# Subtest: settings have the automation checkbox and no separate note-save button
+ok 77 - settings have the automation checkbox and no separate note-save button
+  ---
+  duration_ms: 0.8185
+  type: 'test'
+  ...
+# Subtest: new notes require all three substantive front sections; legacy loading is explicit
+ok 78 - new notes require all three substantive front sections; legacy loading is explicit
+  ---
+  duration_ms: 8.0036
+  type: 'test'
+  ...
+# Subtest: publication analysis cannot be promoted to reported fact even when a verifier agrees
+ok 79 - publication analysis cannot be promoted to reported fact even when a verifier agrees
+  ---
+  duration_ms: 1.6114
+  type: 'test'
+  ...
+# Subtest: author explanations retain attribution and journal limits appear alongside publication analysis
+ok 80 - author explanations retain attribution and journal limits appear alongside publication analysis
+  ---
+  duration_ms: 2.8249
+  type: 'test'
+  ...
+# Subtest: two fixed templates and no free-question interface
+ok 81 - two fixed templates and no free-question interface
+  ---
+  duration_ms: 0.6838
+  type: 'test'
+  ...
+# Subtest: full source is partitioned without truncating scientific text
+ok 82 - full source is partitioned without truncating scientific text
+  ---
+  duration_ms: 0.3161
+  type: 'test'
+  ...
+# Subtest: verification receives original source and claims, not generator-proposed citations
+ok 83 - verification receives original source and claims, not generator-proposed citations
+  ---
+  duration_ms: 0.2003
+  type: 'test'
+  ...
+# Subtest: complete matched evidence and supported coverage are required for checked status
+ok 84 - complete matched evidence and supported coverage are required for checked status
+  ---
+  duration_ms: 0.257
+  type: 'test'
+  ...
+# Subtest: fabricated generator quotes cannot be rubber-stamped by verifier
+ok 85 - fabricated generator quotes cannot be rubber-stamped by verifier
+  ---
+  duration_ms: 0.2091
+  type: 'test'
+  ...
+# Subtest: fabricated verifier evidence and nonexistent paragraph IDs fail locally
+ok 86 - fabricated verifier evidence and nonexistent paragraph IDs fail locally
+  ---
+  duration_ms: 0.6441
+  type: 'test'
+  ...
+# Subtest: unsupported, contradicted, overstated, and uncertain claims never pass
+ok 87 - unsupported, contradicted, overstated, and uncertain claims never pass
+  ---
+  duration_ms: 0.9534
+  type: 'test'
+  ...
+# Subtest: duplicate, unknown, and omitted check identities cannot fake coverage
+ok 88 - duplicate, unknown, and omitted check identities cannot fake coverage
+  ---
+  duration_ms: 1.5583
+  type: 'test'
+  ...
+# Subtest: minor number detail does not block an otherwise supported note, but material omissions do
+ok 89 - minor number detail does not block an otherwise supported note, but material omissions do
+  ---
+  duration_ms: 1.9988
+  type: 'test'
+  ...
+# Subtest: not-reported entries still require explicit independent review
+ok 90 - not-reported entries still require explicit independent review
+  ---
+  duration_ms: 0.4696
+  type: 'test'
+  ...
+# Subtest: malformed or incomplete structured outputs are rejected
+ok 91 - malformed or incomplete structured outputs are rejected
+  ---
+  duration_ms: 1.2582
+  type: 'test'
+  ...
+# Subtest: not-reported label cannot hide an affirmative unsupported assertion
+ok 92 - not-reported label cannot hide an affirmative unsupported assertion
+  ---
+  duration_ms: 0.2399
+  type: 'test'
+  ...
+# Subtest: rendering distinguishes draft, checked, and needs-review artifacts without a separate report
+ok 93 - rendering distinguishes draft, checked, and needs-review artifacts without a separate report
+  ---
+  duration_ms: 0.6995
+  type: 'test'
+  ...
+# Subtest: repair requests preserve original source, draft and diagnostic feedback, then require a new check
+ok 94 - repair requests preserve original source, draft and diagnostic feedback, then require a new check
+  ---
+  duration_ms: 0.2979
+  type: 'test'
+  ...
+# Subtest: network interruption is distinct from failed content checks and offers resume beside disabled import
+ok 95 - network interruption is distinct from failed content checks and offers resume beside disabled import
+  ---
+  duration_ms: 68.3921
+  type: 'test'
+  ...
+# Subtest: resuming preserves the draft and run identity, uses the current checker and enables import only after success
+ok 96 - resuming preserves the draft and run identity, uses the current checker and enables import only after success
+  ---
+  duration_ms: 51.5691
+  type: 'test'
+  ...
+# Subtest: a repeated network failure retains the existing draft and a retryable incomplete status
+ok 97 - a repeated network failure retains the existing draft and a retryable incomplete status
+  ---
+  duration_ms: 52.5025
+  type: 'test'
+  ...
+# Subtest: cancelling a resumed check keeps import disabled and retains the retry action
+ok 98 - cancelling a resumed check keeps import disabled and retains the retry action
+  ---
+  duration_ms: 47.7864
+  type: 'test'
+  ...
+# Subtest: resuming can repair a retained draft and independently verify the correction
+ok 99 - resuming can repair a retained draft and independently verify the correction
+  ---
+  duration_ms: 79.0584
+  type: 'test'
+  ...
+# Subtest: changed main or supplemental source prevents stale resume before any model call
+ok 100 - changed main or supplemental source prevents stale resume before any model call
+  ---
+  duration_ms: 98.4202
+  type: 'test'
+  ...
+# Subtest: manual Markdown changes are preserved and refresh reveals the explicit manual import route
+ok 101 - manual Markdown changes are preserved and refresh reveals the explicit manual import route
+  ---
+  duration_ms: 48.4863
+  type: 'test'
+  ...
+# Subtest: saved receipt contains stable keys and hashes, with no local IDs or absolute paths
+ok 102 - saved receipt contains stable keys and hashes, with no local IDs or absolute paths
+  ---
+  duration_ms: 4.5588
+  type: 'test'
+  ...
+# Subtest: after confirmed import, reading files, owned runs and unused cache are removed but source PDF and note survive
+ok 103 - after confirmed import, reading files, owned runs and unused cache are removed but source PDF and note survive
+  ---
+  duration_ms: 85.2095
+  type: 'test'
+  ...
+# Subtest: unconfirmed imports, deleted notes and edited Markdown remain untouched
+ok 104 - unconfirmed imports, deleted notes and edited Markdown remain untouched
+  ---
+  duration_ms: 116.133
+  type: 'test'
+  ...
+# Subtest: cache still used by another unfinished reading is retained while imported result is cleaned
+ok 105 - cache still used by another unfinished reading is retained while imported result is cleaned
+  ---
+  duration_ms: 83.3042
+  type: 'test'
+  ...
+# Subtest: extra user files protect the reading directory, and extra cache files protect cache content
+ok 106 - extra user files protect the reading directory, and extra cache files protect cache content
+  ---
+  duration_ms: 116.059
+  type: 'test'
+  ...
+# Subtest: cleanup refuses links and targets outside the private data directory
+ok 107 - cleanup refuses links and targets outside the private data directory
+  ---
+  duration_ms: 50.2022
+  type: 'test'
+  ...
+# Subtest: cleanup failure does not undo the note and retry safely finishes remaining files
+ok 108 - cleanup failure does not undo the note and retry safely finishes remaining files
+  ---
+  duration_ms: 56.2523
+  type: 'test'
+  ...
+# Subtest: another computer with different local IDs and no local history finds synced notes and skips duplicate processing
+ok 109 - another computer with different local IDs and no local history finds synced notes and skips duplicate processing
+  ---
+  duration_ms: 28.743
+  type: 'test'
+  ...
+# Subtest: legacy synced notes remain discoverable without claiming their PDF version was verified
+ok 110 - legacy synced notes remain discoverable without claiming their PDF version was verified
+  ---
+  duration_ms: 23.7622
+  type: 'test'
+  ...
+# Subtest: manual cleanup waits for an in-flight note transaction
+ok 111 - manual cleanup waits for an in-flight note transaction
+  ---
+  duration_ms: 23.8103
+  type: 'test'
+  ...
+# Subtest: Wiki frontmatter and note title share author/year/title and stable Zotero identity
+ok 112 - Wiki frontmatter and note title share author/year/title and stable Zotero identity
+  ---
+  duration_ms: 23.1901
+  type: 'test'
+  ...
+# Subtest: draft exports cannot claim verification, custom titles persist, and local identity is explicit
+ok 113 - draft exports cannot claim verification, custom titles persist, and local identity is explicit
+  ---
+  duration_ms: 3.7953
+  type: 'test'
+  ...
+# Subtest: quick testing selects only advertised low effort and never mutates the reading configuration
+ok 114 - quick testing selects only advertised low effort and never mutates the reading configuration
+  ---
+  duration_ms: 1.5638
+  type: 'test'
+  ...
+# Subtest: the latest quick result is not hidden by an older full-configuration success
+ok 115 - the latest quick result is not hidden by an older full-configuration success
+  ---
+  duration_ms: 0.2834
+  type: 'test'
+  ...
+# Subtest: a timed-out request is shown as unconfirmed rather than a proved-unavailable model
+ok 116 - a timed-out request is shown as unconfirmed rather than a proved-unavailable model
+  ---
+  duration_ms: 0.222
+  type: 'test'
+  ...
+1..116
+# tests 116
+# suites 0
+# pass 116
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1798.6245

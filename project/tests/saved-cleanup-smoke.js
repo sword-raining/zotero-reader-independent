@@ -25,12 +25,12 @@
     return {id,dir,path,w,cacheBase,call};
   };
   let first,result,note;
-  await check('successful native note transaction precedes cleanup and leaves PDF and quoted evidence intact',async()=>{
+  await check('successful native note transaction preserves the reading and PDF link, omits the evidence appendix, then cleans cache',async()=>{
     first=await create();result=await notes.save(first.path,att);note=await Zotero.Items.getAsync(result.notes.reading.id);
     assert(result.cleanup?.state==='done',result.cleanup?.message||'cleanup not complete');
     assert(!await IOUtils.exists(first.dir)&&!await IOUtils.exists(first.cacheBase)&&!await IOUtils.exists(first.call),'private temporary content remains');
     assert(await app.sha256(att.attachmentPath)===originalHash,'original PDF changed');
-    assert(note.getNote().includes('原文依据')&&note.getNote().includes('twenty four independent field sites'),'saved quote missing');
+    assert(!note.getNote().includes('<h2>原文依据</h2>')&&!note.getNote().includes('twenty four independent field sites'),'evidence appendix remains');assert(note.getNote().includes('合成材料报告二十四个独立样地')&&note.getNote().includes('zotero://open-pdf/library/items/'+att.key),'reading body or source link missing');
     assert(S.read(note.getNote())?.inputs[0].sha256===originalHash,'portable receipt missing');
     const again=await notes.save(first.path,att);assert(again.notes.reading.id===note.id&&again.notes.reading.reused,'reimport duplicated a cleaned result');
   });
@@ -83,5 +83,5 @@
     try{const job=auto.state.jobs[queued.members[0].id],r=await auto.execute(job);assert(r.skipped&&r.notes.reading.key,'synced note was not reused after download');job.state='done';job.notes=r.notes;}
     finally{app.parseAttachment=parse;}
   });
-  await app.writeJSON(out,{completed:true,tests,modelRequests:0,personalLibraryTouched:false});
+  await app.writeJSON(out,{completed:true,tests,modelRequests:0,personalLibraryTouched:false,pluginVersion:(await app.readJSON(PathUtils.join(root,'fixture-config.json'))).pluginVersion,zoteroVersion:Zotero.version});
 })().catch(async e=>{await IOUtils.writeUTF8(PathUtils.join(PathUtils.profileDir,'saved-cleanup-fatal.json'),JSON.stringify({error:String(e),stack:e.stack}));}).finally(()=>Services.startup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit));

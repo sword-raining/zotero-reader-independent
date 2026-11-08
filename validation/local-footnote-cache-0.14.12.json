@@ -1,0 +1,16 @@
+{
+  "version": "0.14.12",
+  "date": "2026-11-08",
+  "scope": "Read-only assembly of the user-identified existing local cache; no model or library writes",
+  "pdfSHA256": "a25587e6a431f99386ae901f4bbcb60197e9d4b374d33213c238511b3daeaa83",
+  "addedFootnotes": 1,
+  "footnotePages": [
+    1
+  ],
+  "affiliationMarkersBefore": 0,
+  "affiliationMarkersAfter": 5,
+  "originalFootnoteTextPreserved": true,
+  "cacheFilesUnchanged": true,
+  "modelRequests": 0,
+  "existingDraftChanged": false
+}

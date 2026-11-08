@@ -1,0 +1,30 @@
+{
+  "version": "0.14.10",
+  "scope": "Saved-note archive confirmation only",
+  "beforeEvidence": "User screenshot inspected; footer absent in crop, old completion restriction confirmed from source",
+  "steps": [
+    {
+      "step": 1,
+      "title": "查看已有归属和推荐",
+      "health": "Verified",
+      "screenshot": "screenshots-0.14.10/00-ready.png",
+      "finding": "已加入项没有新增勾选框；新增和建议移出均默认不选。"
+    },
+    {
+      "step": 2,
+      "title": "选择新增或调整",
+      "health": "Verified",
+      "screenshot": "screenshots-0.14.10/04-adjustment-plan.png",
+      "finding": "选择只影响预览；底部显示新增、移出及保留，确认后才写入。"
+    },
+    {
+      "step": 3,
+      "title": "确认完成或仅退出待处理",
+      "health": "Verified",
+      "screenshot": "screenshots-0.14.10/05-remove-intake-only.png",
+      "finding": "已有归属合适时无需新增；仅移出待处理保留其他分类，确认后关闭或进入下一篇。"
+    }
+  ],
+  "accessibility": "Native labels and explicit full-path aria-labels; fixed footer visible at tested 880px width and 768/960px heights. No full keyboard/screen-reader or all-scale certification.",
+  "limits": "Synthetic data and mocked model; recommendation quality on real papers not evaluated."
+}

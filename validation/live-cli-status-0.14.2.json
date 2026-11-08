@@ -1,0 +1,231 @@
+{
+  "completed": true,
+  "pluginVersion": "0.14.2",
+  "zoteroVersion": "10.0.8",
+  "startedAt": "2026-11-07T05:26:35.330Z",
+  "documentRequests": 0,
+  "channels": [
+    {
+      "engine": "codex",
+      "phase": "complete",
+      "status": "passed",
+      "version": "codex-cli 0.167.0-alpha.3.2",
+      "models": [
+        {
+          "id": "gpt-6.1-sol",
+          "label": "GPT-6.1-Sol",
+          "isDefault": true,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "low"
+        },
+        {
+          "id": "gpt-6-astra",
+          "label": "GPT-6-Astra",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-6.1-terra",
+          "label": "GPT-6.1 Terra",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "low"
+        },
+        {
+          "id": "gpt-6-sol",
+          "label": "GPT-6-Sol",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-6-luna",
+          "label": "GPT-6-Luna",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "label": "GPT-5.6-Sol",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "low"
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "label": "GPT-5.6-Terra",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "label": "GPT-5.6-Luna",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "defaultEffort": "medium"
+        }
+      ],
+      "catalogSource": "model/list",
+      "testedStage": {
+        "engine": "codex",
+        "model": "",
+        "effort": ""
+      },
+      "connection": {
+        "success": true,
+        "mode": "quick",
+        "durationMs": 25301,
+        "answer": "ZRI_OK"
+      },
+      "executableName": "codex.exe"
+    },
+    {
+      "engine": "antigravity",
+      "phase": "complete",
+      "status": "passed",
+      "version": "Antigravity CLI 1.5.2",
+      "models": [
+        {
+          "id": "gemini-4-argon-medium",
+          "label": "Gemini 4 Argon (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-4-argon-high",
+          "label": "Gemini 4 Argon (High)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-4-argon-low",
+          "label": "Gemini 4 Argon (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-3.8-flash-high",
+          "label": "Gemini 3.8 Flash (High)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-3.8-flash-medium",
+          "label": "Gemini 3.8 Flash (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-3.8-flash-low",
+          "label": "Gemini 3.8 Flash (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-opus-5-5-low",
+          "label": "Claude Opus 5.5 (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-opus-5-5-medium",
+          "label": "Claude Opus 5.5 (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-opus-5-5-high",
+          "label": "Claude Opus 5.5 (High)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-sonnet-5-5-low",
+          "label": "Claude Sonnet 5.5 (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-sonnet-5-5-medium",
+          "label": "Claude Sonnet 5.5 (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-sonnet-5-5-high",
+          "label": "Claude Sonnet 5.5 (High)",
+          "isDefault": false
+        },
+        {
+          "id": "gpt-oss-120b-medium",
+          "label": "GPT-OSS 120B (Medium)",
+          "isDefault": false
+        }
+      ],
+      "catalogSource": "agy models",
+      "testedStage": {
+        "engine": "antigravity",
+        "model": "",
+        "effort": ""
+      },
+      "connection": {
+        "success": true,
+        "mode": "quick",
+        "durationMs": 19821,
+        "answer": "ZRI_OK"
+      },
+      "executableName": "agy.exe"
+    }
+  ],
+  "completedAt": "2026-11-07T05:27:26.572Z",
+  "personalLibraryTouched": false,
+  "testedPackageSHA256": "5816ef01b726de591ad6d88c55cd7cd1652b609c8653881722cd62f9fbb732df",
+  "packageCodeVerified": true,
+  "scope": "Actual installed CLIs, actual model catalogs, one default-stage fixed short-text ping per channel. No paper or PDF content sent; other models/efforts not individually tested."
+}

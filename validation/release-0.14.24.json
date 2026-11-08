@@ -1,0 +1,101 @@
+{
+  "version": "0.14.24",
+  "date": "2026-11-09",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Source and verified XPI included in private-repository publication; not installed",
+  "automated": {
+    "version": "0.14.24",
+    "passed": 270,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "288a8800a646575e7e949480b53d578eaa2f3617501fe4e524148c043cb5a7db",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "settingsUI": 6,
+    "failed": 0,
+    "syntheticData": true,
+    "productionMatchesFixtures": true
+  },
+  "layout": {
+    "version": "0.14.24",
+    "date": "2026-11-09",
+    "before": [
+      {
+        "requestedWidth": 1200,
+        "actualWidth": 1200,
+        "cardWidth": 792,
+        "cardHeight": 628.5499877929688,
+        "papersWidth": 364,
+        "repairsWidth": 364,
+        "inputTopDifference": 0,
+        "horizontalOverflow": 0
+      },
+      {
+        "requestedWidth": 920,
+        "actualWidth": 920,
+        "cardWidth": 690,
+        "cardHeight": 650,
+        "papersWidth": 313,
+        "repairsWidth": 313,
+        "inputTopDifference": 0,
+        "horizontalOverflow": 0
+      },
+      {
+        "requestedWidth": 700,
+        "actualWidth": 800,
+        "cardWidth": 570,
+        "cardHeight": 671.4500122070312,
+        "papersWidth": 253,
+        "repairsWidth": 253,
+        "inputTopDifference": 0,
+        "horizontalOverflow": 0
+      }
+    ],
+    "after": [
+      {
+        "requestedWidth": 1200,
+        "actualWidth": 1200,
+        "cardWidth": 792,
+        "cardHeight": 374,
+        "papersWidth": 72,
+        "repairsWidth": 72,
+        "inputTopDifference": 0,
+        "horizontalOverflow": 0
+      },
+      {
+        "requestedWidth": 920,
+        "actualWidth": 920,
+        "cardWidth": 690,
+        "cardHeight": 393.5,
+        "papersWidth": 72,
+        "repairsWidth": 72,
+        "inputTopDifference": 0,
+        "horizontalOverflow": 0
+      },
+      {
+        "requestedWidth": 700,
+        "actualWidth": 800,
+        "cardWidth": 570,
+        "cardHeight": 413,
+        "papersWidth": 72,
+        "repairsWidth": 72,
+        "inputTopDifference": 0,
+        "horizontalOverflow": 0
+      }
+    ],
+    "wideCardHeightReductionPercent": 40.5,
+    "narrowPanelCSSWidth": 410,
+    "narrowPanelOverflow": false,
+    "zoomProbeExecuted": false,
+    "source": "Native isolated Zotero screenshots and getBoundingClientRect measurements",
+    "personalLibraryTouched": false
+  },
+  "realModelRequests": 0,
+  "personalLibraryWritten": false,
+  "packageFiles": 35,
+  "xpiSHA256": "288a8800a646575e7e949480b53d578eaa2f3617501fe4e524148c043cb5a7db"
+}

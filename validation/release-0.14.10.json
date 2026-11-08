@@ -1,0 +1,28 @@
+{
+  "version": "0.14.10",
+  "date": "2026-11-08",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build; not installed or pushed",
+  "automated": {
+    "version": "0.14.10",
+    "passed": 183,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "b992e4a9d71fa47a096fe130d67a9caa564d860af2708d7b10a394546dadc8bf",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "archive": 15,
+    "workflow": 8,
+    "failed": 0,
+    "syntheticData": true,
+    "productionMatchesFixtures": true
+  },
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "packageFiles": 33,
+  "xpiSHA256": "b992e4a9d71fa47a096fe130d67a9caa564d860af2708d7b10a394546dadc8bf"
+}

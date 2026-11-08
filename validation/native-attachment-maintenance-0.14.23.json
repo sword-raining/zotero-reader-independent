@@ -1,0 +1,57 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "the native one-click cleanup keeps the annotated referenced copy and trashes only empty exact duplicates",
+      "ok": true
+    },
+    {
+      "name": "trashed duplicates remain recoverable with original PDF bytes intact",
+      "ok": true
+    },
+    {
+      "name": "mismatched content is detected despite a misleading filename, excluded from main selection and blocked at reading input",
+      "ok": true
+    },
+    {
+      "name": "the native repair button moves the annotated source and exclusive note, while recycling the empty target duplicate",
+      "ok": true
+    },
+    {
+      "name": "an unannotated wrong-parent duplicate is recycled directly when the correct target already contains identical bytes",
+      "ok": true
+    },
+    {
+      "name": "different versions and two annotated copies remain intact after parent repair",
+      "ok": true
+    },
+    {
+      "name": "ambiguous targets and local task references are kept with an explanation",
+      "ok": true
+    },
+    {
+      "name": "a failed native move-and-trash transaction restores attachment and note parents plus the target copy",
+      "ok": true
+    },
+    {
+      "name": "all original PDFs and annotation bodies are unchanged and no remote work was requested",
+      "ok": true
+    },
+    {
+      "name": "the native Trash and library views remain usable after attachment notifications",
+      "ok": true
+    }
+  ],
+  "shots": [
+    "01-duplicates-cleaned.png",
+    "02-parent-plan.png",
+    "03-repaired.png"
+  ],
+  "realModelRequests": 0,
+  "cloudParsingRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "nativeTransactions": true,
+  "pluginVersion": "0.14.23",
+  "zoteroVersion": "10.0.8"
+}

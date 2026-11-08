@@ -12,17 +12,20 @@
     <html:section class="zr-card">
     <html:div class="zr-batch-options">
       <html:label for="zrb-template">统一模板</html:label>
-      <menulist id="zrb-template" aria-label="统一模板" class="zr-select" native="true"><menupopup><menuitem value="ecology" label="生态与土壤微生物精读"/><menuitem value="general" label="通用论文精读"/></menupopup></menulist>
-      <html:label><html:input id="zrb-skip" type="checkbox" checked="checked"/> 跳过已处理且所选资料未变化的文献</html:label>
+      <menulist id="zrb-template" aria-label="统一模板" class="zr-select" native="true"><menupopup><menuitem value="general" label="论文精读（统一模板）"/></menupopup></menulist>
+      <html:label><html:input id="zrb-skip" type="checkbox" checked="checked"/> 跳过已有精读结果（所选资料未变化）</html:label>
+      <html:label><html:input id="zrb-skip-chinese" type="checkbox" checked="checked"/> 跳过中文论文（按 Zotero 语言字段）</html:label>
     </html:div>
-    <html:details class="zr-details"><html:summary>附件处理说明</html:summary>不需要开启自动精读。默认只读正文；需要时勾选补充材料，合并生成一篇笔记，并区分依据来源。内容完全相同的 PDF 只读一次，不删除原附件。文件名仅辅助判断，多个不同正文版本需手动选择。未下载的附件需先在 Zotero 中下载。已在队列中的文献沿用原选择，需停止原任务后才能更换。</html:details>
+    <html:details class="zr-details"><html:summary>附件处理说明</html:summary>不需要开启自动精读。语言为 zh、zh-CN、中文等的文献默认跳过；en 为英文，语言为空或未识别时会提示核对，不依据中文笔记判断。取消“跳过中文论文”可将中文加入本批。已有精读结果指本插件可识别的结果，普通手写笔记不会被当成已精读；原笔记不会覆盖。默认只读正文；需要时勾选补充材料，合并生成一篇笔记，并区分依据来源。内容完全相同的 PDF 只读一次，不删除原附件。优先利用本地 PDF 文本和已有解析结果识别附件；多个正文版本自动优先选已发表版本，同级选择一份，可手动改选。补充材料只做附件识别，未勾选不送入精读。未下载的附件需先在 Zotero 中下载。已在队列中的文献沿用原选择，需停止原任务后才能更换。</html:details>
+    <html:details id="zrb-maintenance" class="zr-details" hidden="hidden" open="open"><html:summary id="zrb-maintenance-summary">附件整理</html:summary><html:p class="zr-caption">只整理本批勾选文献。同篇内容完全相同的副本移入回收站，不永久删除；带批注、笔记引用或任务引用的副本保留。题录修复仅采用首页 DOI 唯一匹配的已有题录，目标显示在对应 PDF 下；迁移保留原文件、附件 key、批注及专属笔记，不改分类。目标已有相同内容时，优先保留有批注/引用的一份，空副本移入回收站；不同版本不当重复，两份都带保护信息时均保留。</html:p><html:div class="zr-row"><html:button id="zrb-clean-duplicates">一键清理重复 PDF</html:button><html:button id="zrb-repair-parents">一键修复已确认归属</html:button></html:div></html:details>
     <html:div class="zr-row">
       <html:button id="zrb-all" class="zr-quiet">全选可处理项</html:button><html:button id="zrb-none" class="zr-quiet">全不选</html:button>
     </html:div>
+    <html:p id="zrb-selection-hint" class="zr-caption" role="status" aria-live="polite" hidden="hidden"/>
     <html:div id="zrb-list" class="zr-batch-list"/></html:section>
     <html:div class="zr-actions">
       <html:button id="zrb-start" class="zr-primary">加入精读队列</html:button>
-      <html:button id="zrb-pause">暂停队列</html:button>
+      <html:button id="zrb-pause">开始</html:button>
       <html:button id="zrb-stop" class="zr-quiet zr-danger" disabled="disabled">停止本批次</html:button>
     </html:div>
     <html:div id="zrb-status" class="zr-status" role="status" aria-live="polite"/>

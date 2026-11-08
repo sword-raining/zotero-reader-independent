@@ -1,0 +1,61 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "selecting and enabling a collection does not scan existing papers",
+      "ok": true
+    },
+    {
+      "name": "actual collection-item add events capture an existing paper and its synced PDF once",
+      "ok": true
+    },
+    {
+      "name": "a new PDF added after its parent is in scope triggers automatically",
+      "ok": true
+    },
+    {
+      "name": "siblings and child collections are excluded and supplemental PDFs stay unqueued",
+      "ok": true
+    },
+    {
+      "name": "server-style synced membership additions do not trigger reading",
+      "ok": true
+    },
+    {
+      "name": "moving a queued paper out cancels it before parsing, and reentry safely queues one attempt",
+      "ok": true
+    },
+    {
+      "name": "switching the watched folder cancels pending automatic work without backfilling the new folder",
+      "ok": true
+    },
+    {
+      "name": "native folder picker lists the synthetic collection and enable control stays one line at narrow widths",
+      "ok": true
+    }
+  ],
+  "layout": [
+    {
+      "width": 760,
+      "textLines": 1,
+      "labelWidth": 54
+    },
+    {
+      "width": 520,
+      "textLines": 1,
+      "labelWidth": 54
+    },
+    {
+      "width": 340,
+      "textLines": 1,
+      "labelWidth": 54
+    }
+  ],
+  "zoteroVersion": "10.0.8",
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "syntheticItems": true,
+  "headless": true,
+  "pluginVersion": "0.14.3",
+  "scope": "Synthetic collections/items; actual Zotero Notifier and native settings layout. No real model calls."
+}

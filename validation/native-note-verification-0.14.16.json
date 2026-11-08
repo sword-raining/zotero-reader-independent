@@ -1,0 +1,122 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "old cached Markdown is enriched read-only and duplicate format copies are emitted once",
+      "ok": true
+    },
+    {
+      "name": "automatic intake supplies footnotes to generation, review, repair and re-review without parsing again",
+      "ok": true
+    },
+    {
+      "name": "selected supplement footnotes are included only on explicit selection with separate source IDs",
+      "ok": true
+    },
+    {
+      "name": "the direct reader path also uses the enriched input from the same cache",
+      "ok": true
+    },
+    {
+      "name": "same-size corrupt structured data stops before any model invocation",
+      "ok": true
+    },
+    {
+      "name": "saved note keeps recovered affiliations and the PDF link without an evidence appendix",
+      "ok": true
+    }
+  ],
+  "simulatedModelCalls": 12,
+  "modelStages": [
+    {
+      "stage": "generation",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "verification",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "correction",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "verification",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "generation",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": true,
+      "evidenceID": "M-P0003"
+    },
+    {
+      "stage": "verification",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": true,
+      "evidenceID": "M-P0003"
+    },
+    {
+      "stage": "correction",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": true,
+      "evidenceID": "M-P0003"
+    },
+    {
+      "stage": "verification",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": true,
+      "evidenceID": "M-P0003"
+    },
+    {
+      "stage": "generation",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "verification",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "correction",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    },
+    {
+      "stage": "verification",
+      "footnotePresent": true,
+      "footnoteCopies": 1,
+      "hasSupplement": false,
+      "evidenceID": "P0003"
+    }
+  ],
+  "networkRequests": 0,
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.16",
+  "zoteroVersion": "10.0.8"
+}

@@ -1,0 +1,71 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "an active check opens with its full title and live progress instead of stale needs-review actions",
+      "ok": true
+    },
+    {
+      "name": "completion updates the already-open viewer and shows the exact issue and matching source quote",
+      "ok": true
+    },
+    {
+      "name": "unfinished current reading cannot be archived even if an old suggestion exists",
+      "ok": true
+    },
+    {
+      "name": "explicit automatic repair works when background auto-repair is off and performs one whole-paper check per round",
+      "ok": true
+    },
+    {
+      "name": "import button creates the checked child note and turns into View Note without a model call",
+      "ok": true
+    },
+    {
+      "name": "in-window draft edits refuse to overwrite an external change",
+      "ok": true
+    },
+    {
+      "name": "saved manual changes offer an explicitly unverified manual import route",
+      "ok": true
+    },
+    {
+      "name": "primary controls remain inside a narrow reader viewport",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "02-checking.png",
+      "width": 1120,
+      "height": 840
+    },
+    {
+      "name": "03-needs-review.png",
+      "width": 1120,
+      "height": 840
+    },
+    {
+      "name": "04-ready-to-import.png",
+      "width": 1120,
+      "height": 840
+    },
+    {
+      "name": "05-saved.png",
+      "width": 1120,
+      "height": 840
+    },
+    {
+      "name": "06-narrow-saved.png",
+      "width": 700,
+      "height": 760
+    }
+  ],
+  "modelCalls": 3,
+  "repairCalls": 1,
+  "realModelRequests": 0,
+  "zoteroVersion": "10.0.8",
+  "pluginVersion": "0.14.5",
+  "personalLibraryTouched": false,
+  "headless": true
+}

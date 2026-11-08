@@ -1,0 +1,51 @@
+{
+  "version": "0.14.5",
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build; not installed in personal Zotero or pushed.",
+  "changes": [
+    "Guided reading/check/repair/import state transitions with live worker synchronization",
+    "Concrete issue reasons and matched source text; full title and folded bibliography",
+    "Conflict-safe in-window draft editing and explicit manual import status",
+    "No intra-paper parallelism; concurrent papers retained",
+    "Explicit auto-repair toggle and robust default count semantics",
+    "Current-run completion and saved-note identity required before archive; durable confirmation intent before mutation"
+  ],
+  "automated": {
+    "version": "0.14.5",
+    "passed": 147,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "220f59a83f8e19fd9ae7f1a9de5acf144a6dc790484da73098a3fde65709f422",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "readerUI": {
+      "passed": 8,
+      "failed": 0,
+      "record": "native-reader-ui-0.14.5.json"
+    },
+    "workflow": {
+      "passed": 8,
+      "failed": 0,
+      "record": "native-workflow-0.14.5.json"
+    },
+    "zotero": "10.0.8",
+    "productionPackageMatchedBothFixtures": true,
+    "syntheticData": true,
+    "realModelRequests": 0
+  },
+  "audit": "ui-audit-0.14.5.json",
+  "authorizedUserLibraryAction": "One existing item was added back to the requested intake collection after explicit confirmation; all existing memberships and draft were preserved. No real paper was reprocessed.",
+  "notVerified": [
+    "Prior unexplained collection-removal actor (no confirmation record available)",
+    "Real-paper quality/latency",
+    "Real two-computer synchronization",
+    "Full accessibility or all-platform/zoom coverage"
+  ],
+  "xpiSHA256": "220f59a83f8e19fd9ae7f1a9de5acf144a6dc790484da73098a3fde65709f422",
+  "packageFiles": 32
+}

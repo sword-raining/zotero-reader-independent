@@ -39,29 +39,29 @@ var BibliographyCore;
     const entries=info?.find(x=>x.key===key)?.entries||[];
     return entries.map(e=>{
       const check=assessment?.checks?.find(c=>c.entry_id===e.id);
-      return (check&&!check.passed?"【待核实】":"")+clean(e.text);
+      return (check&&!check.passed?"【待核实】":"")+(e.kind==="not_reported"?"未明确标注":clean(e.text));
     }).join("；");
   }
   function rows(record={},info,assessment){
     if(!info&&!record.schema)return [];
-    const metrics=record.metrics||{},title=record.title||field(info,"title",assessment)||record.attachmentTitle||"未提供";
-    const authorText=record.authors?.length?record.authors.join("；"):field(info,"authors",assessment)||"未提供";
+    const metrics=record.metrics||{},title=(info?field(info,"title",assessment):record.title||record.attachmentTitle)||"未明确标注";
+    const authorText=(info?field(info,"authors",assessment):record.authors?.join("；"))||"未明确标注";
     const issue=[record.volume&&record.volume+"卷",record.issue&&record.issue+"期",record.pages].filter(Boolean).join("，");
     const sourceLabel=metrics.source||"Zotero 条目已有记录（Zotero One 字段）";
     return [
       ["题目",title],["作者",authorText],
-      ["作者单位",field(info,"affiliations",assessment)||"解析文本未提供"],
-      ["通讯作者",field(info,"correspondence",assessment)||"解析文本未提供；不按作者顺序猜测"],
-      ["期刊",record.journal||"Zotero 题录未提供"],["发表日期",record.date||"Zotero 题录未提供"],
-      ...(issue?[["卷期与页码/文章号",issue]]:[]),["DOI",record.doi||"Zotero 题录未提供"],
-      ["影响因子",metrics.impactFactor||"条目未提供，可先用 Zotero One 更新"],
-      ["JCR 分区",metrics.jcrQuartile||"条目未提供"],
-      ["中科院分区 / CCF",metrics.casDivision||(metrics.ccf?"CCF "+metrics.ccf:metrics.rawRank||"条目未提供")],
-      ["指标年份",metrics.year||"条目未记录"],
+      ["作者单位",field(info,"affiliations",assessment)||"未明确标注"],
+      ["通讯作者",field(info,"correspondence",assessment)||"未明确标注"],
+      ["期刊",record.journal||"Zotero未记录"],["发表日期",record.date||"Zotero未记录"],
+      ...(issue?[["卷期与页码/文章号",issue]]:[]),["DOI",record.doi||"Zotero未记录"],
+      ["影响因子",metrics.impactFactor||"Zotero未记录"],
+      ["JCR 分区",metrics.jcrQuartile||"Zotero未记录"],
+      ["中科院分区 / CCF",metrics.casDivision||(metrics.ccf?"CCF "+metrics.ccf:metrics.rawRank||"Zotero未记录")],
+      ["指标年份",metrics.year||"Zotero未记录"],
       ["指标来源",sourceLabel+"；读取文库编目/索书号，不额外联网查询"],
     ];
   }
-  const sourceNotice="题录优先读取 Zotero，缺失时采用有依据的正文信息；作者单位及通讯作者依据解析文本提取。期刊指标保留条目已有记录。";
+  const sourceNotice="题目、作者及单位等依据正文；期刊、发表日期、DOI 和期刊指标沿用 Zotero 已有记录。";
   function markdown(record,info,assessment){
     const values=rows(record,info,assessment);if(!values.length)return "";
     return ["## 文献信息","",...values.map(([label,value])=>`- ${label}：${value}`),"",sourceNotice,""].join("\n");

@@ -1,0 +1,74 @@
+{
+  "version": "0.14.24",
+  "date": "2026-11-09",
+  "before": [
+    {
+      "requestedWidth": 1200,
+      "actualWidth": 1200,
+      "cardWidth": 792,
+      "cardHeight": 628.5499877929688,
+      "papersWidth": 364,
+      "repairsWidth": 364,
+      "inputTopDifference": 0,
+      "horizontalOverflow": 0
+    },
+    {
+      "requestedWidth": 920,
+      "actualWidth": 920,
+      "cardWidth": 690,
+      "cardHeight": 650,
+      "papersWidth": 313,
+      "repairsWidth": 313,
+      "inputTopDifference": 0,
+      "horizontalOverflow": 0
+    },
+    {
+      "requestedWidth": 700,
+      "actualWidth": 800,
+      "cardWidth": 570,
+      "cardHeight": 671.4500122070312,
+      "papersWidth": 253,
+      "repairsWidth": 253,
+      "inputTopDifference": 0,
+      "horizontalOverflow": 0
+    }
+  ],
+  "after": [
+    {
+      "requestedWidth": 1200,
+      "actualWidth": 1200,
+      "cardWidth": 792,
+      "cardHeight": 374,
+      "papersWidth": 72,
+      "repairsWidth": 72,
+      "inputTopDifference": 0,
+      "horizontalOverflow": 0
+    },
+    {
+      "requestedWidth": 920,
+      "actualWidth": 920,
+      "cardWidth": 690,
+      "cardHeight": 393.5,
+      "papersWidth": 72,
+      "repairsWidth": 72,
+      "inputTopDifference": 0,
+      "horizontalOverflow": 0
+    },
+    {
+      "requestedWidth": 700,
+      "actualWidth": 800,
+      "cardWidth": 570,
+      "cardHeight": 413,
+      "papersWidth": 72,
+      "repairsWidth": 72,
+      "inputTopDifference": 0,
+      "horizontalOverflow": 0
+    }
+  ],
+  "wideCardHeightReductionPercent": 40.5,
+  "narrowPanelCSSWidth": 410,
+  "narrowPanelOverflow": false,
+  "zoomProbeExecuted": false,
+  "source": "Native isolated Zotero screenshots and getBoundingClientRect measurements",
+  "personalLibraryTouched": false
+}

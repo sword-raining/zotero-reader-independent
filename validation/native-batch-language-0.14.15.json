@@ -1,0 +1,48 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "batch preview shows Zotero language and excludes known Chinese by default",
+      "ok": true
+    },
+    {
+      "name": "unchecking the option includes Chinese and selecting all still honors the active filter",
+      "ok": true
+    },
+    {
+      "name": "batch skips identified saved readings, preserves handwritten notes and queues only eligible papers",
+      "ok": true
+    },
+    {
+      "name": "explicit Chinese opt-in works without interrupting a task already in the queue",
+      "ok": true
+    },
+    {
+      "name": "admission reads current metadata rather than trusting a stale preview",
+      "ok": true
+    },
+    {
+      "name": "a queued paper newly marked Chinese is skipped before parsing or model calls",
+      "ok": true
+    },
+    {
+      "name": "the next batch resets the Chinese default and no paper, language or note is modified by filtering",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "01-default-language-filter.png",
+      "width": 1040,
+      "height": 960
+    }
+  ],
+  "realModelRequests": 0,
+  "parseRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.15",
+  "zoteroVersion": "10.0.8",
+  "languageSource": "Zotero item language; no inference from titles or notes",
+  "scope": "Batch admission and execution only; single manual reads and automatic intake unchanged"
+}

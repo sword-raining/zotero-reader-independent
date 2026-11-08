@@ -1,0 +1,30 @@
+{
+  "version": "0.14.19",
+  "date": "2026-11-08",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build; GitHub upload deferred by user; not installed",
+  "automated": {
+    "version": "0.14.19",
+    "passed": 231,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "3afd6a68ae0c28296be21310888b0c949601751dfecc2d59b9cc77aef413f4cc",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "bulkResume": 6,
+    "cancelResume": 5,
+    "bulkSave": 7,
+    "failed": 0,
+    "syntheticData": true,
+    "productionMatchesFixtures": true
+  },
+  "realModelRequests": 0,
+  "personalLibraryWritten": false,
+  "realTasksRestarted": false,
+  "packageFiles": 34,
+  "xpiSHA256": "3afd6a68ae0c28296be21310888b0c949601751dfecc2d59b9cc77aef413f4cc"
+}

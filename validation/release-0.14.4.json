@@ -1,0 +1,49 @@
+{
+  "version": "0.14.4",
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build only; not installed in personal Zotero or pushed.",
+  "changes": [
+    "Single user-supplied full-reading template with legacy workflow compatibility",
+    "Full-source/all-claim verification with concise exceptions and required complete coverage IDs",
+    "Independent paper workers and bounded grouped verification; configurable repair limit",
+    "Direct per-task resume/view/stop actions, including manual further repair cycles",
+    "1800-character paragraph/quote compatibility fix",
+    "Default bilingual MinerU ch language pack with advanced override",
+    "AI精读 tag and a supported complete finding; human read markers untouched",
+    "Separately configured classification model with explicit per-item confirmation and transactional state rechecks"
+  ],
+  "automated": {
+    "version": "0.14.4",
+    "passed": 140,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "7f8d9924bafcf2d15d61388d9c5a33eb54d9c689d3bd98094e75782b4d0ff7cd",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "record": "native-workflow-0.14.4.json",
+    "passed": 8,
+    "failed": 0,
+    "zotero": "10.0.8",
+    "syntheticCLI": true,
+    "peakConcurrentVerificationCalls": 4,
+    "productionPackageMatchedNativeFixture": true,
+    "realModelRequests": 0
+  },
+  "readOnlyCompatibility": {
+    "previousLongQuoteResponseAccepted": true,
+    "userFilesWritten": false,
+    "modelCalls": 0
+  },
+  "notVerified": [
+    "Actual paper latency/accuracy with the new parallel workflow",
+    "All model/effort combinations",
+    "Real two-computer cloud synchronization"
+  ],
+  "xpiSHA256": "7f8d9924bafcf2d15d61388d9c5a33eb54d9c689d3bd98094e75782b4d0ff7cd",
+  "packageFiles": 32
+}

@@ -1,0 +1,48 @@
+{
+  "scope": "Existing Zotero reading/check/import window",
+  "reference": "User-provided current screenshot; retained only under ignored .work/ui-audit-0145/",
+  "capture": "Native isolated Gecko window canvas readback; files visually inspected and compared with the supplied reference.",
+  "beforeFindings": [
+    "Next action missing despite interruption text; disabled import and unrelated file operations dominate.",
+    "Legacy template produces an empty selector and filename is shown in place of full title.",
+    "Long author metadata crowds the first screen.",
+    "Opened reader can retain a stale background-task snapshot."
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "检查中，状态实时更新",
+      "health": "passed",
+      "screenshot": "screenshots-0.14.5/02-checking.png"
+    },
+    {
+      "step": 2,
+      "name": "待修订，问题和依据可对照",
+      "health": "passed",
+      "screenshot": "screenshots-0.14.5/03-needs-review.png"
+    },
+    {
+      "step": 3,
+      "name": "检查通过，可明确导入",
+      "health": "passed",
+      "screenshot": "screenshots-0.14.5/04-ready-to-import.png"
+    },
+    {
+      "step": 4,
+      "name": "已保存，查看笔记",
+      "health": "passed",
+      "screenshot": "screenshots-0.14.5/05-saved.png"
+    },
+    {
+      "step": 5,
+      "name": "人工稿保存与窄窗口布局",
+      "health": "passed",
+      "screenshot": "screenshots-0.14.5/06-narrow-saved.png"
+    }
+  ],
+  "limits": [
+    "Synthetic content, not a real-paper quality evaluation",
+    "Native controls and layout tested at 1120px and 700px",
+    "No claim of full screen-reader/WCAG or all-platform/zoom compliance"
+  ]
+}

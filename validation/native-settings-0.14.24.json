@@ -1,0 +1,90 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "numeric fields align without overflow at wide, medium and host-minimum window widths",
+      "ok": true
+    },
+    {
+      "name": "the repair toggle still controls the repair count and preserves its value",
+      "ok": true
+    },
+    {
+      "name": "only reading and background-check cards remain, aligned side by side",
+      "ok": true
+    },
+    {
+      "name": "a short greeting shows current progress immediately and then its normal reply in the card",
+      "ok": true
+    },
+    {
+      "name": "the other channel displays its reply and changing a setting clears the stale reply",
+      "ok": true
+    },
+    {
+      "name": "structured validation remains opt-in and narrow model cards stay within the window",
+      "ok": true
+    }
+  ],
+  "layout": [
+    {
+      "requestedWidth": 1200,
+      "width": 1200,
+      "columns": 2,
+      "leftTop": 496.79998779296875,
+      "rightTop": 496.79998779296875,
+      "cardHeight": 374,
+      "inputWidth": 72
+    },
+    {
+      "requestedWidth": 920,
+      "width": 920,
+      "columns": 2,
+      "leftTop": 309.79998779296875,
+      "rightTop": 309.79998779296875,
+      "cardHeight": 393.5,
+      "inputWidth": 72
+    },
+    {
+      "requestedWidth": 680,
+      "width": 800,
+      "columns": 2,
+      "leftTop": 329.29998779296875,
+      "rightTop": 329.29998779296875,
+      "cardHeight": 413,
+      "inputWidth": 72
+    }
+  ],
+  "shots": [
+    {
+      "name": "overview-1200.png",
+      "width": 1200,
+      "height": 1000
+    },
+    {
+      "name": "overview-minimum.png",
+      "width": 800,
+      "height": 1000
+    },
+    {
+      "name": "models-wide.png",
+      "width": 1200,
+      "height": 1000
+    },
+    {
+      "name": "models-replies.png",
+      "width": 1200,
+      "height": 1000
+    },
+    {
+      "name": "models-narrow.png",
+      "width": 800,
+      "height": 1000
+    }
+  ],
+  "simulatedModelCalls": 3,
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.24",
+  "zoteroVersion": "10.0.8"
+}

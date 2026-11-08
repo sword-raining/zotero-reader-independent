@@ -1,0 +1,45 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "two native paper workers each run one complete-source check without mixing results",
+      "ok": true
+    },
+    {
+      "name": "a reported factual problem is repaired by the generation channel and checked again before saving",
+      "ok": true
+    },
+    {
+      "name": "checked notes contain the short finding and AI tag without changing human read labels or PDFs",
+      "ok": true
+    },
+    {
+      "name": "classification suggestions are durable but do not move items without confirmation",
+      "ok": true
+    },
+    {
+      "name": "native confirmation changes only inbox/target membership and preserves other classifications",
+      "ok": true
+    },
+    {
+      "name": "a human note change blocks a stale classification proposal without overwriting edits",
+      "ok": true
+    },
+    {
+      "name": "malformed review retains its draft and presents a direct continue button in the native queue",
+      "ok": true
+    },
+    {
+      "name": "the queue continue action reuses the draft and source, then saves and suggests classification without reimport",
+      "ok": true
+    }
+  ],
+  "peakModelCalls": 2,
+  "peakVerifications": 2,
+  "parseCalls": 3,
+  "zoteroVersion": "10.0.8",
+  "pluginVersion": "0.14.5",
+  "realModelRequests": 0,
+  "syntheticCLI": true,
+  "personalLibraryTouched": false
+}

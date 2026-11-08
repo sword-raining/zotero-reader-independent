@@ -4,7 +4,7 @@ const item={itemType:'journalArticle',title:'Synthetic study',creators:[{creator
 test('existing Zotero One fields provide metrics and author order without a network lookup',()=>{
  const b=B.fromItem(item,{oneAvailable:true});assert.deepEqual(b.authors,['Ada Example','Test Consortium']);
  assert.equal(b.metrics.impactFactor,'12.5');assert.equal(b.metrics.jcrQuartile,'Q1');assert.equal(b.metrics.casDivision,'1区');assert.ok(b.metrics.source.startsWith('Zotero One'));
- assert.equal(b.metrics.year,'');assert.equal(new Map(B.rows(b)).get('指标年份'),'条目未记录');
+ assert.equal(b.metrics.year,'');assert.equal(new Map(B.rows(b)).get('指标年份'),'Zotero未记录');
 });
 test('publication date and provider update dates are not silently treated as metric years',()=>{
  assert.equal(B.fromItem({...item,extra:'Zotero One updated: 2026-06-17'}).metrics.year,'');
@@ -20,7 +20,7 @@ test('ordinary catalogues/call numbers are not invented impact factors or CAS di
 });
 test('absent parent metadata falls back to extracted title/authors and never invents correspondence',()=>{
  const info=[{key:'title',entries:[{id:'a',text:'PDF title',kind:'reported'}]},{key:'authors',entries:[{id:'b',text:'PDF Author',kind:'reported'}]}];
- const rows=new Map(B.rows(B.fromItem({}, {attachmentTitle:'filename.pdf'}),info));assert.equal(rows.get('题目'),'PDF title');assert.equal(rows.get('作者'),'PDF Author');assert.match(rows.get('通讯作者'),/不按作者顺序猜测/);
+ const rows=new Map(B.rows(B.fromItem({}, {attachmentTitle:'filename.pdf'}),info));assert.equal(rows.get('题目'),'PDF title');assert.equal(rows.get('作者'),'PDF Author');assert.equal(rows.get('通讯作者'),'未明确标注');
 });
 test('title/affiliation claims require independent coverage and original quotes',()=>{
  const source=R.paper('Affiliation: Fictional Soil Institute. Corresponding author: Ada Example.');

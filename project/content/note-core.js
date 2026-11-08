@@ -50,9 +50,10 @@ var NoteCore;
     const status=manualEdited?"edited":workflow.status==="verification_incomplete"||!assessment?"incomplete":workflow.status==="checked"&&assessment.status==="checked"?"checked":"needs_review";
     const labels={checked:"已检查",needs_review:"需核对草稿",incomplete:"未完成检查",edited:"人工修改稿（未重新检查）"};
     const label=labels[status]||labels.incomplete;
-    const values={...B.titleFields(workflow.bibliography,title),pdf:pdfTitle,date:localDate(workflow.createdAt),status:label,template:workflow.templateID==="ecology"?"生态与土壤微生物精读":"通用论文精读"};
+    const values={...B.titleFields(workflow.bibliography,title),pdf:pdfTitle,date:localDate(workflow.createdAt),status:label,template:"论文精读"};
     let html=`<div data-schema-version="9"><h1>${escape(noteTitle(naming.reading||DEFAULT_NAMES.reading,values,status))}</h1>`+
       `<p>${sourceLink(pdfURL,pdfTitle)} · ${escape(values.date)}</p>`;
+    if(status==='checked'&&typeof workflow.shortFinding==='string'&&workflow.shortFinding.length<=180&&draft.sections.find(s=>s.key==='results')?.entries.some(e=>e.text===workflow.shortFinding&&assessment.checks.some(c=>c.entry_id===e.id&&c.passed)))html+=`<p><strong>核心发现：</strong>${escape(workflow.shortFinding)}</p>`;
     if(status!=="checked")html+=`<p><strong>${escape(label)}</strong> — ${escape(status==="edited"?"自动检查仅针对修改前内容。":"本稿尚有需要人工核对的内容。")}</p>`;
     if(manualEdited)html+=markdownHTML(manualMarkdown);
     else {
@@ -66,19 +67,15 @@ var NoteCore;
       html+="<ul>";
       for(const entry of draft.sections.find(s=>s.key===key).entries){
         const check=assessment?.checks.find(c=>c.entry_id===entry.id);
-        const attribution=entry.kind==="author_interpretation"?"<em>作者解释：</em>":entry.kind==="interpretation"?"<em>读后推断：</em>":"";
+        const R=root.ReadingCore||(typeof require!=='undefined'?require('./reading-core.js'):null);
+        const label=R.attributionLabel(key,entry.kind),attribution=label?escape(label)+' ':'';
         const A=root.AttachmentCore||(typeof require!=='undefined'?require('./attachment-core.js'):null);
         const evidence=inputSources.length>1?A.evidenceText(entry,inputSources):'';
-        html+=`<li><p>${check&&!check.passed?"<strong>待核对：</strong>":""}${attribution}${escape(entry.text)}${evidence?' <em>〔依据：'+escape(evidence)+'〕</em>':''}</p></li>`;
+        html+=`<li><p>${check&&!check.passed?"<strong>待核对：</strong>":""}${attribution}${escape(R.displayEntryText(key,entry))}${evidence?' <em>〔依据：'+escape(evidence)+'〕</em>':''}</p></li>`;
       }
       html+="</ul>";
       }
-      const evidence=new Map();
-      for(const section of [...(draft.articleInfo||[]),...draft.sections])for(const entry of section.entries)for(const ref of entry.evidence||[]){
-        const source=inputSources.find(s=>ref.paragraph_id.startsWith(s.id+'-'))||inputSources[0];
-        evidence.set(ref.paragraph_id+'\n'+ref.quote,{...ref,label:source?.label||'正文'});
-      }
-      if(evidence.size)html+='<h2>原文依据</h2><p><em>仅保留本笔记引用的原文片段；编号用于区分解析段落，不是 PDF 页码。</em></p>'+[...evidence.values()].map(e=>`<p><strong>${escape(e.label+' '+e.paragraph_id)}</strong></p><blockquote><p>${escape(e.quote)}</p></blockquote>`).join('');
+      // Evidence remains in the verification workflow; final notes do not append its quotation collection.
     }
     html+=`<p><em>检查依据为解析文本，不含图像及外部资料。</em></p><!-- ${escape(identity(runID,"reading"))} --></div>`;
     return {reading:html,status};

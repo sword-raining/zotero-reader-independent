@@ -1,4 +1,5 @@
 /* Platform-independent MinerU client. No Zotero library writes or model calls. */
+var MineruCore;
 (function (root) {
   "use strict";
   const API = "https://mineru.net/api/v4";
@@ -26,13 +27,13 @@
   function settings(input = {}) {
     return {
       model: input.model === "pipeline" ? "pipeline" : "vlm",
-      language: input.language === "ch" ? "ch" : "en",
+      language: ["ch","en"].includes(input.language) ? input.language : "auto",
       ocr: input.ocr === true
     };
   }
   function settingsKey(input) {
     const s = settings(input);
-    return `${s.model}-${s.language}-${s.ocr ? "ocr" : "text"}`;
+    return `${s.model}-${s.language === "auto" ? "ch" : s.language}-${s.ocr ? "ocr" : "text"}`;
   }
   function secureURL(value) {
     let url;
@@ -129,7 +130,7 @@
         report("requesting", "正在申请上传地址…");
         const data = await this.json("/file-urls/batch", key, signal, {
           files: [{ name: source.name, data_id: dataID, is_ocr: opts.ocr }],
-          model_version: opts.model, language: opts.language, enable_formula: true, enable_table: true
+          model_version: opts.model, language: opts.language === "auto" ? "ch" : opts.language, enable_formula: true, enable_table: true
         });
         if (typeof data?.batch_id !== "string" || !/^[A-Za-z0-9_-]+$/.test(data.batch_id) ||
             !Array.isArray(data.file_urls) || data.file_urls.length !== 1) {
@@ -177,6 +178,7 @@
   }
   const exported = { API, MAX_PDF_BYTES, MAX_ZIP_BYTES, ReaderError, error, cancelled, normalizeKey,
     settings, settingsKey, secureURL, safeZipPath, cacheMatches, Client };
+  MineruCore = exported;
   root.MineruCore = exported;
   if (typeof module !== "undefined") module.exports = exported;
 })(globalThis);

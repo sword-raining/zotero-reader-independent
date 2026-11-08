@@ -104,3 +104,23 @@ test('manual cleanup waits for an in-flight note transaction',()=>fixture(async 
  await f.register();f.scope.ReaderNotes.pending=1;
  await assert.rejects(f.scope.ReaderCleanup.sweep(),{code:'BUSY'});assert.ok(await f.scope.IOUtils.exists(f.dir));
 }));
+
+
+async function obsoleteReview(f,{edited=false,tracked=false,badHash=false}={}){
+ const R=require('../content/reading-core.js'),W=require('../content/wiki-core.js');f.scope.ReadingCore=R;f.scope.WikiCore=W;f.scope.IOUtils.stat=async p=>({size:(await fs.stat(p)).size});
+ const draft={sections:R.SECTIONS.map(([key])=>({key,entries:[{id:key,text:'Synthetic generated text',kind:key==='publication'?'interpretation':'reported',evidence:[]}]}))},assessment={status:'needs_review',hasMajorIssues:true,checks:draft.sections.map(s=>({entry_id:s.entries[0].id,passed:false}))};
+ const text=W.decorate(R.renderDraft(draft,assessment,f.w.bibliography,f.w.inputSources,{legacyAttribution:true}),f.w.bibliography,{...f.w,status:'needs_review'});
+ await f.app.writeJSON(path.join(f.dir,'internal','draft-2-resume-1.json'),draft);await f.app.writeJSON(path.join(f.dir,'internal','check-2-resume-1.json'),{assessment});await fs.writeFile(path.join(f.dir,'review-needed.md'),text+(edited?' Human edit':''));if(tracked)f.w.generatedMarkdown={'review-needed.md':badHash?'0'.repeat(64):hash(text)};await f.app.writeJSON(f.workflowPath,f.w);return text;
+}
+test('a byte-exact legacy review draft no longer blocks cleanup after the final note is saved',()=>fixture(async f=>{
+ await f.register();await obsoleteReview(f);assert.equal(await f.scope.ReaderCleanup.readingUnmodified(f.dir,f.w),true);assert.equal((await f.scope.ReaderCleanup.afterSave(f.workflowPath,f.main)).state,'done');assert.equal(await f.scope.IOUtils.exists(f.dir),false);
+}));
+test('edited or unprovable old intermediate files remain protected with a specific filename',()=>fixture(async f=>{
+ await f.register();await obsoleteReview(f,{edited:true});const r=await f.scope.ReaderCleanup.afterSave(f.workflowPath,f.main);assert.equal(r.state,'retained');assert.match(r.message,/review-needed.md/);assert.equal(await f.scope.IOUtils.exists(f.dir),true);
+}));
+test('a recorded intermediate checksum is enforced and cannot be bypassed by legacy replay',async()=>{
+ for(const badHash of [false,true])await fixture(async f=>{await f.register();await obsoleteReview(f,{tracked:true,badHash});const r=await f.scope.ReaderCleanup.afterSave(f.workflowPath,f.main);assert.equal(r.state,badHash?'retained':'done');});
+});
+test('changes to the current imported result remain protected even with reproducible historic data',()=>fixture(async f=>{
+ await f.register();const text=await obsoleteReview(f);await fs.writeFile(path.join(f.dir,'reading.md'),text);const r=await f.scope.ReaderCleanup.afterSave(f.workflowPath,f.main);assert.equal(r.state,'retained');assert.match(r.message,/reading.md/);
+}));

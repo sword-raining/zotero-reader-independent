@@ -1,0 +1,51 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "one native button saves all checked unchanged waiting notes and reports individual exceptions",
+      "ok": true
+    },
+    {
+      "name": "saved notes use cached archive suggestions without model calls and PDFs or stopped drafts remain unchanged",
+      "ok": true
+    },
+    {
+      "name": "retry saves only the remaining eligible item and never duplicates previous notes",
+      "ok": true
+    },
+    {
+      "name": "a draft changed immediately before the transaction is skipped with its new content retained",
+      "ok": true
+    },
+    {
+      "name": "same-run saved note recovery detects human changes and refuses duplicate or destructive cleanup",
+      "ok": true
+    },
+    {
+      "name": "a cleaned same-run receipt is reused without making another note",
+      "ok": true
+    },
+    {
+      "name": "the button disappears when there are no waiting candidates and no parse or model invocation occurred",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "01-bulk-save-ready.png",
+      "width": 1200,
+      "height": 1050
+    },
+    {
+      "name": "02-bulk-save-result.png",
+      "width": 1200,
+      "height": 1050
+    }
+  ],
+  "realModelRequests": 0,
+  "parseCalls": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.21",
+  "zoteroVersion": "10.0.8"
+}

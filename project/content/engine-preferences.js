@@ -13,12 +13,15 @@ var ReaderEnginePreferences={
     get("zri-codex-timeout").value=ReaderCodex.options().timeoutMinutes;
     const status=text=>{if(!win.closed)get("zri-codex-status").textContent=text;};
     const option=(select,value,label)=>{const el=doc.createXULElement("menuitem");el.setAttribute("value",value);el.setAttribute("label",label);select.menupopup.appendChild(el);};
+    const clearReply=which=>{const n=get("zri-test-reply-"+which);if(n){n.hidden=true;n.textContent="";}};
     const health=()=>{
       if(win.closed)return;
       for(const which of Object.keys(stages)){
         const node=get("zri-health-"+which);if(!node)continue;
         if(testing===which)continue;
-        const h=EngineCore.latestHealth(ReaderEngines.healthFor(stages[which]),ReaderEngines.connectivityFor(stages[which]));
+        const engine=stages[which].engine,pathID=engine==='codex'?'zri-codex-path':'zri-agy-path',pref=engine==='codex'?'codex.path':'agy.path';
+        const dirty=get(pathID).value.trim()!==String(Zotero.Prefs.get(p+pref,true)||'');
+        const h=dirty?{state:'untested',label:'路径已修改，请重新检测'}:EngineCore.latestHealth(ReaderEngines.healthFor(stages[which]),ReaderEngines.connectivityFor(stages[which]));
         node.dataset.state=h.state;
         node.textContent=h.label+(h.testedAt?" · 上次 "+new Date(h.testedAt).toLocaleTimeString("zh-CN",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hour12:false}):"");
         node.title=h.testedStage?`实际测试：${h.testedStage.model||'默认模型'} / ${EngineCore.effortLabel(h.testedStage.effort)}；不代表其他强度已验证。`:'';
@@ -51,25 +54,25 @@ var ReaderEnginePreferences={
         const c=ReaderEngines.catalogs[engine];
         if(!c)return EngineCore.name(engine)+"：等待检测";
         return EngineCore.name(engine)+"："+(c.version?c.version+"；":"")+
-          (c.models.length?`${c.models.length} 个模型，${c.cached?"缓存目录":"CLI 返回目录"}`:"未取得模型目录")+(c.error?"；"+c.error:"");
+          (c.models.length?`${c.models.length} 个模型，${c.cached?"缓存目录":"CLI 返回目录"}`:"未取得模型目录")+(c.error?"；"+c.error:c.needsRefresh?"；模型目录待刷新":"");
       }).join("\n");
       sliders();
     };
     for(const which of Object.keys(stages)){
-      controls[which].engine.addEventListener("command",()=>{stages[which]={engine:controls[which].engine.value,model:"",effort:""};populate();});
+      controls[which].engine.addEventListener("command",()=>{clearReply(which);stages[which]={engine:controls[which].engine.value,model:"",effort:""};populate();});
       controls[which].model.addEventListener("command",()=>{
-        const stage=stages[which],choice=EngineCore.modelChoices(stage.engine,ReaderEngines.catalogs[stage.engine]).find(g=>g.id===controls[which].model.value);
+        clearReply(which);const stage=stages[which],choice=EngineCore.modelChoices(stage.engine,ReaderEngines.catalogs[stage.engine]).find(g=>g.id===controls[which].model.value);
         const variant=choice?.variants.find(v=>v.effort===stage.effort)||choice?.variants[0];
         stage.model=variant?.model||controls[which].model.value;stage.effort=stage.engine==="antigravity"?(variant?.effort||""):"";sliders();
       });
       controls[which].effort.addEventListener("input",()=>{
-        const stage=stages[which],choices=EngineCore.effortChoices(stage,ReaderEngines.catalogs[stage.engine]),choice=choices[Number(controls[which].effort.value)];
+        clearReply(which);const stage=stages[which],choices=EngineCore.effortChoices(stage,ReaderEngines.catalogs[stage.engine]),choice=choices[Number(controls[which].effort.value)];
         if(!choice)return;stage.effort=choice.value;if(choice.model)stage.model=choice.model;sliders();
       });
     }
     const savePaths=()=>{
-      Zotero.Prefs.set(p+"codex.path",get("zri-codex-path").value.trim(),true);
-      Zotero.Prefs.set(p+"agy.path",get("zri-agy-path").value.trim(),true);
+      ReaderEngines.setPath('codex',get("zri-codex-path").value);
+      ReaderEngines.setPath('antigravity',get("zri-agy-path").value);
     };
     const save=()=>{
       const timeout=CodexCore.options({timeoutMinutes:get("zri-codex-timeout").value}).timeoutMinutes;
@@ -97,25 +100,31 @@ var ReaderEnginePreferences={
       get(id).addEventListener("click",async()=>{
         if(testing===which){ReaderCodex.controller?.abort();return;}
         if(testing)return;
-        let timer;
+        let timer;const reply=get("zri-test-reply-"+which);
         try{
           save();testing=which;for(const [other]of testButtons)get(other).disabled=other!==id;
           for(const c of Object.values(controls)){c.engine.disabled=true;c.model.disabled=true;c.effort.disabled=true;}
-          get('zri-ai-test-exact').disabled=true;
+          get('zri-ai-test-exact').disabled=true;get('zri-codex-check').disabled=true;
+          get('zri-codex-path').disabled=true;get('zri-agy-path').disabled=true;
           get(id).textContent='停止测试';get(id).setAttribute('aria-label','停止连接测试');
           const selected={...stages[which]},badge=get("zri-health-"+which),started=Date.now(),mode=get('zri-ai-test-exact').checked?'exact':'quick';
-          badge.dataset.state="testing";badge.textContent="连接中…";
-          timer=win.setInterval(()=>{if(!win.closed)badge.textContent=`等待回应 · ${Math.floor((Date.now()-started)/1000)}秒`;},1000);
-          const result=await ReaderCodex.testConnection(status,selected,{mode}),actual=result.testedStage;
+          if(reply){reply.hidden=true;reply.textContent='';}
+          let phase='准备连接';const feedback=text=>{phase=text;status(text);if(!win.closed)badge.textContent=`${phase} · ${Math.floor((Date.now()-started)/1000)}秒`;};
+          badge.dataset.state="testing";badge.textContent="准备连接…";
+          timer=win.setInterval(()=>{if(!win.closed)badge.textContent=`${phase} · ${Math.floor((Date.now()-started)/1000)}秒`;},1000);
+          const result=await ReaderCodex.testConnection(feedback,selected,{mode}),actual=result.testedStage;
+          if(reply){reply.textContent=(mode==='quick'?'模型回复：':'结构化验证回复：')+result.answer.trim().slice(0,300);reply.hidden=false;}
           status(`${(result.durationMs/1000).toFixed(1)}秒 · ${actual.model||'默认模型'} / ${EngineCore.effortLabel(actual.effort)}档测试通过。`+(mode==='quick'&&EngineCore.healthKey(actual)!==EngineCore.healthKey(selected)?' 当前较高强度尚未验证。':''));
         }
-        catch(e){status(app.safeError(e));}
-        finally{if(timer)win.clearInterval(timer);testing=null;if(!win.closed){for(const [button,stage]of testButtons){get(button).disabled=false;get(button).textContent='测试连接';get(button).setAttribute('aria-label',stage==='generation'?'验证精读模型连接':'验证检查模型连接');}for(const c of Object.values(controls)){c.engine.disabled=false;c.model.disabled=false;}get('zri-ai-test-exact').disabled=false;sliders();}}
+        catch(e){const message=app.safeError(e);status(message);if(reply&&!win.closed){reply.textContent=message;reply.hidden=false;}}
+        finally{if(timer)win.clearInterval(timer);testing=null;if(!win.closed){for(const [button,stage]of testButtons){get(button).disabled=false;get(button).textContent='测试连接';get(button).setAttribute('aria-label',stage==='generation'?'验证精读模型连接':'验证检查模型连接');}for(const c of Object.values(controls)){c.engine.disabled=false;c.model.disabled=false;}get('zri-ai-test-exact').disabled=false;get('zri-codex-check').disabled=false;get('zri-codex-path').disabled=false;get('zri-agy-path').disabled=false;populate();}}
       });
     }
     get("zri-codex-stop").addEventListener("click",()=>ReaderCodex.controller?.abort());
+    for(const id of ['zri-codex-path','zri-agy-path'])get(id).addEventListener('input',()=>{for(const which of Object.keys(stages))clearReply(which);health();});
+    ReaderEngines.views.add(populate);win.addEventListener('unload',()=>ReaderEngines.views.delete(populate),{once:true});
     populate();
-    const fresh=['codex','antigravity'].every(e=>ReaderEngines.catalogs[e]?.models?.length&&Date.now()-Date.parse(ReaderEngines.catalogs[e].detectedAt)<86400000);
+    const fresh=['codex','antigravity'].every(e=>ReaderEngines.runtime[e]?.state==='ready'&&!ReaderEngines.catalogs[e]?.error&&ReaderEngines.catalogs[e]?.models?.length&&Date.now()-Date.parse(ReaderEngines.catalogs[e].detectedAt)<86400000);
     if(fresh)status('已载入已有模型目录；可手动刷新。');else await detect();
   }
 };

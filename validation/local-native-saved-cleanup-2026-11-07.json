@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "pluginVersion": "0.14.1",
+  "baseCommit": "be380816881c970f012135215a5fa8de78a6b7a9",
+  "change": "tools/check.py explicitly selects the TAP reporter; packaged plugin files are unchanged.",
+  "environment": {
+    "node": "24.16.0",
+    "python": "3.13.7",
+    "zoteroRuntime": "10.0.8",
+    "zoteroRuntimeBuild": "20261106171835",
+    "platform": "Windows x64"
+  },
+  "automated": {
+    "command": "python tools/check.py",
+    "nodeOptionsOverride": false,
+    "version": "0.14.1",
+    "passed": 104,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "3f84fb58e7187aeba651e40764926d9466bfcbdb25e45c36555c46bbc9fb462f",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "fixturePreparation": "python project/tests/prepare_smoke.py --saved-cleanup",
+    "profile": "zotero-reader-smoke-profile",
+    "data": "zotero-reader-smoke-profile/data",
+    "headless": true,
+    "autoSync": false,
+    "syntheticDataOnly": true,
+    "isolatedProcessExited": true,
+    "existingPersonalZoteroLeftRunning": true,
+    "completed": true,
+    "tests": [
+      {
+        "name": "successful native note transaction precedes cleanup and leaves PDF and quoted evidence intact",
+        "ok": true
+      },
+      {
+        "name": "exported Zotero note JSON preserves receipt through import and works without local queue or receipt file",
+        "ok": true
+      },
+      {
+        "name": "editing the saved note is preserved and not represented as unchanged AI-checked content",
+        "ok": true
+      },
+      {
+        "name": "source-link receipt survives editor-style normalization and still routes to the correct PDF",
+        "ok": true
+      },
+      {
+        "name": "failed native note transaction never deletes pending drafts or source cache",
+        "ok": true
+      },
+      {
+        "name": "manual cleanup retains unimported workflows and does not alter saved note edits",
+        "ok": true
+      },
+      {
+        "name": "native filesystem guard rejects a Windows directory link before deletion",
+        "ok": true
+      },
+      {
+        "name": "a batch queued before PDF download rechecks synchronized notes when the file arrives",
+        "ok": true
+      }
+    ],
+    "modelRequests": 0,
+    "personalLibraryTouched": false
+  },
+  "notExecuted": [
+    "Real two-computer server synchronization",
+    "User library read/write workflow",
+    "Actual editor UI roundtrip (normalization was simulated in native Zotero)",
+    "61-test full native workflow suite",
+    "Real model calls or model availability checks"
+  ],
+  "release": {
+    "version": "0.14.1",
+    "packageChanged": false,
+    "sha256": "3f84fb58e7187aeba651e40764926d9466bfcbdb25e45c36555c46bbc9fb462f"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "version": "0.14.13",
+  "date": "2026-11-08",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build; not installed or pushed",
+  "automated": {
+    "version": "0.14.13",
+    "passed": 200,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "283ad7df345c638647d218a4c60b70f22a6808b1888dd6853b20563ceb8f1a6e",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "reader": 8,
+    "queueAndMenu": 11,
+    "failed": 0,
+    "syntheticData": true,
+    "productionMatchesFixtures": true,
+    "contextMenuValidation": "native DOM entries and routing, not an OS popup screenshot",
+    "forceParseValidation": "callback stub; no upload"
+  },
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "packageFiles": 34,
+  "xpiSHA256": "283ad7df345c638647d218a4c60b70f22a6808b1888dd6853b20563ceb8f1a6e"
+}

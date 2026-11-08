@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Zotero Reader 独立版",
-  "version": "0.14.1",
+  "version": "0.14.24",
   "description": "文献精读、后台检查与自动修正，只保留一篇清晰的研究笔记。",
   "applications": {
     "zotero": {

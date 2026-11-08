@@ -18,7 +18,9 @@ async function startup({ rootURI }, reason) {
   Services.scriptloader.loadSubScript(root + "content/engine-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/attachment-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/bibliography-core.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/source-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/reading-core.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/workflow-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/note-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/saved-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/wiki-core.js", readerScope);
@@ -33,7 +35,9 @@ async function startup({ rootURI }, reason) {
   Services.scriptloader.loadSubScript(root + "content/saved-runtime.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/cleanup.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/attachments.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/attachment-maintenance.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/automation.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/classifier.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/batch-runtime.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/ui.js", readerScope);
   readerScope.ReaderCodex.init(readerScope.ReaderApp);
@@ -41,8 +45,10 @@ async function startup({ rootURI }, reason) {
   readerScope.ReaderPreferences.init(readerScope.ReaderApp);
   readerScope.ReaderNotes.init(readerScope.ReaderApp);
   await readerScope.ReaderSaved.init(readerScope.ReaderApp);
+  await readerScope.ReaderClassifier.init(readerScope.ReaderApp);
   readerScope.ReaderCleanup.init(readerScope.ReaderApp);
   readerScope.ReaderAttachments.init(readerScope.ReaderApp);
+  readerScope.ReaderAttachmentMaintenance.init(readerScope.ReaderApp);
   readerScope.ReaderBatch.init(readerScope.ReaderApp);
   Zotero.ReaderIndependent = readerScope.ReaderApp;
   await readerScope.ReaderAutomation.init(readerScope.ReaderApp,readerScope.ReaderNotes);
@@ -59,7 +65,9 @@ function onMainWindowUnload({ window }) {
 async function shutdown() {
   await readerScope?.ReaderEngines?.shutdown();
   readerScope?.ReaderBatch?.shutdown();
+  await readerScope?.ReaderAttachmentMaintenance?.active?.catch(()=>{});
   await readerScope?.ReaderAutomation?.shutdown();
+  await readerScope?.ReaderClassifier?.shutdown();
   await readerScope?.ReaderNotes?.serial?.catch(()=>{});
   await readerScope?.ReaderCleanup?.active?.catch(()=>{});
   readerScope?.ReaderCleanup?.shutdown();

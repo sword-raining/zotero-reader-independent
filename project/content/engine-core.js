@@ -17,7 +17,7 @@ var EngineCore;
   }
   function latestHealth(full,connection){
     const candidates=[{...full,scope:'full'},{...connection,scope:'connectivity'}].filter(r=>r.testedAt);
-    const latest=candidates.sort((a,b)=>Date.parse(b.testedAt)-Date.parse(a.testedAt))[0];
+    const latest=candidates.sort((a,b)=>Date.parse(b.testedAt)-Date.parse(a.testedAt) || Number(a.state==='available')-Number(b.state==='available'))[0];
     if(!latest)return full;
     if(latest.state==='available')latest.label=latest.scope==='full'?'完整验证通过':`连通通过（${effortLabel(latest.testedStage?.effort)}档）`;
     return latest;
@@ -114,7 +114,7 @@ var EngineCore;
     });
     const response=await run(executable,["app-server","--listen","stdio://","--disable","plugins","--disable","plugin_discovery_prefetch","--disable","shell_snapshot"],{timeoutMs:45000,signal,onStdout:receive,
       writeInput:async stdin=>{
-        send=stdin;await request("initialize",{clientInfo:{name:"zotero_reader_independent",title:"Zotero Reader",version:"0.14.1"}});
+        send=stdin;await request("initialize",{clientInfo:{name:"zotero_reader_independent",title:"Zotero Reader",version:"0.14.24"}});
         await stdin.write(JSON.stringify({method:"initialized"})+"\n");
         let cursor=null;
         for(let page=0;page<10;page++){

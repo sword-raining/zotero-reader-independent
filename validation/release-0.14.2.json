@@ -1,0 +1,55 @@
+{
+  "version": "0.14.2",
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "baseCommit": "be380816881c970f012135215a5fa8de78a6b7a9",
+  "distribution": "Local build only; not pushed or installed in personal Zotero.",
+  "changes": [
+    "Dynamic per-user Codex desktop fallback and regular-file checks",
+    "CLI identity/configuration invalidates previous health results",
+    "Coordinated native settings refresh; successful retry clears obsolete errors while catalogs remain explicitly pending",
+    "Cancellation and stale asynchronous results cannot revive old green status",
+    "Explicit TAP reporter and isolated-profile firstRun2 preference"
+  ],
+  "environment": {
+    "node": "24.16.0",
+    "python": "3.13.7",
+    "nativeZotero": "10.0.8"
+  },
+  "automated": {
+    "version": "0.14.2",
+    "passed": 116,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "5816ef01b726de591ad6d88c55cd7cd1652b609c8653881722cd62f9fbb732df",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "record": "native-cli-detection-0.14.2.json",
+    "passed": 7,
+    "failed": 0,
+    "headless": true,
+    "syntheticCLI": true,
+    "realModelRequests": 0,
+    "personalLibraryTouched": false
+  },
+  "welcomePageFix": {
+    "cause": "Current Zotero startup checks extensions.zotero.firstRun2; the fixture previously only set firstRun.",
+    "generatedUserJsVerified": true,
+    "restartedAfterFix": false
+  },
+  "historicalOnly": [
+    "0.14.1 native saved-note/cleanup 8 checks",
+    "0.14.0 native full workflow 61 checks"
+  ],
+  "notVerified": [
+    "Real model availability or new CLI login",
+    "Real two-computer server synchronization",
+    "Visible desktop interaction"
+  ],
+  "xpiSHA256": "5816ef01b726de591ad6d88c55cd7cd1652b609c8653881722cd62f9fbb732df",
+  "packageFiles": 30
+}

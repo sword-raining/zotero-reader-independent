@@ -1,0 +1,1630 @@
+TAP version 13
+# Subtest: local inspection requests two pages, caches derived hints and invalidates them when the PDF hash changes
+ok 1 - local inspection requests two pages, caches derived hints and invalidates them when the PDF hash changes
+  ---
+  duration_ms: 6.2528
+  type: 'test'
+  ...
+# Subtest: validated existing parser output is preferred and inspection never creates a cloud parsing request
+ok 2 - validated existing parser output is preferred and inspection never creates a cloud parsing request
+  ---
+  duration_ms: 1.9911
+  type: 'test'
+  ...
+# Subtest: a file changed during text extraction is not accepted as inspected evidence
+ok 3 - a file changed during text extraction is not accepted as inspected evidence
+  ---
+  duration_ms: 1.0582
+  type: 'test'
+  ...
+# Subtest: missing or oversized PDFs do not cause local extraction or any download
+ok 4 - missing or oversized PDFs do not cause local extraction or any download
+  ---
+  duration_ms: 0.9339
+  type: 'test'
+  ...
+# Subtest: a slow worker does not block the picker or enqueue further probes, and late hints do not mutate the selection
+ok 5 - a slow worker does not block the picker or enqueue further probes, and late hints do not mutate the selection
+  ---
+  duration_ms: 20.1399
+  type: 'test'
+  ...
+# Subtest: only byte-identical same-parent copies are trashed and the survivor remains intact
+ok 6 - only byte-identical same-parent copies are trashed and the survivor remains intact
+  ---
+  duration_ms: 9.6176
+  type: 'test'
+  ...
+# Subtest: annotated, linked, tagged and task-referenced copies are preserved
+ok 7 - annotated, linked, tagged and task-referenced copies are preserved
+  ---
+  duration_ms: 7.4775
+  type: 'test'
+  ...
+# Subtest: different versions, wrong-parent PDFs and source changes are not treated as safe duplicates
+ok 8 - different versions, wrong-parent PDFs and source changes are not treated as safe duplicates
+  ---
+  duration_ms: 1.377
+  type: 'test'
+  ...
+# Subtest: a failed trash transaction rolls back every deletion flag
+ok 9 - a failed trash transaction rolls back every deletion flag
+  ---
+  duration_ms: 1.1246
+  type: 'test'
+  ...
+# Subtest: an incoming unannotated wrong-parent duplicate goes to trash when the correct parent already has the same PDF
+ok 10 - an incoming unannotated wrong-parent duplicate goes to trash when the correct parent already has the same PDF
+  ---
+  duration_ms: 2.1663
+  type: 'test'
+  ...
+# Subtest: an annotated incoming PDF and its exclusive note move with stable identities while the empty target copy is trashed
+ok 11 - an annotated incoming PDF and its exclusive note move with stable identities while the empty target copy is trashed
+  ---
+  duration_ms: 3.0234
+  type: 'test'
+  ...
+# Subtest: both annotated copies and different file versions are retained when resolving their parent
+ok 12 - both annotated copies and different file versions are retained when resolving their parent
+  ---
+  duration_ms: 4.4021
+  type: 'test'
+  ...
+# Subtest: a duplicate target DOI or a modified note prevents an uncertain move
+ok 13 - a duplicate target DOI or a modified note prevents an uncertain move
+  ---
+  duration_ms: 8.9218
+  type: 'test'
+  ...
+# Subtest: a failed move-and-trash transaction restores both parents and the target duplicate
+ok 14 - a failed move-and-trash transaction restores both parents and the target duplicate
+  ---
+  duration_ms: 2.2489
+  type: 'test'
+  ...
+# Subtest: active work and uncertain draft references stop maintenance before mutation
+ok 15 - active work and uncertain draft references stop maintenance before mutation
+  ---
+  duration_ms: 2.2443
+  type: 'test'
+  ...
+# Subtest: audit completion failure reports a committed action accurately instead of counting it as retained
+ok 16 - audit completion failure reports a committed action accurately instead of counting it as retained
+  ---
+  duration_ms: 1.5301
+  type: 'test'
+  ...
+# Subtest: an image-only attachment note is retained rather than treated as empty metadata
+ok 17 - an image-only attachment note is retained rather than treated as empty metadata
+  ---
+  duration_ms: 1.3324
+  type: 'test'
+  ...
+# Subtest: a stalled classification-tree refresh cannot turn a committed cleanup into a hung or failed data operation
+ok 18 - a stalled classification-tree refresh cannot turn a committed cleanup into a hung or failed data operation
+  ---
+  duration_ms: 7.5275
+  type: 'test'
+  ...
+# Subtest: supplement labels are hints; duplicate bytes are eliminated without selecting supplements
+ok 19 - supplement labels are hints; duplicate bytes are eliminated without selecting supplements
+  ---
+  duration_ms: 3.2405
+  type: 'test'
+  ...
+# Subtest: multiple main versions choose one deterministically while supplemental-only groups still need a main
+ok 20 - multiple main versions choose one deterministically while supplemental-only groups still need a main
+  ---
+  duration_ms: 9.8414
+  type: 'test'
+  ...
+# Subtest: source equality includes supplements, roles, hashes and chosen scope
+ok 21 - source equality includes supplements, roles, hashes and chosen scope
+  ---
+  duration_ms: 0.7012
+  type: 'test'
+  ...
+# Subtest: main and supplemental evidence retain distinct identities through verification and Wiki receipts
+ok 22 - main and supplemental evidence retain distinct identities through verification and Wiki receipts
+  ---
+  duration_ms: 2.4626
+  type: 'test'
+  ...
+# Subtest: PDF header text identifies supporting information even when its filename is generic
+ok 23 - PDF header text identifies supporting information even when its filename is generic
+  ---
+  duration_ms: 2.5496
+  type: 'test'
+  ...
+# Subtest: accepted dates and ordinary supplementary mentions do not misclassify a published main paper
+ok 24 - accepted dates and ordinary supplementary mentions do not misclassify a published main paper
+  ---
+  duration_ms: 0.3119
+  type: 'test'
+  ...
+# Subtest: article titles containing supporting-information words are not supplemental headers
+ok 25 - article titles containing supporting-information words are not supplemental headers
+  ---
+  duration_ms: 0.2368
+  type: 'test'
+  ...
+# Subtest: preprints rank below published and accepted versions and unknowns remain visibly unknown
+ok 26 - preprints rank below published and accepted versions and unknowns remain visibly unknown
+  ---
+  duration_ms: 0.2891
+  type: 'test'
+  ...
+# Subtest: PDF metadata correspondence uses the header DOI even when the filename claims a different paper
+ok 27 - PDF metadata correspondence uses the header DOI even when the filename claims a different paper
+  ---
+  duration_ms: 0.4226
+  type: 'test'
+  ...
+# Subtest: DOI normalization accepts standard prefixes, removes unmatched URL punctuation and rejects non-DOI values
+ok 28 - DOI normalization accepts standard prefixes, removes unmatched URL punctuation and rejects non-DOI values
+  ---
+  duration_ms: 0.4183
+  type: 'test'
+  ...
+# Subtest: batch admission rechecks actual language and skips Chinese before attachment or saved-result work
+ok 29 - batch admission rechecks actual language and skips Chinese before attachment or saved-result work
+  ---
+  duration_ms: 5.0191
+  type: 'test'
+  ...
+# Subtest: explicitly opting in permits Chinese while English and unmarked entries remain eligible
+ok 30 - explicitly opting in permits Chinese while English and unmarked entries remain eligible
+  ---
+  duration_ms: 5.0155
+  type: 'test'
+  ...
+# Subtest: excluding an already running Chinese paper does not stop or replace that task
+ok 31 - excluding an already running Chinese paper does not stop or replace that task
+  ---
+  duration_ms: 1.0601
+  type: 'test'
+  ...
+# Subtest: main-selection blockers include only selected eligible papers and validate the chosen PDF
+ok 32 - main-selection blockers include only selected eligible papers and validate the chosen PDF
+  ---
+  duration_ms: 5.9286
+  type: 'test'
+  ...
+# Subtest: clicking Start with an unresolved paper locates its radio button and never enqueues a partial batch
+ok 33 - clicking Start with an unresolved paper locates its radio button and never enqueues a partial batch
+  ---
+  duration_ms: 2.2204
+  type: 'test'
+  ...
+# Subtest: after choosing a main PDF or excluding the unresolved paper, all remaining selected papers are submitted
+ok 34 - after choosing a main PDF or excluding the unresolved paper, all remaining selected papers are submitted
+  ---
+  duration_ms: 1.8961
+  type: 'test'
+  ...
+# Subtest: mixed selections deduplicate by library and attachment key without merging separate records
+ok 35 - mixed selections deduplicate by library and attachment key without merging separate records
+  ---
+  duration_ms: 1.3142
+  type: 'test'
+  ...
+# Subtest: queued and running PDFs are reused regardless of the skip-completed setting
+ok 36 - queued and running PDFs are reused regardless of the skip-completed setting
+  ---
+  duration_ms: 0.2879
+  type: 'test'
+  ...
+# Subtest: completed work is skipped only when the current PDF matches its source snapshot
+ok 37 - completed work is skipped only when the current PDF matches its source snapshot
+  ---
+  duration_ms: 0.1384
+  type: 'test'
+  ...
+# Subtest: failed, cancelled and unseen PDFs can be explicitly added again
+ok 38 - failed, cancelled and unseen PDFs can be explicitly added again
+  ---
+  duration_ms: 0.1098
+  type: 'test'
+  ...
+# Subtest: batch progress includes failures, waiting files, reviews and cancellation
+ok 39 - batch progress includes failures, waiting files, reviews and cancellation
+  ---
+  duration_ms: 0.9564
+  type: 'test'
+  ...
+# Subtest: a later re-run does not change an earlier completed batch into running
+ok 40 - a later re-run does not change an earlier completed batch into running
+  ---
+  duration_ms: 0.1398
+  type: 'test'
+  ...
+# Subtest: batch UI provides template, selection, skip-completed and batch stop controls
+ok 41 - batch UI provides template, selection, skip-completed and batch stop controls
+  ---
+  duration_ms: 0.5568
+  type: 'test'
+  ...
+# Subtest: batch language filter recognizes Zotero Chinese codes and names, including mixed declarations
+ok 42 - batch language filter recognizes Zotero Chinese codes and names, including mixed declarations
+  ---
+  duration_ms: 0.588
+  type: 'test'
+  ...
+# Subtest: English and unknown metadata are not mistaken for Chinese
+ok 43 - English and unknown metadata are not mistaken for Chinese
+  ---
+  duration_ms: 0.3671
+  type: 'test'
+  ...
+# Subtest: language filtering uses the metadata value only, without inspecting translated titles or notes
+ok 44 - language filtering uses the metadata value only, without inspecting translated titles or notes
+  ---
+  duration_ms: 1.7986
+  type: 'test'
+  ...
+# Subtest: existing Zotero One fields provide metrics and author order without a network lookup
+ok 45 - existing Zotero One fields provide metrics and author order without a network lookup
+  ---
+  duration_ms: 2.0963
+  type: 'test'
+  ...
+# Subtest: publication date and provider update dates are not silently treated as metric years
+ok 46 - publication date and provider update dates are not silently treated as metric years
+  ---
+  duration_ms: 0.4557
+  type: 'test'
+  ...
+# Subtest: ordinary catalogues/call numbers are not invented impact factors or CAS divisions
+ok 47 - ordinary catalogues/call numbers are not invented impact factors or CAS divisions
+  ---
+  duration_ms: 0.2579
+  type: 'test'
+  ...
+# Subtest: absent parent metadata falls back to extracted title/authors and never invents correspondence
+ok 48 - absent parent metadata falls back to extracted title/authors and never invents correspondence
+  ---
+  duration_ms: 0.2205
+  type: 'test'
+  ...
+# Subtest: title/affiliation claims require independent coverage and original quotes
+ok 49 - title/affiliation claims require independent coverage and original quotes
+  ---
+  duration_ms: 1.7582
+  type: 'test'
+  ...
+# Subtest: bibliographic HTML is escaped and edited Markdown does not get a duplicate header
+ok 50 - bibliographic HTML is escaped and edited Markdown does not get a duplicate header
+  ---
+  duration_ms: 17.6456
+  type: 'test'
+  ...
+# Subtest: one-click continuation queues incomplete, cancelled and review drafts while preserving edited, missing and saved work
+ok 51 - one-click continuation queues incomplete, cancelled and review drafts while preserving edited, missing and saved work
+  ---
+  duration_ms: 4.6928
+  type: 'test'
+  ...
+# Subtest: continuations respect the shared paper limit and queue pause then run the next paper only once
+ok 52 - continuations respect the shared paper limit and queue pause then run the next paper only once
+  ---
+  duration_ms: 3.9484
+  type: 'test'
+  ...
+# Subtest: repeated bulk clicks do not enqueue duplicate work and active papers occupy concurrency slots
+ok 53 - repeated bulk clicks do not enqueue duplicate work and active papers occupy concurrency slots
+  ---
+  duration_ms: 1.5266
+  type: 'test'
+  ...
+# Subtest: queued changes and an editor opened before dispatch prevent overwriting a retained draft
+ok 54 - queued changes and an editor opened before dispatch prevent overwriting a retained draft
+  ---
+  duration_ms: 1.4757
+  type: 'test'
+  ...
+# Subtest: stop cancels queued continuations and prevents intake from continuing after asynchronous preflight
+ok 55 - stop cancels queued continuations and prevents intake from continuing after asynchronous preflight
+  ---
+  duration_ms: 5.0293
+  type: 'test'
+  ...
+# Subtest: a queued continuation cannot be replaced by another batch enqueue or automatically restarted after shutdown
+ok 56 - a queued continuation cannot be replaced by another batch enqueue or automatically restarted after shutdown
+  ---
+  duration_ms: 2.0954
+  type: 'test'
+  ...
+# Subtest: the unified toggle starts once, then aborts running work and holds queued continuations for the next start
+ok 57 - the unified toggle starts once, then aborts running work and holds queued continuations for the next start
+  ---
+  duration_ms: 3.0768
+  type: 'test'
+  ...
+# Subtest: pausing while start is preparing prevents any late worker from launching
+ok 58 - pausing while start is preparing prevents any late worker from launching
+  ---
+  duration_ms: 1.3679
+  type: 'test'
+  ...
+# Subtest: a user-paused generation without a complete draft restarts only on explicit Start and keeps its old path
+ok 59 - a user-paused generation without a complete draft restarts only on explicit Start and keeps its old path
+  ---
+  duration_ms: 1.119
+  type: 'test'
+  ...
+# Subtest: the settings toolbar exposes one shared start-pause control and no separate continue-all button
+ok 60 - the settings toolbar exposes one shared start-pause control and no separate continue-all button
+  ---
+  duration_ms: 0.9393
+  type: 'test'
+  ...
+# Subtest: bulk save selects only waiting results and excludes running, editing, saved and cancelled papers
+ok 61 - bulk save selects only waiting results and excludes running, editing, saved and cancelled papers
+  ---
+  duration_ms: 4.8234
+  type: 'test'
+  ...
+# Subtest: bulk save is sequential and repeated clicks share one operation while per-paper failures do not stop other saves
+ok 62 - bulk save is sequential and repeated clicks share one operation while per-paper failures do not stop other saves
+  ---
+  duration_ms: 1.7526
+  type: 'test'
+  ...
+# Subtest: bulk save revalidates tasks after waiting for cleanup and never adds tasks that appeared after the click
+ok 63 - bulk save revalidates tasks after waiting for cleanup and never adds tasks that appeared after the click
+  ---
+  duration_ms: 1.8536
+  type: 'test'
+  ...
+# Subtest: shutdown or an editor opened during a queued save prevents that note from being written
+ok 64 - shutdown or an editor opened during a queued save prevents that note from being written
+  ---
+  duration_ms: 2.1033
+  type: 'test'
+  ...
+# Subtest: saving locks only the current draft editor and releases locks on success or error
+ok 65 - saving locks only the current draft editor and releases locks on success or error
+  ---
+  duration_ms: 1.695
+  type: 'test'
+  ...
+# Subtest: Pause All stops not-yet-written bulk saves without importing the remaining items
+ok 66 - Pause All stops not-yet-written bulk saves without importing the remaining items
+  ---
+  duration_ms: 1.4235
+  type: 'test'
+  ...
+# Subtest: classification proposes without changing membership; explicit confirmation preserves other collections
+ok 67 - classification proposes without changing membership; explicit confirmation preserves other collections
+  ---
+  duration_ms: 10.625
+  type: 'test'
+  ...
+# Subtest: disabled classification and dismiss never move an item
+ok 68 - disabled classification and dismiss never move an item
+  ---
+  duration_ms: 1.6058
+  type: 'test'
+  ...
+# Subtest: human note edits and changed source membership block stale classification proposals
+ok 69 - human note edits and changed source membership block stale classification proposals
+  ---
+  duration_ms: 3.4501
+  type: 'test'
+  ...
+# Subtest: unknown targets fail while manual additions can be outside the model suggestion root
+ok 70 - unknown targets fail while manual additions can be outside the model suggestion root
+  ---
+  duration_ms: 2.9631
+  type: 'test'
+  ...
+# Subtest: unfinished or replacement reading runs cannot use an older archive proposal
+ok 71 - unfinished or replacement reading runs cannot use an older archive proposal
+  ---
+  duration_ms: 9.4852
+  type: 'test'
+  ...
+# Subtest: one confirmation adds multiple selected categories and leaves the intake and other memberships intact
+ok 72 - one confirmation adds multiple selected categories and leaves the intake and other memberships intact
+  ---
+  duration_ms: 1.3626
+  type: 'test'
+  ...
+# Subtest: the user can reject the recommendation and choose only extra categories
+ok 73 - the user can reject the recommendation and choose only extra categories
+  ---
+  duration_ms: 1.1411
+  type: 'test'
+  ...
+# Subtest: intake removal happens only when explicitly requested alongside selected destinations
+ok 74 - intake removal happens only when explicitly requested alongside selected destinations
+  ---
+  duration_ms: 1.4156
+  type: 'test'
+  ...
+# Subtest: invalid multi-selection is rejected before any selected category is added
+ok 75 - invalid multi-selection is rejected before any selected category is added
+  ---
+  duration_ms: 2.3973
+  type: 'test'
+  ...
+# Subtest: adding categories does not require a paper to still be in the original intake collection
+ok 76 - adding categories does not require a paper to still be in the original intake collection
+  ---
+  duration_ms: 4.5091
+  type: 'test'
+  ...
+# Subtest: a human-confirmed saved manual note can be classified without being mislabeled as an unfinished task
+ok 77 - a human-confirmed saved manual note can be classified without being mislabeled as an unfinished task
+  ---
+  duration_ms: 2.0936
+  type: 'test'
+  ...
+# Subtest: regenerating a same-note suggestion preserves manual extra selections
+ok 78 - regenerating a same-note suggestion preserves manual extra selections
+  ---
+  duration_ms: 2.3084
+  type: 'test'
+  ...
+# Subtest: opening a manual selection while an automatic suggestion is queued does not suppress the model suggestion
+ok 79 - opening a manual selection while an automatic suggestion is queued does not suppress the model suggestion
+  ---
+  duration_ms: 1.7205
+  type: 'test'
+  ...
+# Subtest: only the explicit boolean removal option can remove the intake membership
+ok 80 - only the explicit boolean removal option can remove the intake membership
+  ---
+  duration_ms: 2.0578
+  type: 'test'
+  ...
+# Subtest: automatic archive prompt waits for completed saved work and never stacks windows
+ok 81 - automatic archive prompt waits for completed saved work and never stacks windows
+  ---
+  duration_ms: 2.381
+  type: 'test'
+  ...
+# Subtest: closing the archive window defers ready proposals without changing categories or immediately reopening
+ok 82 - closing the archive window defers ready proposals without changing categories or immediately reopening
+  ---
+  duration_ms: 2.4705
+  type: 'test'
+  ...
+# Subtest: confirming the current paper advances to the next ready proposal in the same window
+ok 83 - confirming the current paper advances to the next ready proposal in the same window
+  ---
+  duration_ms: 3.1835
+  type: 'test'
+  ...
+# Subtest: a confirmation from an obsolete dialog cannot act on a replacement note or source
+ok 84 - a confirmation from an obsolete dialog cannot act on a replacement note or source
+  ---
+  duration_ms: 1.8076
+  type: 'test'
+  ...
+# Subtest: a suggestion finishing after the user deferred the same note does not reopen its dialog
+ok 85 - a suggestion finishing after the user deferred the same note does not reopen its dialog
+  ---
+  duration_ms: 2.1022
+  type: 'test'
+  ...
+# Subtest: automatic suggestions reuse checked review with zero additional model requests
+ok 86 - automatic suggestions reuse checked review with zero additional model requests
+  ---
+  duration_ms: 1.0655
+  type: 'test'
+  ...
+# Subtest: missing or manually edited review keeps manual selection without an automatic model call
+ok 87 - missing or manually edited review keeps manual selection without an automatic model call
+  ---
+  duration_ms: 3.3901
+  type: 'test'
+  ...
+# Subtest: changed saved note, source, scope, or target cannot reuse a review suggestion
+ok 88 - changed saved note, source, scope, or target cannot reuse a review suggestion
+  ---
+  duration_ms: 8.986
+  type: 'test'
+  ...
+# Subtest: an explicitly requested new suggestion uses the checker settings
+ok 89 - an explicitly requested new suggestion uses the checker settings
+  ---
+  duration_ms: 1.0866
+  type: 'test'
+  ...
+# Subtest: a completed saved note can finish with existing categories and no item write
+ok 90 - a completed saved note can finish with existing categories and no item write
+  ---
+  duration_ms: 1.0757
+  type: 'test'
+  ...
+# Subtest: intake-only removal needs no new category when another membership already exists
+ok 91 - intake-only removal needs no new category when another membership already exists
+  ---
+  duration_ms: 1.1454
+  type: 'test'
+  ...
+# Subtest: empty completion still checks note identity and rejects a human edit
+ok 92 - empty completion still checks note identity and rejects a human edit
+  ---
+  duration_ms: 1.0913
+  type: 'test'
+  ...
+# Subtest: removing the last membership without a destination is rejected before mutation
+ok 93 - removing the last membership without a destination is rejected before mutation
+  ---
+  duration_ms: 1.044
+  type: 'test'
+  ...
+# Subtest: only explicitly selected old memberships are removed together with chosen additions
+ok 94 - only explicitly selected old memberships are removed together with chosen additions
+  ---
+  duration_ms: 1.2214
+  type: 'test'
+  ...
+# Subtest: conflicting or stale removal selections reject every planned change
+ok 95 - conflicting or stale removal selections reject every planned change
+  ---
+  duration_ms: 5.4227
+  type: 'test'
+  ...
+# Subtest: multiple checked suggestions and proposed removals remain advisory until individually confirmed
+ok 96 - multiple checked suggestions and proposed removals remain advisory until individually confirmed
+  ---
+  duration_ms: 1.7218
+  type: 'test'
+  ...
+# Subtest: review context includes current memberships even outside the suggestion scope
+ok 97 - review context includes current memberships even outside the suggestion scope
+  ---
+  duration_ms: 2.8248
+  type: 'test'
+  ...
+# Subtest: automatic mode files an unclassified new paper without a confirmation
+ok 98 - automatic mode files an unclassified new paper without a confirmation
+  ---
+  duration_ms: 2.2722
+  type: 'test'
+  ...
+# Subtest: automatic archiving keeps the saved note and membership when no reliable recommendations exist
+ok 99 - automatic archiving keeps the saved note and membership when no reliable recommendations exist
+  ---
+  duration_ms: 3.2996
+  type: 'test'
+  ...
+# Subtest: mode changes, cancellation and unrelated workers cannot authorize an automatic mutation
+ok 100 - mode changes, cancellation and unrelated workers cannot authorize an automatic mutation
+  ---
+  duration_ms: 4.1139
+  type: 'test'
+  ...
+# Subtest: automatic mode does not replay old proposals merely on rendering or opening settings
+ok 101 - automatic mode does not replay old proposals merely on rendering or opening settings
+  ---
+  duration_ms: 1.226
+  type: 'test'
+  ...
+# Subtest: auto archive still rejects a note changed since recommendation
+ok 102 - auto archive still rejects a note changed since recommendation
+  ---
+  duration_ms: 1.5926
+  type: 'test'
+  ...
+# Subtest: an invalid explicit archive mode does not enable automatic library mutations
+ok 103 - an invalid explicit archive mode does not enable automatic library mutations
+  ---
+  duration_ms: 0.985
+  type: 'test'
+  ...
+# Subtest: existing memberships turn new-category recommendations into confirmation even in automatic mode
+ok 104 - existing memberships turn new-category recommendations into confirmation even in automatic mode
+  ---
+  duration_ms: 1.457
+  type: 'test'
+  ...
+# Subtest: a removal-only suggestion is presented with a reason and only an explicit selection removes the old category
+ok 105 - a removal-only suggestion is presented with a reason and only an explicit selection removes the old category
+  ---
+  duration_ms: 1.4715
+  type: 'test'
+  ...
+# Subtest: agreeing with existing categories does not prompt or reassign the paper
+ok 106 - agreeing with existing categories does not prompt or reassign the paper
+  ---
+  duration_ms: 1.5089
+  type: 'test'
+  ...
+# Subtest: a category added during the automatic transaction redirects to review before any mutation
+ok 107 - a category added during the automatic transaction redirects to review before any mutation
+  ---
+  duration_ms: 1.6796
+  type: 'test'
+  ...
+# Subtest: Later defers an existing-category review without moving anything or reopening it
+ok 108 - Later defers an existing-category review without moving anything or reopening it
+  ---
+  duration_ms: 3.2712
+  type: 'test'
+  ...
+# Subtest: one-click suggestion adoption adds and removes only proposed memberships and keeps other categories
+ok 109 - one-click suggestion adoption adds and removes only proposed memberships and keeps other categories
+  ---
+  duration_ms: 3.8539
+  type: 'test'
+  ...
+# Subtest: one-click suggestions retain the same stale-note and missing-target protection as manual confirmation
+ok 110 - one-click suggestions retain the same stale-note and missing-target protection as manual confirmation
+  ---
+  duration_ms: 3.9847
+  type: 'test'
+  ...
+# Subtest: Codex desktop fallback derives user directories and selects the newest complete executable
+ok 111 - Codex desktop fallback derives user directories and selects the newest complete executable
+  ---
+  duration_ms: 31.6661
+  type: 'test'
+  ...
+# Subtest: explicit and PATH Codex installations take precedence and invalid custom paths never silently fall back
+ok 112 - explicit and PATH Codex installations take precedence and invalid custom paths never silently fall back
+  ---
+  duration_ms: 16.2277
+  type: 'test'
+  ...
+# Subtest: npm Codex shims still resolve to native binaries and Antigravity uses per-user fallback
+ok 113 - npm Codex shims still resolve to native binaries and Antigravity uses per-user fallback
+  ---
+  duration_ms: 19.9357
+  type: 'test'
+  ...
+# Subtest: missing CLI discovery invalidates old connectivity and retains cached model choices without success
+ok 114 - missing CLI discovery invalidates old connectivity and retains cached model choices without success
+  ---
+  duration_ms: 35.4174
+  type: 'test'
+  ...
+# Subtest: successful catalog refresh after failure cannot revive a previous connectivity success
+ok 115 - successful catalog refresh after failure cannot revive a previous connectivity success
+  ---
+  duration_ms: 11.9623
+  type: 'test'
+  ...
+# Subtest: a fresh successful connection clears old detection errors but does not claim a refreshed model catalog
+ok 116 - a fresh successful connection clears old detection errors but does not claim a refreshed model catalog
+  ---
+  duration_ms: 19.3486
+  type: 'test'
+  ...
+# Subtest: changing a path or replacing its binary invalidates both full and quick success
+ok 117 - changing a path or replacing its binary invalidates both full and quick success
+  ---
+  duration_ms: 21.2002
+  type: 'test'
+  ...
+# Subtest: a late catalog result from a changed path cannot overwrite newer detection state
+ok 118 - a late catalog result from a changed path cannot overwrite newer detection state
+  ---
+  duration_ms: 13.6051
+  type: 'test'
+  ...
+# Subtest: cancelled connection tests replace older green results without claiming model unavailability
+ok 119 - cancelled connection tests replace older green results without claiming model unavailability
+  ---
+  duration_ms: 19.7517
+  type: 'test'
+  ...
+# Subtest: persisted legacy successes and a same-version binary at a different path require retesting
+ok 120 - persisted legacy successes and a same-version binary at a different path require retesting
+  ---
+  duration_ms: 11.3907
+  type: 'test'
+  ...
+# Subtest: same-millisecond failed or cancelled checks cannot be hidden by full-test success
+ok 121 - same-millisecond failed or cancelled checks cannot be hidden by full-test success
+  ---
+  duration_ms: 0.2716
+  type: 'test'
+  ...
+# Subtest: a connection test waits for pending catalog failure then records its own newer result
+ok 122 - a connection test waits for pending catalog failure then records its own newer result
+  ---
+  duration_ms: 10.5339
+  type: 'test'
+  ...
+# Subtest: ordinary connectivity accepts a short greeting reply without schema or model-name matching
+ok 123 - ordinary connectivity accepts a short greeting reply without schema or model-name matching
+  ---
+  duration_ms: 21.1833
+  type: 'test'
+  ...
+# Subtest: an empty greeting response cannot pass connectivity
+ok 124 - an empty greeting response cannot pass connectivity
+  ---
+  duration_ms: 15.7786
+  type: 'test'
+  ...
+# Subtest: explicit structured verification still rejects a prose reply
+ok 125 - explicit structured verification still rejects a prose reply
+  ---
+  duration_ms: 26.1067
+  type: 'test'
+  ...
+# Subtest: stopping while waiting for a catalog returns promptly without a model request
+ok 126 - stopping while waiting for a catalog returns promptly without a model request
+  ---
+  duration_ms: 18.1452
+  type: 'test'
+  ...
+# Subtest: paper-only calls disable plugin prefetch and shell snapshots for this process
+ok 127 - paper-only calls disable plugin prefetch and shell snapshots for this process
+  ---
+  duration_ms: 1.2795
+  type: 'test'
+  ...
+# Subtest: reasoning strength is sent as a validated per-run CLI override, never a prompt hint
+ok 128 - reasoning strength is sent as a validated per-run CLI override, never a prompt hint
+  ---
+  duration_ms: 1.6448
+  type: 'test'
+  ...
+# Subtest: Antigravity update opt-out reaches child only and preserves inherited environment
+ok 129 - Antigravity update opt-out reaches child only and preserves inherited environment
+  ---
+  duration_ms: 384.669
+  type: 'test'
+  ...
+# Subtest: full stdin including long Chinese text reaches child while both pipes are drained
+ok 130 - full stdin including long Chinese text reaches child while both pipes are drained
+  ---
+  duration_ms: 216.4303
+  type: 'test'
+  ...
+# Subtest: arguments are separate values, read-only, and never use approval/sandbox bypass
+ok 131 - arguments are separate values, read-only, and never use approval/sandbox bypass
+  ---
+  duration_ms: 0.3478
+  type: 'test'
+  ...
+# Subtest: empty and oversized source inputs rejected without truncation
+ok 132 - empty and oversized source inputs rejected without truncation
+  ---
+  duration_ms: 0.3192
+  type: 'test'
+  ...
+# Subtest: nonzero exit is preserved and authentication failure is sanitized
+ok 133 - nonzero exit is preserved and authentication failure is sanitized
+  ---
+  duration_ms: 183.6904
+  type: 'test'
+  ...
+# Subtest: timeout terminates the native child and returns a specific error
+ok 134 - timeout terminates the native child and returns a specific error
+  ---
+  duration_ms: 267.9141
+  type: 'test'
+  ...
+# Subtest: user cancellation terminates an active native child
+ok 135 - user cancellation terminates an active native child
+  ---
+  duration_ms: 264.4197
+  type: 'test'
+  ...
+# Subtest: already cancelled call does not spawn anything
+ok 136 - already cancelled call does not spawn anything
+  ---
+  duration_ms: 0.3418
+  type: 'test'
+  ...
+# Subtest: error categories remain distinguishable without emitting raw diagnostics
+ok 137 - error categories remain distinguishable without emitting raw diagnostics
+  ---
+  duration_ms: 0.4046
+  type: 'test'
+  ...
+# Subtest: split JSON events and failure events are handled
+ok 138 - split JSON events and failure events are handled
+  ---
+  duration_ms: 0.0949
+  type: 'test'
+  ...
+# Subtest: an early failed child does not deadlock while stdin is being written
+ok 139 - an early failed child does not deadlock while stdin is being written
+  ---
+  duration_ms: 98.8837
+  type: 'test'
+  ...
+# Subtest: moving an existing paper into the watched collection captures its already-synced PDF once
+ok 140 - moving an existing paper into the watched collection captures its already-synced PDF once
+  ---
+  duration_ms: 10.6669
+  type: 'test'
+  ...
+# Subtest: collection scope excludes siblings, descendants and standalone files outside the selected collection
+ok 141 - collection scope excludes siblings, descendants and standalone files outside the selected collection
+  ---
+  duration_ms: 3.2201
+  type: 'test'
+  ...
+# Subtest: a PDF added after its parent entered the collection is captured but membership sync is ignored
+ok 142 - a PDF added after its parent entered the collection is captured but membership sync is ignored
+  ---
+  duration_ms: 2.1748
+  type: 'test'
+  ...
+# Subtest: changing selected collection cancels pending automatic jobs without touching manual jobs or scanning old papers
+ok 143 - changing selected collection cancels pending automatic jobs without touching manual jobs or scanning old papers
+  ---
+  duration_ms: 6.348
+  type: 'test'
+  ...
+# Subtest: leaving collection cancels pending work; re-entry may retry only untouched scope-cancelled work
+ok 144 - leaving collection cancels pending work; re-entry may retry only untouched scope-cancelled work
+  ---
+  duration_ms: 3.4263
+  type: 'test'
+  ...
+# Subtest: deleted watched collection fails closed without falling back to all PDFs
+ok 145 - deleted watched collection fails closed without falling back to all PDFs
+  ---
+  duration_ms: 2.5152
+  type: 'test'
+  ...
+# Subtest: scope-change race cannot enqueue from an obsolete notification
+ok 146 - scope-change race cannot enqueue from an obsolete notification
+  ---
+  duration_ms: 1.7927
+  type: 'test'
+  ...
+# Subtest: one cleanup removes safe generated cache and hides completed history while retaining a deduplication receipt
+ok 147 - one cleanup removes safe generated cache and hides completed history while retaining a deduplication receipt
+  ---
+  duration_ms: 15.6688
+  type: 'test'
+  ...
+# Subtest: already-cleaned cache still allows history removal and repeated clicks are idempotent
+ok 148 - already-cleaned cache still allows history removal and repeated clicks are idempotent
+  ---
+  duration_ms: 5.0144
+  type: 'test'
+  ...
+# Subtest: running and unresolved tasks and unconfirmed or stale archive records are retained
+ok 149 - running and unresolved tasks and unconfirmed or stale archive records are retained
+  ---
+  duration_ms: 18.9696
+  type: 'test'
+  ...
+# Subtest: a modified draft, missing note or active editor prevents both cache and history cleanup
+ok 150 - a modified draft, missing note or active editor prevents both cache and history cleanup
+  ---
+  duration_ms: 8.3466
+  type: 'test'
+  ...
+# Subtest: unrelated running work continues while a finished task is cleaned
+ok 151 - unrelated running work continues while a finished task is cleaned
+  ---
+  duration_ms: 8.0493
+  type: 'test'
+  ...
+# Subtest: a failed cache cleanup keeps its history available for retry
+ok 152 - a failed cache cleanup keeps its history available for retry
+  ---
+  duration_ms: 4.6341
+  type: 'test'
+  ...
+# Subtest: queue write failure restores the visible job after successful cache cleanup
+ok 153 - queue write failure restores the visible job after successful cache cleanup
+  ---
+  duration_ms: 4.9787
+  type: 'test'
+  ...
+# Subtest: changed task or confirmation while awaiting a receipt prevents deletion
+ok 154 - changed task or confirmation while awaiting a receipt prevents deletion
+  ---
+  duration_ms: 4.1493
+  type: 'test'
+  ...
+# Subtest: concurrent cleanup requests share the operation and release their locks
+ok 155 - concurrent cleanup requests share the operation and release their locks
+  ---
+  duration_ms: 5.2751
+  type: 'test'
+  ...
+# Subtest: upload → queue → running → download; credentials sent only to official API
+ok 156 - upload → queue → running → download; credentials sent only to official API
+  ---
+  duration_ms: 6.9427
+  type: 'test'
+  ...
+# Subtest: missing or malformed credentials fail before any network request
+ok 157 - missing or malformed credentials fail before any network request
+  ---
+  duration_ms: 1.5839
+  type: 'test'
+  ...
+# Subtest: invalid and expired token codes are explained without echoing remote secrets
+ok 158 - invalid and expired token codes are explained without echoing remote secrets
+  ---
+  duration_ms: 1.4012
+  type: 'test'
+  ...
+# Subtest: a previously uploaded job resumes without another upload
+ok 159 - a previously uploaded job resumes without another upload
+  ---
+  duration_ms: 1.2218
+  type: 'test'
+  ...
+# Subtest: transient poll errors are retried, allocation POST is not duplicated
+ok 160 - transient poll errors are retried, allocation POST is not duplicated
+  ---
+  duration_ms: 0.65
+  type: 'test'
+  ...
+# Subtest: failed upload does not mark the job as uploaded
+ok 161 - failed upload does not mark the job as uploaded
+  ---
+  duration_ms: 0.2513
+  type: 'test'
+  ...
+# Subtest: cancellation before start has no network side effect
+ok 162 - cancellation before start has no network side effect
+  ---
+  duration_ms: 0.3302
+  type: 'test'
+  ...
+# Subtest: failed job and result identity mismatch are not treated as successful parses
+ok 163 - failed job and result identity mismatch are not treated as successful parses
+  ---
+  duration_ms: 0.5858
+  type: 'test'
+  ...
+# Subtest: empty and oversized PDFs are rejected before upload
+ok 164 - empty and oversized PDFs are rejected before upload
+  ---
+  duration_ms: 0.4821
+  type: 'test'
+  ...
+# Subtest: signed URL validation and zip path validation reject dangerous inputs
+ok 165 - signed URL validation and zip path validation reject dangerous inputs
+  ---
+  duration_ms: 0.7597
+  type: 'test'
+  ...
+# Subtest: cache reuse requires matching attachment, PDF hash, settings and complete state
+ok 166 - cache reuse requires matching attachment, PDF hash, settings and complete state
+  ---
+  duration_ms: 0.2805
+  type: 'test'
+  ...
+# Subtest: unknown task states and missing Markdown download URL fail explicitly
+ok 167 - unknown task states and missing Markdown download URL fail explicitly
+  ---
+  duration_ms: 1.5919
+  type: 'test'
+  ...
+# Subtest: Zotero manifest has mandatory fields and a secure reserved update address
+ok 168 - Zotero manifest has mandatory fields and a secure reserved update address
+  ---
+  duration_ms: 0.9287
+  type: 'test'
+  ...
+# Subtest: reasoning levels follow each returned model and survive cached catalog normalization
+ok 169 - reasoning levels follow each returned model and survive cached catalog normalization
+  ---
+  duration_ms: 2.074
+  type: 'test'
+  ...
+# Subtest: Antigravity slider maps only advertised variants and leaves ungrouped models intact
+ok 170 - Antigravity slider maps only advertised variants and leaves ungrouped models intact
+  ---
+  duration_ms: 0.7534
+  type: 'test'
+  ...
+# Subtest: availability belongs to an actually tested engine/model and expires on time or CLI changes
+ok 171 - availability belongs to an actually tested engine/model and expires on time or CLI changes
+  ---
+  duration_ms: 0.2599
+  type: 'test'
+  ...
+# Subtest: Codex catalogs use returned IDs and filter hidden, duplicate and non-text models
+ok 172 - Codex catalogs use returned IDs and filter hidden, duplicate and non-text models
+  ---
+  duration_ms: 0.3552
+  type: 'test'
+  ...
+# Subtest: Antigravity model parsing does not invent IDs from headings or log text
+ok 173 - Antigravity model parsing does not invent IDs from headings or log text
+  ---
+  duration_ms: 0.6044
+  type: 'test'
+  ...
+# Subtest: Antigravity arguments use stream stdin, schema and restricted session settings
+ok 174 - Antigravity arguments use stream stdin, schema and restricted session settings
+  ---
+  duration_ms: 0.3968
+  type: 'test'
+  ...
+# Subtest: Antigravity stream reader accepts one final result and rejects multiple turns
+ok 175 - Antigravity stream reader accepts one final result and rejects multiple turns
+  ---
+  duration_ms: 0.3895
+  type: 'test'
+  ...
+# Subtest: editable template preferences cannot remove the fixed evidence and verification instructions
+ok 176 - editable template preferences cannot remove the fixed evidence and verification instructions
+  ---
+  duration_ms: 0.8819
+  type: 'test'
+  ...
+# Subtest: note naming validates placeholders and preserves draft status even if omitted or truncated
+ok 177 - note naming validates placeholders and preserves draft status even if omitted or truncated
+  ---
+  duration_ms: 21.1001
+  type: 'test'
+  ...
+# Subtest: edited Markdown is rendered as text and cannot inject HTML or JavaScript
+ok 178 - edited Markdown is rendered as text and cannot inject HTML or JavaScript
+  ---
+  duration_ms: 1.2545
+  type: 'test'
+  ...
+# Subtest: Codex model discovery follows handshake, pagination and visibility rules
+ok 179 - Codex model discovery follows handshake, pagination and visibility rules
+  ---
+  duration_ms: 0.9106
+  type: 'test'
+  ...
+# Subtest: note HTML escapes model and source content and keeps only controlled links
+ok 180 - note HTML escapes model and source content and keeps only controlled links
+  ---
+  duration_ms: 25.1879
+  type: 'test'
+  ...
+# Subtest: note front sections and claim attribution survive import into Zotero HTML
+ok 181 - note front sections and claim attribution survive import into Zotero HTML
+  ---
+  duration_ms: 2.3136
+  type: 'test'
+  ...
+# Subtest: note titles visibly distinguish checked, needs-review and incomplete drafts
+ok 182 - note titles visibly distinguish checked, needs-review and incomplete drafts
+  ---
+  duration_ms: 2.1322
+  type: 'test'
+  ...
+# Subtest: a local recomputation cannot upgrade a previously flagged workflow
+ok 183 - a local recomputation cannot upgrade a previously flagged workflow
+  ---
+  duration_ms: 1.4367
+  type: 'test'
+  ...
+# Subtest: same-run markers are role-specific and reject path-like identifiers
+ok 184 - same-run markers are role-specific and reject path-like identifiers
+  ---
+  duration_ms: 2.0084
+  type: 'test'
+  ...
+# Subtest: automatic capture is limited to newly added local PDFs while enabled
+ok 185 - automatic capture is limited to newly added local PDFs while enabled
+  ---
+  duration_ms: 0.9927
+  type: 'test'
+  ...
+# Subtest: duplicate add notifications do not enqueue repeated model runs
+ok 186 - duplicate add notifications do not enqueue repeated model runs
+  ---
+  duration_ms: 0.8274
+  type: 'test'
+  ...
+# Subtest: a growing or missing file remains pending until stable
+ok 187 - a growing or missing file remains pending until stable
+  ---
+  duration_ms: 0.2744
+  type: 'test'
+  ...
+# Subtest: FIFO queue respects pause, active work and disabled automatic processing
+ok 188 - FIFO queue respects pause, active work and disabled automatic processing
+  ---
+  duration_ms: 0.3815
+  type: 'test'
+  ...
+# Subtest: interrupted jobs are not silently rerun on restart
+ok 189 - interrupted jobs are not silently rerun on restart
+  ---
+  duration_ms: 0.391
+  type: 'test'
+  ...
+# Subtest: settings have the automation checkbox and no separate note-save button
+ok 190 - settings have the automation checkbox and no separate note-save button
+  ---
+  duration_ms: 1.2875
+  type: 'test'
+  ...
+# Subtest: note rendering adds each attribution once without rewriting model claims or manual Markdown
+ok 191 - note rendering adds each attribution once without rewriting model claims or manual Markdown
+  ---
+  duration_ms: 2.0401
+  type: 'test'
+  ...
+# Subtest: reader always presents one unambiguous next action for interruption, issues, checked and saved states
+ok 192 - reader always presents one unambiguous next action for interruption, issues, checked and saved states
+  ---
+  duration_ms: 2.8294
+  type: 'test'
+  ...
+# Subtest: manual editing is clearly distinguished from a checked import
+ok 193 - manual editing is clearly distinguished from a checked import
+  ---
+  duration_ms: 0.4553
+  type: 'test'
+  ...
+# Subtest: legacy transient verification states never appear as confirmed content errors
+ok 194 - legacy transient verification states never appear as confirmed content errors
+  ---
+  duration_ms: 0.1557
+  type: 'test'
+  ...
+# Subtest: same-task worker completion refreshes the view while unrelated workers cannot overwrite it
+ok 195 - same-task worker completion refreshes the view while unrelated workers cannot overwrite it
+  ---
+  duration_ms: 3.6373
+  type: 'test'
+  ...
+# Subtest: saved-note completion supersedes stale cached file state in an open viewer
+ok 196 - saved-note completion supersedes stale cached file state in an open viewer
+  ---
+  duration_ms: 1.2216
+  type: 'test'
+  ...
+# Subtest: new notes require all three substantive front sections; legacy loading is explicit
+ok 197 - new notes require all three substantive front sections; legacy loading is explicit
+  ---
+  duration_ms: 4.2847
+  type: 'test'
+  ...
+# Subtest: publication analysis cannot be promoted to reported fact even when a verifier agrees
+ok 198 - publication analysis cannot be promoted to reported fact even when a verifier agrees
+  ---
+  duration_ms: 0.9007
+  type: 'test'
+  ...
+# Subtest: author explanations retain attribution and journal limits appear alongside publication analysis
+ok 199 - author explanations retain attribution and journal limits appear alongside publication analysis
+  ---
+  duration_ms: 1.7003
+  type: 'test'
+  ...
+# Subtest: one unified template with legacy IDs and no free-question interface
+ok 200 - one unified template with legacy IDs and no free-question interface
+  ---
+  duration_ms: 0.4811
+  type: 'test'
+  ...
+# Subtest: full source is partitioned without truncating scientific text
+ok 201 - full source is partitioned without truncating scientific text
+  ---
+  duration_ms: 0.3823
+  type: 'test'
+  ...
+# Subtest: verification receives original source and claims, not generator-proposed citations
+ok 202 - verification receives original source and claims, not generator-proposed citations
+  ---
+  duration_ms: 0.2371
+  type: 'test'
+  ...
+# Subtest: complete matched evidence and supported coverage are required for checked status
+ok 203 - complete matched evidence and supported coverage are required for checked status
+  ---
+  duration_ms: 0.2533
+  type: 'test'
+  ...
+# Subtest: fabricated generator quotes cannot be rubber-stamped by verifier
+ok 204 - fabricated generator quotes cannot be rubber-stamped by verifier
+  ---
+  duration_ms: 0.1968
+  type: 'test'
+  ...
+# Subtest: fabricated verifier evidence and nonexistent paragraph IDs fail locally
+ok 205 - fabricated verifier evidence and nonexistent paragraph IDs fail locally
+  ---
+  duration_ms: 0.3336
+  type: 'test'
+  ...
+# Subtest: unsupported, contradicted, overstated, and uncertain claims never pass
+ok 206 - unsupported, contradicted, overstated, and uncertain claims never pass
+  ---
+  duration_ms: 0.5277
+  type: 'test'
+  ...
+# Subtest: duplicate, unknown, and omitted check identities cannot fake coverage
+ok 207 - duplicate, unknown, and omitted check identities cannot fake coverage
+  ---
+  duration_ms: 0.5243
+  type: 'test'
+  ...
+# Subtest: minor number detail does not block an otherwise supported note, but material omissions do
+ok 208 - minor number detail does not block an otherwise supported note, but material omissions do
+  ---
+  duration_ms: 0.4657
+  type: 'test'
+  ...
+# Subtest: not-reported entries still require explicit independent review
+ok 209 - not-reported entries still require explicit independent review
+  ---
+  duration_ms: 0.4072
+  type: 'test'
+  ...
+# Subtest: malformed or incomplete structured outputs are rejected
+ok 210 - malformed or incomplete structured outputs are rejected
+  ---
+  duration_ms: 0.6689
+  type: 'test'
+  ...
+# Subtest: not-reported label cannot hide an affirmative unsupported assertion
+ok 211 - not-reported label cannot hide an affirmative unsupported assertion
+  ---
+  duration_ms: 0.1856
+  type: 'test'
+  ...
+# Subtest: rendering distinguishes draft, checked, and needs-review artifacts without a separate report
+ok 212 - rendering distinguishes draft, checked, and needs-review artifacts without a separate report
+  ---
+  duration_ms: 0.4747
+  type: 'test'
+  ...
+# Subtest: repair requests preserve original source, draft and diagnostic feedback, then require a new check
+ok 213 - repair requests preserve original source, draft and diagnostic feedback, then require a new check
+  ---
+  duration_ms: 0.6044
+  type: 'test'
+  ...
+# Subtest: rendering duplicate attribution prefixes preserves source claims, kind and inline label references
+ok 214 - rendering duplicate attribution prefixes preserves source claims, kind and inline label references
+  ---
+  duration_ms: 0.3633
+  type: 'test'
+  ...
+# Subtest: generated Markdown formatting is idempotent and leaves headings, quotes, inline labels and line endings intact
+ok 215 - generated Markdown formatting is idempotent and leaves headings, quotes, inline labels and line endings intact
+  ---
+  duration_ms: 0.2121
+  type: 'test'
+  ...
+# Subtest: network interruption is distinct from failed content checks and offers resume beside disabled import
+ok 216 - network interruption is distinct from failed content checks and offers resume beside disabled import
+  ---
+  duration_ms: 93.4131
+  type: 'test'
+  ...
+# Subtest: resuming preserves the draft and run identity, uses the current checker and enables import only after success
+ok 217 - resuming preserves the draft and run identity, uses the current checker and enables import only after success
+  ---
+  duration_ms: 52.8406
+  type: 'test'
+  ...
+# Subtest: a repeated network failure retains the existing draft and a retryable incomplete status
+ok 218 - a repeated network failure retains the existing draft and a retryable incomplete status
+  ---
+  duration_ms: 26.2339
+  type: 'test'
+  ...
+# Subtest: cancelling a resumed check keeps import disabled and retains the retry action
+ok 219 - cancelling a resumed check keeps import disabled and retains the retry action
+  ---
+  duration_ms: 28.7401
+  type: 'test'
+  ...
+# Subtest: resuming can repair a retained draft and independently verify the correction
+ok 220 - resuming can repair a retained draft and independently verify the correction
+  ---
+  duration_ms: 37.6112
+  type: 'test'
+  ...
+# Subtest: changed main or supplemental source prevents stale resume before any model call
+ok 221 - changed main or supplemental source prevents stale resume before any model call
+  ---
+  duration_ms: 36.0771
+  type: 'test'
+  ...
+# Subtest: manual Markdown changes are preserved and refresh reveals the explicit manual import route
+ok 222 - manual Markdown changes are preserved and refresh reveals the explicit manual import route
+  ---
+  duration_ms: 23.4225
+  type: 'test'
+  ...
+# Subtest: opening an old untouched generated draft formats its preview without rewriting the file or reclassifying manual edits
+ok 223 - opening an old untouched generated draft formats its preview without rewriting the file or reclassifying manual edits
+  ---
+  duration_ms: 23.0951
+  type: 'test'
+  ...
+# Subtest: a legacy cancelled task with a retained draft can explicitly continue without regeneration or parsing
+ok 224 - a legacy cancelled task with a retained draft can explicitly continue without regeneration or parsing
+  ---
+  duration_ms: 28.124
+  type: 'test'
+  ...
+# Subtest: missing drafts, saved notes and language-filtered cancellations cannot use verification resume
+ok 225 - missing drafts, saved notes and language-filtered cancellations cannot use verification resume
+  ---
+  duration_ms: 48.615
+  type: 'test'
+  ...
+# Subtest: the first cancellation request keeps its source when shutdown follows
+ok 226 - the first cancellation request keeps its source when shutdown follows
+  ---
+  duration_ms: 15.0186
+  type: 'test'
+  ...
+# Subtest: plugin shutdown records its own cancellation source
+ok 227 - plugin shutdown records its own cancellation source
+  ---
+  duration_ms: 19.2503
+  type: 'test'
+  ...
+# Subtest: saved receipt contains stable keys and hashes, with no local IDs or absolute paths
+ok 228 - saved receipt contains stable keys and hashes, with no local IDs or absolute paths
+  ---
+  duration_ms: 4.6457
+  type: 'test'
+  ...
+# Subtest: after confirmed import, reading files, owned runs and unused cache are removed but source PDF and note survive
+ok 229 - after confirmed import, reading files, owned runs and unused cache are removed but source PDF and note survive
+  ---
+  duration_ms: 91.9645
+  type: 'test'
+  ...
+# Subtest: unconfirmed imports, deleted notes and edited Markdown remain untouched
+ok 230 - unconfirmed imports, deleted notes and edited Markdown remain untouched
+  ---
+  duration_ms: 67.1305
+  type: 'test'
+  ...
+# Subtest: cache still used by another unfinished reading is retained while imported result is cleaned
+ok 231 - cache still used by another unfinished reading is retained while imported result is cleaned
+  ---
+  duration_ms: 34.1087
+  type: 'test'
+  ...
+# Subtest: extra user files protect the reading directory, and extra cache files protect cache content
+ok 232 - extra user files protect the reading directory, and extra cache files protect cache content
+  ---
+  duration_ms: 50.388
+  type: 'test'
+  ...
+# Subtest: cleanup refuses links and targets outside the private data directory
+ok 233 - cleanup refuses links and targets outside the private data directory
+  ---
+  duration_ms: 23.3971
+  type: 'test'
+  ...
+# Subtest: cleanup failure does not undo the note and retry safely finishes remaining files
+ok 234 - cleanup failure does not undo the note and retry safely finishes remaining files
+  ---
+  duration_ms: 39.3589
+  type: 'test'
+  ...
+# Subtest: another computer with different local IDs and no local history finds synced notes and skips duplicate processing
+ok 235 - another computer with different local IDs and no local history finds synced notes and skips duplicate processing
+  ---
+  duration_ms: 20.2975
+  type: 'test'
+  ...
+# Subtest: legacy synced notes remain discoverable without claiming their PDF version was verified
+ok 236 - legacy synced notes remain discoverable without claiming their PDF version was verified
+  ---
+  duration_ms: 16.4921
+  type: 'test'
+  ...
+# Subtest: manual cleanup waits for an in-flight note transaction
+ok 237 - manual cleanup waits for an in-flight note transaction
+  ---
+  duration_ms: 17.6438
+  type: 'test'
+  ...
+# Subtest: a byte-exact legacy review draft no longer blocks cleanup after the final note is saved
+ok 238 - a byte-exact legacy review draft no longer blocks cleanup after the final note is saved
+  ---
+  duration_ms: 50.5815
+  type: 'test'
+  ...
+# Subtest: edited or unprovable old intermediate files remain protected with a specific filename
+ok 239 - edited or unprovable old intermediate files remain protected with a specific filename
+  ---
+  duration_ms: 30.5118
+  type: 'test'
+  ...
+# Subtest: a recorded intermediate checksum is enforced and cannot be bypassed by legacy replay
+ok 240 - a recorded intermediate checksum is enforced and cannot be bypassed by legacy replay
+  ---
+  duration_ms: 70.9246
+  type: 'test'
+  ...
+# Subtest: changes to the current imported result remain protected even with reproducible historic data
+ok 241 - changes to the current imported result remain protected even with reproducible historic data
+  ---
+  duration_ms: 23.8436
+  type: 'test'
+  ...
+# Subtest: all three MinerU formats recover the missing footnote without adding headers or page numbers
+ok 242 - all three MinerU formats recover the missing footnote without adding headers or page numbers
+  ---
+  duration_ms: 2.0989
+  type: 'test'
+  ...
+# Subtest: parallel JSON representations and footnotes already in Markdown are not repeated
+ok 243 - parallel JSON representations and footnotes already in Markdown are not repeated
+  ---
+  duration_ms: 0.4577
+  type: 'test'
+  ...
+# Subtest: a partially included note is kept in full and different mathematical signs are not deduplicated
+ok 244 - a partially included note is kept in full and different mathematical signs are not deduplicated
+  ---
+  duration_ms: 0.2469
+  type: 'test'
+  ...
+# Subtest: missing structured output remains explicitly unavailable while malformed footnotes are rejected
+ok 245 - missing structured output remains explicitly unavailable while malformed footnotes are rejected
+  ---
+  duration_ms: 0.6558
+  type: 'test'
+  ...
+# Subtest: unknown page indices are not invented and overlong enriched input is not truncated
+ok 246 - unknown page indices are not invented and overlong enriched input is not truncated
+  ---
+  duration_ms: 0.7503
+  type: 'test'
+  ...
+# Subtest: main and selected supplemental footnotes remain separate and can be cited by the verifier
+ok 247 - main and selected supplemental footnotes remain separate and can be cited by the verifier
+  ---
+  duration_ms: 1.5389
+  type: 'test'
+  ...
+# Subtest: runtime reuses an old cache read-only and records the exact enriched input fingerprint
+ok 248 - runtime reuses an old cache read-only and records the exact enriched input fingerprint
+  ---
+  duration_ms: 3.6263
+  type: 'test'
+  ...
+# Subtest: runtime rejects traversal, corrupted JSON, changed size and oversized JSON before invoking a model
+ok 249 - runtime rejects traversal, corrupted JSON, changed size and oversized JSON before invoking a model
+  ---
+  duration_ms: 5.7769
+  type: 'test'
+  ...
+# Subtest: Wiki frontmatter and note title share author/year/title and stable Zotero identity
+ok 250 - Wiki frontmatter and note title share author/year/title and stable Zotero identity
+  ---
+  duration_ms: 17.384
+  type: 'test'
+  ...
+# Subtest: draft exports cannot claim verification, custom titles persist, and local identity is explicit
+ok 251 - draft exports cannot claim verification, custom titles persist, and local identity is explicit
+  ---
+  duration_ms: 1.9252
+  type: 'test'
+  ...
+# Subtest: quick testing selects only advertised low effort and never mutates the reading configuration
+ok 252 - quick testing selects only advertised low effort and never mutates the reading configuration
+  ---
+  duration_ms: 0.8919
+  type: 'test'
+  ...
+# Subtest: the latest quick result is not hidden by an older full-configuration success
+ok 253 - the latest quick result is not hidden by an older full-configuration success
+  ---
+  duration_ms: 0.3144
+  type: 'test'
+  ...
+# Subtest: a timed-out request is shown as unconfirmed rather than a proved-unavailable model
+ok 254 - a timed-out request is shown as unconfirmed rather than a proved-unavailable model
+  ---
+  duration_ms: 0.3134
+  type: 'test'
+  ...
+# Subtest: bilingual default uses the documented Chinese/English pack and keeps English-only override
+ok 255 - bilingual default uses the documented Chinese/English pack and keeps English-only override
+  ---
+  duration_ms: 1.1422
+  type: 'test'
+  ...
+# Subtest: automatic language sends ch, never an unsupported auto API value
+ok 256 - automatic language sends ch, never an unsupported auto API value
+  ---
+  duration_ms: 2.4353
+  type: 'test'
+  ...
+# Subtest: workflow limits are bounded and permit zero repairs
+ok 257 - workflow limits are bounded and permit zero repairs
+  ---
+  duration_ms: 0.5142
+  type: 'test'
+  ...
+# Subtest: full review grouping covers every section and bibliography claim exactly once
+ok 258 - full review grouping covers every section and bibliography claim exactly once
+  ---
+  duration_ms: 1.3407
+  type: 'test'
+  ...
+# Subtest: missing, duplicate, foreign or mixed review coverage never passes
+ok 259 - missing, duplicate, foreign or mixed review coverage never passes
+  ---
+  duration_ms: 0.4276
+  type: 'test'
+  ...
+# Subtest: compact complete-review output retains fact and quote checks without routine approval paragraphs
+ok 260 - compact complete-review output retains fact and quote checks without routine approval paragraphs
+  ---
+  duration_ms: 1.0729
+  type: 'test'
+  ...
+# Subtest: complete source-paragraph evidence is accepted without truncation and longer quotes still fail structure validation
+ok 261 - complete source-paragraph evidence is accepted without truncation and longer quotes still fail structure validation
+  ---
+  duration_ms: 0.3888
+  type: 'test'
+  ...
+# Subtest: parallel verifier respects its limit and retains result ordering
+ok 262 - parallel verifier respects its limit and retains result ordering
+  ---
+  duration_ms: 32.2662
+  type: 'test'
+  ...
+# Subtest: one verifier failure aborts its sibling and awaits cleanup before rejecting
+ok 263 - one verifier failure aborts its sibling and awaits cleanup before rejecting
+  ---
+  duration_ms: 15.1744
+  type: 'test'
+  ...
+# Subtest: the checked brief preserves a complete supported finding and never invents a summary
+ok 264 - the checked brief preserves a complete supported finding and never invents a summary
+  ---
+  duration_ms: 0.4118
+  type: 'test'
+  ...
+# Subtest: paper workers use independent state and cancellation controllers
+ok 265 - paper workers use independent state and cancellation controllers
+  ---
+  duration_ms: 14.488
+  type: 'test'
+  ...
+# Subtest: scheduler runs two papers, isolates one failure, and starts the next without blocking the survivor
+ok 266 - scheduler runs two papers, isolates one failure, and starts the next without blocking the survivor
+  ---
+  duration_ms: 31.2462
+  type: 'test'
+  ...
+# Subtest: one unified template includes the requested study types, missing-value text and interpretation labels
+ok 267 - one unified template includes the requested study types, missing-value text and interpretation labels
+  ---
+  duration_ms: 0.494
+  type: 'test'
+  ...
+# Subtest: single-paper checking stays sequential and empty repair preferences do not mean zero
+ok 268 - single-paper checking stays sequential and empty repair preferences do not mean zero
+  ---
+  duration_ms: 0.2086
+  type: 'test'
+  ...
+# Subtest: archive results support three to five recommendations and preserve legacy one-item results
+ok 269 - archive results support three to five recommendations and preserve legacy one-item results
+  ---
+  duration_ms: 0.5071
+  type: 'test'
+  ...
+# Subtest: archive parsing rejects unknown or contradictory removals and never invents filler categories
+ok 270 - archive parsing rejects unknown or contradictory removals and never invents filler categories
+  ---
+  duration_ms: 0.2158
+  type: 'test'
+  ...
+1..270
+# tests 270
+# suites 0
+# pass 270
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2050.3485

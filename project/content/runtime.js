@@ -51,7 +51,7 @@ var ReaderApp = {
   options() {
     return MineruCore.settings({
       model: Zotero.Prefs.get(this.pref + "model", true),
-      language: Zotero.Prefs.get(this.pref + "language", true),
+      language: Zotero.Prefs.get(this.pref + "languageMode", true) || "auto",
       ocr: Zotero.Prefs.get(this.pref + "ocr", true)
     });
   },
@@ -81,7 +81,7 @@ var ReaderApp = {
       try {
         if (get("key").value.trim()) await this.saveKey(get("key").value);
         const options = MineruCore.settings({ model: get("model").value, language: get("language").value, ocr: get("ocr").checked });
-        for (const [name, value] of Object.entries(options)) Zotero.Prefs.set(this.pref + name, value, true);
+        for (const [name, value] of Object.entries(options)) Zotero.Prefs.set(this.pref + (name === "language" ? "languageMode" : name), value, true);
         get("key").value = "";
         get("key").type = "password";
         get("show").textContent = "显示";
@@ -96,8 +96,14 @@ var ReaderApp = {
     });
     ReaderCodex.bindPreferences(win).catch(e => status(this.safeError(e)));
     ReaderAutomation.bindPreferences(win);
+    ReaderClassifier.bind(win);
     ReaderPreferences.bind(win);
-    const clean=get('cleanup-saved');clean.addEventListener('click',async()=>{clean.disabled=true;try{const r=await ReaderCleanup.sweep();get('cleanup-status').textContent=`已清理 ${r.cleaned} 个已保存笔记任务的闲置生成缓存；另有 ${r.retained} 个任务的缓存需确认，已保留。`;}catch(e){get('cleanup-status').textContent=this.safeError(e);}finally{clean.disabled=false;}});
+    const clean=get('cleanup-saved'),cleanupStatus=get('cleanup-status');clean.addEventListener('click',async()=>{
+      clean.disabled=true;clean.textContent='正在清理…';cleanupStatus.textContent='正在核对已保存笔记与生成记录…';
+      try{const r=await ReaderCleanup.sweepCompleted();if(win.closed)return;cleanupStatus.textContent=`已清理 ${r.cleaned} 项完成任务。`+(r.retained?` ${r.retained} 项保留：\n`+r.details.map(x=>x.title+'：'+x.reason).join('\n'):'')+(r.skipped?`\n${r.skipped} 项未完成或未确认归档，继续保留。`:'')+(r.sharedCacheRetained?'\n仍在使用或含额外文件的共享解析缓存已保留。':'');}
+      catch(e){if(!win.closed)cleanupStatus.textContent=this.safeError(e);}
+      finally{if(!win.closed){clean.disabled=false;clean.textContent='清理已完成任务';cleanupStatus.scrollIntoView({block:'nearest'});}}
+    });
   },
   addWindow(win) {
     if (this.windows.has(win)) return;
@@ -109,20 +115,17 @@ var ReaderApp = {
     menu.setAttribute("label", "Zotero Reader");
     const popup = doc.createXULElement("menupopup");
     const actions = [
-      ["解析 PDF（MinerU 云端）", () => this.startSelected(win, false)],
-      ["重新解析 PDF（忽略缓存）", () => this.startSelected(win, true)],
-      ["查看已解析结果", () => this.viewSelected(win)],
-      ["精读文献…", () => ReaderCodex.openSelected(win)],
-      ["批量精读选中文献…", () => ReaderBatch.open(win)],
-      ["查看精读结果 / 导入笔记…", () => ReaderCodex.openLatest(win)],
-      ["解析设置", () => Zotero.Utilities.Internal.openPreferences(this.paneID)]
+      ['zri-menu-read','精读文献…',()=>ReaderCodex.openSelected(win)],
+      ['zri-menu-result','打开精读结果…',()=>ReaderCodex.openLatest(win)],
+      ['zri-menu-settings','设置…',()=>Zotero.Utilities.Internal.openPreferences(this.paneID)]
     ];
-    for (const [label, action] of actions) {
-      const item = doc.createXULElement("menuitem");
-      item.setAttribute("label", label);
-      item.addEventListener("command", () => Promise.resolve().then(action).catch(e => this.alert(win, this.safeError(e))));
-      popup.appendChild(item);
-    }
+    for(const [id,label,action]of actions){const item=doc.createXULElement('menuitem');item.id=id;item.setAttribute('label',label);item.addEventListener('command',()=>Promise.resolve().then(action).catch(e=>this.alert(win,this.safeError(e))));popup.appendChild(item);}
+    const updateMenu=()=>{
+      const selected=(win.ZoteroPane||Zotero.getActiveZoteroPane()).getSelectedItems()||[],groups=new Set(selected.filter(item=>!item.deleted&&(item.isRegularItem()||item.isPDFAttachment())).map(item=>item.libraryID+':'+(item.parentID||item.id)));
+      const read=doc.getElementById('zri-menu-read'),result=doc.getElementById('zri-menu-result');if(!read||!result)return;
+      read.setAttribute('label',groups.size>1?'精读选中文献…':'精读文献…');read.disabled=!groups.size;result.disabled=groups.size!==1;
+    };
+    popup.addEventListener('popupshowing',event=>{if(event.target===popup)updateMenu();});
     menu.appendChild(popup);
     parent.appendChild(menu);
     this.windows.add(win);
@@ -178,11 +181,11 @@ var ReaderApp = {
     if (!result.size) throw MineruCore.error("SELECTION", "请选中 PDF 附件，或至少包含一个 PDF 附件的文献。");
     return [...result.values()];
   },
-  async startSelected(win, force) {
+  async startSelected(win, force, explicitAttachments=null) {
     if(ReaderCleanup.active||ReaderNotes.pending)throw MineruCore.error('BUSY','正在保存笔记或清理临时内容，请稍后解析。');
     if(ReaderAutomation.active){ReaderCodex.showWindow(win);return;}
     if (this.state.busy) { this.showTask(win); return; }
-    const attachments = await this.selectedAttachments(win);
+    const attachments = explicitAttachments||await this.selectedAttachments(win);
     this.controller = new AbortController();
     this.update({ busy: true, resultDir: "", preview: "", detail: "", title: "准备解析", message: "正在检查 PDF…" });
     this.showTask(win);
@@ -250,6 +253,24 @@ var ReaderApp = {
   },
   async writeJSON(path, value) {
     await IOUtils.writeUTF8(path, JSON.stringify(value, null, 2), { tmpPath: path + ".tmp" });
+  },
+  async readModelSource(cache,signal){
+    MineruCore.cancelled(signal);
+    const mdPath=PathUtils.join(cache.dir,...MineruCore.safeZipPath(cache.manifest.markdown).split('/'));
+    if((await IOUtils.stat(mdPath)).size>SourceCore.MAX_CHARS*4)throw MineruCore.error('TEXT_SIZE','解析正文过长，未发送模型。');
+    const markdown=await IOUtils.readUTF8(mdPath),inputs=[],fingerprints=[];let total=0;
+    for(const file of SourceCore.files(cache.manifest)){
+      MineruCore.cancelled(signal);
+      const path=PathUtils.join(cache.dir,...MineruCore.safeZipPath(file.path).split('/'));
+      const size=(await IOUtils.stat(path)).size;total+=size;
+      if(size>SourceCore.MAX_JSON_BYTES||total>SourceCore.MAX_TOTAL_JSON_BYTES)throw MineruCore.error('SOURCE_SIZE','页面脚注的结构化结果过大，未忽略后继续精读。');
+      if(Number.isFinite(file.size)&&file.size!==size)throw MineruCore.error('CACHE_CHANGED','结构化解析缓存已变化，请重新解析后再精读。');
+      const text=await IOUtils.readUTF8(path);let data;try{data=JSON.parse(text);}catch(_){throw MineruCore.error('SOURCE_STRUCTURE','页面脚注的结构化结果无法读取，未忽略后继续精读。');}
+      inputs.push({path:file.path,format:file.format,data});fingerprints.push({path:file.path,sha256:await this.sha256Text(text)});
+    }
+    let assembled;try{assembled=SourceCore.assemble(markdown,inputs);}catch(e){throw MineruCore.error(e.code||'SOURCE_STRUCTURE',e.message);}
+    MineruCore.cancelled(signal);
+    return {...assembled,diagnostics:{...assembled.diagnostics,fingerprints,assembledSHA256:await this.sha256Text(assembled.markdown)}};
   },
   async cached(source, options) {
     const base = this.attachmentDir(source);

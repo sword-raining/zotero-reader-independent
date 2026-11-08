@@ -1,0 +1,33 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "a long batch has an enabled primary action with the exact unresolved count",
+      "ok": true
+    },
+    {
+      "name": "clicking the primary action locates the hidden unresolved paper without selecting a PDF or enqueuing",
+      "ok": true
+    },
+    {
+      "name": "selecting one main updates the count and unchecking the remaining paper unblocks the rest",
+      "ok": true
+    },
+    {
+      "name": "native admission uses the chosen mains, keeps supplements opt-in, and performs no real reading",
+      "ok": true
+    }
+  ],
+  "shots": [
+    "01-pending-main.png",
+    "02-located-main.png",
+    "03-ready.png"
+  ],
+  "syntheticPapers": 39,
+  "parseRequests": 0,
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.21",
+  "zoteroVersion": "10.0.8"
+}

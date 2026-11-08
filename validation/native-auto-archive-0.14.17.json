@@ -1,0 +1,45 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "automatic archive is the new default and completes saved tasks without opening confirmation windows",
+      "ok": true
+    },
+    {
+      "name": "only the final checked revision is archived and notes, PDFs and human tags remain intact",
+      "ok": true
+    },
+    {
+      "name": "rendering settings or stored pending suggestions never replays old archive actions",
+      "ok": true
+    },
+    {
+      "name": "no clear destination keeps the saved note in intake without a popup or forced classification",
+      "ok": true
+    },
+    {
+      "name": "an archive write failure rolls back categories while preserving the saved note",
+      "ok": true
+    },
+    {
+      "name": "off mode leaves reading and saving active without generating or applying archive suggestions",
+      "ok": true
+    },
+    {
+      "name": "manual mode still waits for an explicit decision after the note is saved",
+      "ok": true
+    },
+    {
+      "name": "settings display the selected archive mode and its accurate behavior",
+      "ok": true
+    }
+  ],
+  "zoteroVersion": "10.0.8",
+  "pluginVersion": "0.14.17",
+  "realModelRequests": 0,
+  "syntheticCLI": true,
+  "personalLibraryTouched": false,
+  "totalModelCalls": 14,
+  "standaloneClassificationCalls": 0,
+  "parseCalls": 6
+}

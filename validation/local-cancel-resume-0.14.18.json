@@ -1,0 +1,26 @@
+{
+  "version": "0.14.18",
+  "date": "2026-11-08",
+  "readOnly": true,
+  "records": [
+    {
+      "originalState": "cancelled",
+      "workflowStatus": "verification_incomplete",
+      "resumable": true,
+      "hasCompleteDraft": true,
+      "cancellationSourceKnown": false,
+      "cancelledAtBeijing": "2026-11-08 18:54:18"
+    },
+    {
+      "originalState": "cancelled",
+      "workflowStatus": "verification_incomplete",
+      "resumable": true,
+      "hasCompleteDraft": true,
+      "cancellationSourceKnown": false,
+      "cancelledAtBeijing": "2026-11-08 18:54:18"
+    }
+  ],
+  "queueEntriesUnchanged": true,
+  "tasksRestarted": false,
+  "modelRequests": 0
+}

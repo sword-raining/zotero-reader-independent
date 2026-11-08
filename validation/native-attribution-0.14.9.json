@@ -1,0 +1,23 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "old untouched draft previews one label per claim while its files remain unchanged",
+      "ok": true
+    },
+    {
+      "name": "manual Markdown is shown exactly as edited and never silently normalized",
+      "ok": true
+    },
+    {
+      "name": "imported native note has one label while the original claim JSON remains untouched",
+      "ok": true
+    }
+  ],
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.9",
+  "zoteroVersion": "10.0.8",
+  "screenshot": "attribution-preview.png"
+}

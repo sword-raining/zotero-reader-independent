@@ -1,0 +1,49 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "one native click queues retained drafts, unpauses the queue and skips edited or incomplete drafts",
+      "ok": true
+    },
+    {
+      "name": "pause stops pending continuations while allowing the two running papers to finish",
+      "ok": true
+    },
+    {
+      "name": "continue queue finishes the remaining paper without parsing or full regeneration",
+      "ok": true
+    },
+    {
+      "name": "a change made after queueing is detected again before any model request",
+      "ok": true
+    },
+    {
+      "name": "the native stop action clears queued continuations and a later tick does not restart them",
+      "ok": true
+    },
+    {
+      "name": "the toolbar remains reachable in a narrow settings window",
+      "ok": true
+    }
+  ],
+  "shots": [
+    "01-continue-all.png",
+    "02-paused-continuations.png",
+    "03-resumed-complete.png",
+    "04-continue-narrow.png"
+  ],
+  "stageCalls": [
+    "verification",
+    "verification",
+    "correction",
+    "verification",
+    "verification"
+  ],
+  "peakModelCalls": 2,
+  "parseCalls": 0,
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.19",
+  "zoteroVersion": "10.0.8"
+}

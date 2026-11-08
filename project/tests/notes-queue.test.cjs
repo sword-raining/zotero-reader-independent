@@ -19,11 +19,14 @@ test('note HTML escapes model and source content and keeps only controlled links
  assert.throws(()=>N.sourceLink('javascript:alert(1)','bad'),{code:'NOTE_LINK'});
 });
 test('note front sections and claim attribution survive import into Zotero HTML',()=>{
- const html=N.render(noteFixture()).reading;
+ const f=noteFixture();f.draft.sections[0].entries[0].evidence=[{paragraph_id:'P0001',quote:'Synthetic full verification evidence, retained internally.'}];const before=JSON.stringify({draft:f.draft,assessment:f.assessment});
+ const html=N.render(f).reading;
+ assert.equal(JSON.stringify({draft:f.draft,assessment:f.assessment}),before);assert.ok(!html.includes('<h2>原文依据</h2>')&&!html.includes('Synthetic full verification evidence'));assert.ok(html.includes(f.pdfURL));
+ const manual=N.render({...f,manualEdited:true,manualMarkdown:'## 原文依据\n用户自己写的引用应保留。'}).reading;assert.ok(manual.includes('原文依据')&&manual.includes('用户自己写的引用应保留'));
  const headings=['研究背景','为什么要开展这项研究','为什么能发表在这个期刊'];
  assert.ok(headings.every(h=>html.includes('<h2>'+h+'</h2>')));
  assert.ok(html.indexOf(headings[0])<html.indexOf(headings[1])&&html.indexOf(headings[1])<html.indexOf(headings[2]));
- assert.ok(html.includes('作者解释：')&&html.includes('读后推断：')&&html.includes('不代表编辑或审稿人的实际录用理由'));
+ assert.ok(html.includes('【作者解释】')&&html.includes('【读后判断】')&&html.includes('不代表编辑或审稿人的实际录用理由'));
 });
 test('note titles visibly distinguish checked, needs-review and incomplete drafts',()=>{
  assert.match(N.render(noteFixture()).reading,/<h1>精读笔记｜作者未提供 年份未提供｜测试论文<\/h1>/);
@@ -78,4 +81,11 @@ test('settings have the automation checkbox and no separate note-save button',()
  assert.ok(prefs.includes('不扫描旧文献'));
  const dialog=fs.readFileSync(path.join(dir,'codex.xhtml'),'utf8');
  assert.ok(dialog.includes('开始精读'));assert.ok(!dialog.includes('保存到 Zotero'));
+});
+
+
+test('note rendering adds each attribution once without rewriting model claims or manual Markdown',()=>{
+ const f=noteFixture();for(const s of f.draft.sections){const e=s.entries[0],label=R.attributionLabel(s.key,e.kind);if(label)e.text=label+label+' 正文 <unsafe>。';}
+ const original=structuredClone(f.draft),html=N.render(f).reading;assert.deepEqual(f.draft,original);assert.ok(html.includes('【读后判断】 正文 &lt;unsafe&gt;。'));assert.ok(html.includes('【作者解释】 正文 &lt;unsafe&gt;。'));assert.ok(!html.includes('【作者解释】【作者解释】'));
+ const manual='- 【作者解释】【作者解释】 人工文本保留';const edited=N.render({...f,manualEdited:true,manualMarkdown:manual});assert.ok(edited.reading.includes('【作者解释】【作者解释】 人工文本保留'));
 });

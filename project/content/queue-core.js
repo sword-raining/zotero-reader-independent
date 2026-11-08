@@ -10,9 +10,9 @@ var QueueCore;
   function captureAllowed({enabled,event,isPDF,deleted,synced,libraryID,userLibraryID,generated,epoch,currentEpoch}){
     return Boolean(enabled&&event==="add"&&isPDF&&!deleted&&!synced&&!generated&&libraryID===userLibraryID&&epoch===currentEpoch);
   }
-  function enqueue(state,item,{trigger="auto",templateID="ecology",now=Date.now(),inputSelection,groupID}={}){
+  function enqueue(state,item,{trigger="auto",templateID="general",now=Date.now(),inputSelection,groupID}={}){
     const id=key(item.libraryID,item.key),existing=state.jobs[id];
-    if(existing&&(!terminal.has(existing.state)||trigger==="auto"))return {job:existing,created:false};
+    if(existing&&(existing.resumePending||!terminal.has(existing.state)||trigger==="auto")&&!(trigger==='auto'&&existing.state==='cancelled'&&existing.scopeCancelled&&!existing.workflowPath))return {job:existing,created:false};
     const job={id,libraryID:item.libraryID,key:item.key,itemID:item.id,title:item.title||item.key,trigger,templateID,
       state:"waiting_file",phase:"waiting",createdAt:now,updatedAt:now,attempt:(existing?.attempt||0)+1,message:"等待 PDF 文件就绪",workflowPath:null,
       ...(inputSelection?{inputSelection:JSON.parse(JSON.stringify(inputSelection))}:{}),...(groupID?{groupID}: {})};

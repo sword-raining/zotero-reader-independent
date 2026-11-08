@@ -1,0 +1,44 @@
+{
+  "version": "0.14.6",
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build only; not installed in personal Zotero or pushed.",
+  "changes": [
+    "Model recommendation and reason are separate from the user selection; recommended checkbox starts unchecked",
+    "User may select multiple extra existing personal-library collections, including outside the model suggestion root",
+    "Default operation adds only; intake removal requires a separate explicit boolean option",
+    "Existing memberships, PDFs and notes are preserved; full selection is validated before atomic save",
+    "Manual note import queues a suggestion; completed tasks provide an archive/add-category entry and manual selection without another model call",
+    "Selections survive rerenders and same-note recommendation retries; queued manual card cannot suppress the model suggestion"
+  ],
+  "automated": {
+    "version": "0.14.6",
+    "passed": 156,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "0405a0ce142c3b93cda466d9b405ce0ac04a13bd2b71197178b9fcd79cf786e4",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "archiveUI": {
+      "passed": 8,
+      "failed": 0,
+      "record": "native-archive-ui-0.14.6.json"
+    },
+    "workflow": {
+      "passed": 8,
+      "failed": 0,
+      "record": "native-workflow-0.14.6.json"
+    },
+    "productionPackageMatchedBothFixtures": true,
+    "zotero": "10.0.8",
+    "syntheticData": true,
+    "realModelRequests": 0
+  },
+  "scopeLimit": "Native target disappearance and save failures use fault injection; no real-library archiving or real-model classification was performed.",
+  "xpiSHA256": "0405a0ce142c3b93cda466d9b405ce0ac04a13bd2b71197178b9fcd79cf786e4",
+  "packageFiles": 32
+}

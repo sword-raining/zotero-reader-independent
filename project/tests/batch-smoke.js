@@ -14,7 +14,7 @@ async function runBatchSmoke(app,scope,main,check,helpers){
     selected=await batch.collectItems([parent,a,standalone,nonPDF]);
     assert(selected.entries.length===2,'mixed selection not grouped by paper');
     assert(selected.ignored===1,'non-PDF selection not reported');
-    assert(selected.entries.some(e=>e.pdfs.some(p=>p.key===b.key)&&!e.mainKey),'second main candidate missing or chosen arbitrarily');
+    assert(selected.entries.some(e=>e.pdfs.some(p=>p.key===b.key)&&e.mainKey),'second main candidate missing or no automatic choice');
   });
   await check('batch dialog supports exclusion and starts selected PDFs without enabling automation',async()=>{
     const get=main.ZoteroPane.getSelectedItems;main.ZoteroPane.getSelectedItems=()=>[parent,a,standalone,nonPDF];

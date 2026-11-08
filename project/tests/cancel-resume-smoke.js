@@ -1,0 +1,52 @@
+(async()=>{
+ const s=readerScope,app=s.ReaderApp,auto=s.ReaderAutomation,notes=s.ReaderNotes,codex=s.ReaderCodex,engines=s.ReaderEngines,root=PathUtils.profileDir,lib=Zotero.Libraries.userLibraryID;
+ const assert=(v,m)=>{if(!v)throw Error(m);},sleep=ms=>new Promise(r=>s.ReaderTimers.setTimeout(r,ms));
+ const until=async(fn,ms=45000)=>{const end=Date.now()+ms;while(Date.now()<end){if(await fn())return;await sleep(40);}throw Error('Condition timed out');};
+ assert(Zotero.DataDirectory.dir===PathUtils.join(root,'data'),'Isolated profile required');
+ app.safeError=e=>String(e)+' '+(e.stack||''); // Synthetic fixture diagnostics only.
+ const cfg=await app.readJSON(PathUtils.join(root,'fixture-config.json'));if(Object.entries(cfg).some(([k,v])=>k.startsWith('live')&&v))throw Error('Live model flags forbidden');
+ const tests=[],out=PathUtils.join(root,'cancel-resume-result.json'),savedMetadata={};let totalModelCalls=0,standaloneClassificationCalls=0,modelActive=0,peakModelCalls=0,verifyActive=0,peakVerifications=0,parseCalls=0,allowResume=false,win;
+ const check=async(name,fn)=>{try{await fn();tests.push({name,ok:true});}catch(e){tests.push({name,ok:false,error:String(e),stack:e.stack});}await app.writeJSON(out,{completed:false,tests});};
+ auto.state.paused=true;await auto.setEnabled(false);auto.settleMs=0;auto.pollMs=40;
+ for(const [name,value]of Object.entries({'workflow.papers':2,'workflow.checks':2,'workflow.repairs':2,'delivery.mode':'manual','classification.mode':'off','ai.generation.engine':'codex','ai.verification.engine':'codex','ai.classification.engine':'codex','ai.generation.model':'','ai.verification.model':'','ai.classification.model':''}))Zotero.Prefs.set(app.pref+name,value,true);
+ engines.resolve=async engine=>({command:cfg.nodePath,prefix:[PathUtils.join(root,'fake-engines.cjs'),engine],engine});
+ const originalRun=codex.run;
+ codex.run=async function(exe,args,extra={}){
+  const model=typeof extra.input==='string'&&args.includes('exec')&&!args.includes('--help'),verification=model&&extra.input.startsWith('ZRI_READING_VERIFY_V2');
+  if(model){totalModelCalls++;if(extra.input.startsWith('ZRI_CLASSIFY'))standaloneClassificationCalls++;peakModelCalls=Math.max(peakModelCalls,++modelActive);if(verification)peakVerifications=Math.max(peakVerifications,++verifyActive);await sleep(90);}
+  try{const r=await originalRun.call(this,exe,args,extra);if(verification&&!allowResume&&extra.input.includes('NEEDS_RESUME'))await IOUtils.writeUTF8(args[args.indexOf('--output-last-message')+1],'{}');return r;}
+  finally{if(model){modelActive--;if(verification)verifyActive--;}}
+ };
+ app.parseAttachment=async function(att){
+  parseCalls++;const {source}=await this.source(att),base=this.attachmentDir(source),generation=source.sha256.slice(0,16)+'-synthetic',dir=PathUtils.join(base,generation),markdown='# '+att.getField('title')+'\n\nSynthetic research reports twenty four independent field sites.\n\nSynthetic affiliation: Fictional Soil Institute.';
+  await IOUtils.makeDirectory(dir,{createAncestors:true});await IOUtils.writeUTF8(PathUtils.join(dir,'full.md'),markdown);await IOUtils.writeUTF8(PathUtils.join(dir,'mineru-result.zip'),'synthetic');
+  const manifest={schema:1,status:'complete',source,options:this.options(),optionsKey:s.MineruCore.settingsKey(this.options()),markdown:'full.md',markdownSha256:await this.sha256(PathUtils.join(dir,'full.md')),files:[{path:'full.md',size:(await IOUtils.stat(PathUtils.join(dir,'full.md'))).size}]};
+  await this.writeJSON(PathUtils.join(dir,'reader-manifest.json'),manifest);await this.writeJSON(PathUtils.join(base,'current.json'),{generation});return {dir,manifest,cached:false};
+ };
+ const originalSave=notes.save;notes.save=async function(file,att,...rest){savedMetadata[att.key]=await app.readJSON(file);return originalSave.call(this,file,att,...rest);};
+ const collection=async name=>{const c=new Zotero.Collection();c.libraryID=lib;c.name=name;await c.saveTx();return c;};
+ const inbox=await collection('00_新导入文献'),archive=await collection('Archive'),other=await collection('Keep existing membership');await auto.setCollection(inbox.key);
+ const make=async(title,tag)=>{const p=new Zotero.Item('journalArticle');p.libraryID=lib;p.setField('title',title);p.addToCollection(inbox.id);p.addToCollection(other.id);p.addTag(tag);await p.saveTx({skipSelect:true});const a=new Zotero.Item('attachment');a.libraryID=lib;a.parentID=p.id;a.attachmentLinkMode=Zotero.Attachments.LINK_MODE_LINKED_FILE;a.attachmentPath=PathUtils.join(root,'synthetic.pdf');a.attachmentContentType='application/pdf';a.setField('title',title);await a.saveTx({skipSelect:true});return {p,a};};
+
+ const invoke=codex.invoke,stageCalls=[],shots=[];let hold='review',entered=false;
+ codex.invoke=async function(prompt,context,signal,report,request){stageCalls.push(context.stage);if(hold==='review'&&context.stage==='verification'&&context.round===1||hold==='generation'&&context.stage==='generation'){entered=true;return new Promise((resolve,reject)=>{const stop=()=>reject(s.CodexCore.error('CANCELLED','Synthetic cancellation'));signal.addEventListener('abort',stop,{once:true});if(signal.aborted)stop();});}return invoke.call(this,prompt,context,signal,report,request);};
+ const paper=await make('Synthetic cancelled after repair __SIM_FIXABLE__','/unread'),job=await auto.enqueueManual(paper.a,'general');auto.state.paused=false;auto.schedule(0);await until(()=>entered);
+ Zotero.Utilities.Internal.openPreferences(app.paneID);await until(()=>{win=Services.wm.getMostRecentWindow('zotero:pref');return win?.document.getElementById('zri-auto-actions')&&win.document.querySelector('[data-job-id="'+job.id+'"]');});win.resizeTo(1150,950);
+ const row=()=>win.document.querySelector('[data-job-id="'+job.id+'"]'),shot=async name=>{win.document.getElementById('zri-auto-actions').closest('.zr-card').scrollIntoView({block:'start'});await sleep(80);const c=win.document.createElementNS('http://www.w3.org/1999/xhtml','canvas');c.width=win.innerWidth;c.height=win.innerHeight;c.getContext('2d').drawWindow(win,0,0,c.width,c.height,'white',0);await IOUtils.write(PathUtils.join(root,name),Uint8Array.from(win.atob(c.toDataURL('image/png').split(',')[1]),x=>x.charCodeAt(0)));shots.push(name);};
+ let draftHash,sourceHash,parseBefore;
+ await check('stopping through the native task menu retains the revised draft and records the exact stop source',async()=>{
+  row().querySelector('summary').click();await sleep(30);row().querySelector('[data-action="stop"]').click();await until(()=>job.state==='cancelled'&&!auto.running.size);const w=await app.readJSON(job.workflowPath);assert(w.status==='verification_incomplete'&&w.correctionRounds===1,'revised draft checkpoint lost');assert(job.cancelReason==='user-item'&&job.cancelRequestedAt,'stop source not recorded');assert(job.resumeAvailable&&row().querySelector('[data-action="resume"]')?.textContent==='继续检查','resume entry missing');assert(job.message.includes('停止操作')&&job.message.includes('可继续检查'),'stop explanation unclear');draftHash=await app.sha256(PathUtils.join(PathUtils.parent(job.workflowPath),'draft.json'));sourceHash=await app.sha256(PathUtils.join(PathUtils.parent(job.workflowPath),'source-index.json'));parseBefore=parseCalls;await shot('01-cancelled-can-resume.png');
+ });
+ await check('a stopped task never resumes just because the queue ticks again',async()=>{const before=stageCalls.length;await auto.tick();await sleep(120);assert(stageCalls.length===before&&job.state==='cancelled','cancelled task restarted automatically');});
+ await check('the native Continue Check action resumes only verification and preserves original parsing and generation',async()=>{
+  hold='none';const generators=stageCalls.filter(x=>x==='generation').length;row().querySelector('[data-action="resume"]').click();await until(()=>job.state==='awaiting_import'&&!auto.running.size);assert(parseCalls===parseBefore&&stageCalls.filter(x=>x==='generation').length===generators,'resume repeated parse or generation');assert(await app.sha256(PathUtils.join(PathUtils.parent(job.workflowPath),'draft.json'))===draftHash,'revised draft changed unnecessarily');assert(await app.sha256(PathUtils.join(PathUtils.parent(job.workflowPath),'source-index.json'))===sourceHash,'original evidence replaced');assert(!job.notes&&!job.cancelRequested&&!job.cancelReason,'manual saving or cancellation state wrong');await shot('02-check-resumed.png');
+ });
+ const early=await make('Synthetic cancelled during generation','/unread');let earlyJob;
+ await check('shutdown cancellation before a complete draft does not expose a false resume action',async()=>{
+  hold='generation';entered=false;earlyJob=await auto.enqueueManual(early.a,'general');auto.schedule(0);await until(()=>entered);auto.stopCurrent('shutdown');await until(()=>earlyJob.state==='cancelled'&&!auto.running.size);assert(earlyJob.cancelReason==='shutdown'&&earlyJob.message.includes('关闭'),'shutdown cause missing');assert(!earlyJob.resumeAvailable&&!earlyJob.hasReadingDraft,'incomplete generation marked resumable');const r=win.document.querySelector('[data-job-id="'+earlyJob.id+'"]');assert(!r.querySelector('[data-action="resume"]')&&!r.querySelector('[data-action="result"]'),'dead draft actions visible');
+ });
+ await check('a no-draft cancellation can reopen the ordinary start screen without running a model',async()=>{
+  const before=stageCalls.length,main=Zotero.getMainWindow(),selected=main.ZoteroPane.getSelectedItems;try{main.ZoteroPane.getSelectedItems=()=>[early.p];await codex.openSelected(main);await until(()=>codex.window?.document.getElementById('zrc-send'));assert(!codex.window.document.getElementById('zrc-send').hidden,'fresh start missing');assert(stageCalls.length===before,'opening screen started a model');codex.window.close();}finally{main.ZoteroPane.getSelectedItems=selected;}
+ });
+ win.close();await auto.shutdown();await app.writeJSON(out,{completed:true,tests,shots,pluginVersion:cfg.pluginVersion,zoteroVersion:Zotero.version,stageCalls,parseCalls,realModelRequests:0,syntheticCLI:true,personalLibraryTouched:false});
+})().catch(async e=>{await IOUtils.writeUTF8(PathUtils.join(PathUtils.profileDir,'cancel-resume-fatal.json'),JSON.stringify({error:String(e),stack:e.stack}));}).finally(()=>Services.startup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit));

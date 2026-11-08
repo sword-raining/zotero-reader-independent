@@ -1,0 +1,228 @@
+{
+  "completed": true,
+  "pluginVersion": "0.14.8",
+  "zoteroVersion": "10.0.8",
+  "startedAt": "2026-11-08T02:47:15.937Z",
+  "documentRequests": 0,
+  "channels": [
+    {
+      "engine": "codex",
+      "phase": "complete",
+      "status": "passed",
+      "executable": "C:\\Users\\Administrator\\AppData\\Local\\OpenAI\\Codex\\bin\\f71a721e0e6193a9\\codex.exe",
+      "version": "codex-cli 0.167.0-alpha.3.2",
+      "models": [
+        {
+          "id": "gpt-6.1-sol",
+          "label": "GPT-6.1-Sol",
+          "isDefault": true,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "low"
+        },
+        {
+          "id": "gpt-6-astra",
+          "label": "GPT-6-Astra",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-6.1-terra",
+          "label": "GPT-6.1 Terra",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "low"
+        },
+        {
+          "id": "gpt-6-sol",
+          "label": "GPT-6-Sol",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-6-luna",
+          "label": "GPT-6-Luna",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-5.6-sol",
+          "label": "GPT-5.6-Sol",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "low"
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "label": "GPT-5.6-Terra",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "defaultEffort": "medium"
+        },
+        {
+          "id": "gpt-5.6-luna",
+          "label": "GPT-5.6-Luna",
+          "isDefault": false,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "defaultEffort": "medium"
+        }
+      ],
+      "catalogSource": "model/list",
+      "testedStage": {
+        "engine": "codex",
+        "model": "",
+        "effort": ""
+      },
+      "connection": {
+        "success": true,
+        "mode": "quick",
+        "durationMs": 7145,
+        "answer": "我是基于 GPT-6 的 Codex。具体模型版本我不确定。"
+      }
+    },
+    {
+      "engine": "antigravity",
+      "phase": "complete",
+      "status": "passed",
+      "executable": "C:\\Users\\Administrator\\AppData\\Local\\agy\\bin\\agy.exe",
+      "version": "Antigravity CLI 1.5.2",
+      "models": [
+        {
+          "id": "gemini-4-argon-medium",
+          "label": "Gemini 4 Argon (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-4-argon-high",
+          "label": "Gemini 4 Argon (High)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-4-argon-low",
+          "label": "Gemini 4 Argon (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-3.8-flash-high",
+          "label": "Gemini 3.8 Flash (High)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-3.8-flash-medium",
+          "label": "Gemini 3.8 Flash (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "gemini-3.8-flash-low",
+          "label": "Gemini 3.8 Flash (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-opus-5-5-low",
+          "label": "Claude Opus 5.5 (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-opus-5-5-medium",
+          "label": "Claude Opus 5.5 (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-opus-5-5-high",
+          "label": "Claude Opus 5.5 (High)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-sonnet-5-5-low",
+          "label": "Claude Sonnet 5.5 (Low)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-sonnet-5-5-medium",
+          "label": "Claude Sonnet 5.5 (Medium)",
+          "isDefault": false
+        },
+        {
+          "id": "claude-sonnet-5-5-high",
+          "label": "Claude Sonnet 5.5 (High)",
+          "isDefault": false
+        },
+        {
+          "id": "gpt-oss-120b-medium",
+          "label": "GPT-OSS 120B (Medium)",
+          "isDefault": false
+        }
+      ],
+      "catalogSource": "agy models",
+      "testedStage": {
+        "engine": "antigravity",
+        "model": "",
+        "effort": ""
+      },
+      "connection": {
+        "success": true,
+        "mode": "quick",
+        "durationMs": 22185,
+        "answer": "你好！我是 Google 构建的 **Gemini 4 Argon** 模型。"
+      }
+    }
+  ],
+  "completedAt": "2026-11-08T02:47:51.697Z",
+  "personalLibraryTouched": false
+}

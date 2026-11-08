@@ -1,6 +1,6 @@
 'use strict';
 var ReaderCleanup={
-  app:null,active:null,
+  app:null,active:null,completedActive:null,
   init(app){this.app=app;},
   root(){return PathUtils.join(Zotero.DataDirectory.dir,'zotero-reader-independent');},
   isLink(file){
@@ -46,17 +46,40 @@ var ReaderCleanup={
     }
     return {protectedKeys,uncertain};
   },
-  async readingUnmodified(dir,w){
+  async legacyMarkdownMatches(dir,w,name,digest){
+    // Only untracked, non-current outputs may use this compatibility proof.
+    if(!['reading.md','review-needed.md'].includes(name)||name===(w.resultFile||'draft.md'))return false;
+    const internal=PathUtils.join(dir,'internal');if(!await IOUtils.exists(internal))return false;
+    await this.safeTree(dir);
+    const files=await IOUtils.getChildren(internal);if(files.length>200)return false;
+    const parse=path=>{const m=PathUtils.filename(path).match(/^(draft|check)-(\d+)(?:-resume-(\d+))?\.json$/);return m?{path,type:m[1],round:Number(m[2]),resume:Number(m[3]||0)}:null;};
+    const entries=files.map(parse).filter(Boolean),drafts=entries.filter(x=>x.type==='draft'),checks=entries.filter(x=>x.type==='check').sort((a,b)=>b.resume-a.resume||b.round-a.round);
+    const loaded=new Map();let bytes=0;
+    const read=async path=>{if(loaded.has(path))return loaded.get(path);const stat=await IOUtils.stat(path);bytes+=stat.size;if(stat.size>8*1024*1024||bytes>32*1024*1024)return null;const data=await this.app.readJSON(path);loaded.set(path,data);return data;};
+    for(const check of checks){
+      const info=await read(check.path),assessment=info?.assessment;if(assessment?.status!==(name==='reading.md'?'checked':'needs_review'))continue;
+      const source=drafts.filter(d=>d.round===check.round&&d.resume<=check.resume).sort((a,b)=>b.resume-a.resume)[0];if(!source)continue;
+      const draft=await read(source.path);if(!draft)continue;
+      for(const legacyAttribution of [false,true])for(const status of [assessment.status,'verifying']){
+        let text;try{text=WikiCore.decorate(ReadingCore.renderDraft(draft,assessment,w.bibliography,w.inputSources,{legacyAttribution}),w.bibliography,{...w,status});}catch(_){continue;}
+        if(await this.app.sha256Text(text)===digest)return true;
+      }
+    }
+    return false;
+  },
+  async readingUnmodified(dir,w,{explain=false}={}){
+    const fail=(name,reason)=>{if(explain)throw NoteCore.error('CLEANUP_PROTECTED',name+'：'+reason+'，已保留。');return false;};
     const allowed=new Set(['workflow.json','draft.json','draft.md','reading.md','review-needed.md','verification.json','source.json','source-index.json','internal']);
     for(const child of await IOUtils.getChildren(dir)){
-      const name=PathUtils.filename(child);if(!allowed.has(name))return false;
-      if(name==='internal')for(const file of await IOUtils.getChildren(child))if(!/^(?:draft|check)-\d+(?:-resume-\d+)?\.json$/.test(PathUtils.filename(file)))return false;
+      const name=PathUtils.filename(child);if(!allowed.has(name))return fail(name,'目录中有额外文件');
+      if(name==='internal')for(const file of await IOUtils.getChildren(child))if(!/^(?:draft|check)-\d+(?:-resume-\d+)?\.json$/.test(PathUtils.filename(file)))return fail('internal/'+PathUtils.filename(file),'不是已知的生成记录');
     }
     for(const name of ['draft.md','reading.md','review-needed.md']){
       const path=PathUtils.join(dir,name);if(!await IOUtils.exists(path))continue;
-      const importedName=w.resultFile||'draft.md';
-      const hash=name===importedName?(w.importedMarkdownSHA256||(w.resultFile?w.resultSHA256:w.draftSHA256)):name==='draft.md'?w.draftSHA256:null;
-      if(!hash||await this.app.sha256(path)!==hash)return false;
+      const importedName=w.resultFile||'draft.md',current=await this.app.sha256(path);
+      const hash=name===importedName?(w.importedMarkdownSHA256||(w.resultFile?w.resultSHA256:w.draftSHA256)):name==='draft.md'?w.draftSHA256:w.generatedMarkdown?.[name];
+      if(hash){if(current!==hash)return fail(name,'内容与保存记录不一致');}
+      else if(!await this.legacyMarkdownMatches(dir,w,name,current))return fail(name,'无法确认这份旧中间稿未经修改');
     }
     return true;
   },
@@ -69,7 +92,7 @@ var ReaderCleanup={
       const dir=PathUtils.parent(workflowPath),w=await this.app.readJSON(workflowPath);
       if(!w){saved.entry.cleanup='done';await ReaderSaved.persist();return {state:'done'};}
       if(!w.zoteroNotes?.reading?.key||w.zoteroNotes.reading.key!==saved.note.key)return {state:'retained',message:'笔记映射尚未保存，临时内容已保留。'};
-      if(!await this.readingUnmodified(dir,w))return {state:'retained',message:'本地稿件有修改或额外文件，已保留，未自动清理。'};
+      if(!await this.readingUnmodified(dir,w,{explain:true}))return {state:'retained',message:'本地稿件有修改或额外文件，已保留，未自动清理。'};
       const {protectedKeys,uncertain}=await this.protectedCacheKeys(id),cachePaths=[];let cacheRetained=uncertain||!!this.app.activeRun;
       if(!uncertain&&!this.app.activeRun)for(const s of w.inputSources||[w.source]){
         if(protectedKeys.has(`${s.libraryID}:${s.key}`)){cacheRetained=true;continue;}
@@ -96,13 +119,57 @@ var ReaderCleanup={
       // The note and compact receipt are durable before any deletion starts.
       saved.entry.cleanup='pending';await ReaderSaved.persist();
       for(const path of [...cachePaths,...runPaths])await this.remove(path);
-      if(!await this.readingUnmodified(dir,w))return {state:'retained',message:'清理期间稿件发生修改，已保留稿件。'};
+      if(!await this.readingUnmodified(dir,w,{explain:true}))return {state:'retained',message:'清理期间稿件发生修改，已保留稿件。'};
       await this.remove(dir);
       saved.entry.cleanup='done';saved.entry.cleanedAt=new Date().toISOString();await ReaderSaved.persist();
       return {state:'done',sharedCacheRetained:cacheRetained,...(cacheRetained?{message:'笔记已保存，稿件与调用记录已清理；仍在使用或含额外文件的缓存已保留。'}:{})};
     }catch(e){return {state:'retained',message:'笔记已保存，临时内容暂未清理：'+this.app.safeError(e)};}
   },
+  async sweepCompleted(){
+    if(this.completedActive)return this.completedActive;
+    if(this.active)throw NoteCore.error('BUSY','生成缓存正在清理，请稍后再试。');
+    this.completedActive=Promise.resolve().then(async()=>{
+      const result={cleaned:0,retained:0,skipped:0,sharedCacheRetained:0,details:[]},jobs=Object.values(ReaderAutomation.state.jobs);
+      for(const job of jobs){
+        if(ReaderAutomation.historyHidden(job))continue;
+        const proposal=ReaderAutomation.completedProposal(job);
+        if(!proposal){result.skipped++;continue;}
+        const title=job.title||job.key;
+        ReaderAutomation.historyClearing.add(job.id);
+        try{
+          const view=ReaderCodex.state||{};
+          if(ReaderNotes.pending||view.editing&&(view.followJobID===job.id||view.output===job.workflowPath)||view.busy&&view.attachment?.key===job.key&&view.attachment?.libraryID===job.libraryID)throw NoteCore.error('HISTORY_BUSY','正在保存笔记或编辑此稿，记录与缓存保留。');
+          const att=await Zotero.Items.getByLibraryAndKeyAsync(job.libraryID,job.key),note=await Zotero.Items.getByLibraryAndKeyAsync(job.libraryID,job.notes.reading.key);
+          if(!att||att.deleted||!att.isPDFAttachment()||!note?.isNote()||note.deleted||note.parentID!==att.parentID)throw NoteCore.error('HISTORY_NOTE','未能确认当前 PDF 与已保存笔记，记录保留。');
+          const embedded=SavedCore.read(note.getNote()),runID=embedded?.runID||SavedCore.legacyRun(note.getNote());
+          if(!SavedCore.validID(runID)||job.savedRunID&&job.savedRunID!==runID)throw NoteCore.error('HISTORY_NOTE','笔记识别信息与任务不一致，记录保留。');
+          const path=PathUtils.join(this.root(),'readings',runID,'workflow.json');
+          if(job.workflowPath&&job.workflowPath!==path)throw NoteCore.error('HISTORY_PATH','当前草稿路径无法确认，记录保留。');
+          await this.safeTree(PathUtils.parent(path));
+          const exists=await IOUtils.exists(path),w=exists?await this.app.readJSON(path):null;
+          if(exists&&(!w||w.source?.libraryID!==job.libraryID||w.source?.key!==job.key||w.zoteroNotes?.reading?.key!==note.key||!['checked','needs_review','verification_incomplete'].includes(w.status)))throw NoteCore.error('HISTORY_DRAFT','当前草稿还未确认保存，记录与缓存保留。');
+          if(w&&!await this.readingUnmodified(PathUtils.parent(path),w,{explain:true}))throw NoteCore.error('HISTORY_EDITED','本地稿件有后续修改或额外文件，记录与缓存保留。');
+          if(ReaderAutomation.state.jobs[job.id]!==job||ReaderAutomation.completedProposal(job)!==proposal)throw NoteCore.error('HISTORY_CHANGED','任务或归档状态已变化，记录保留。');
+          await ReaderClassifier.persist();
+          let cleanup={state:'done'};
+          if(w){
+            await ReaderSaved.record(w,note,w.noteStatus||(job.state==='imported'?'edited':'checked'),att);
+            if(ReaderAutomation.state.jobs[job.id]!==job||ReaderAutomation.completedProposal(job)!==proposal)throw NoteCore.error('HISTORY_CHANGED','任务或归档状态已变化，记录与缓存保留。');
+            cleanup=await this.afterSave(path,att);
+            if(cleanup.state!=='done')throw NoteCore.error('HISTORY_RETAINED',cleanup.message||'缓存暂未清理，记录保留以便重试。');
+          }
+          await ReaderAutomation.hideCompletedHistory(job,proposal,runID);
+          ReaderAutomation.noteSaved(path,{notes:job.notes,status:job.state==='imported'?'edited':'checked',cleanup});
+          result.cleaned++;if(cleanup.sharedCacheRetained)result.sharedCacheRetained++;
+        }catch(e){result.retained++;result.details.push({id:job.id,title,reason:this.app.safeError(e)});}
+        finally{ReaderAutomation.historyClearing.delete(job.id);}
+      }
+      return result;
+    });
+    try{return await this.completedActive;}finally{this.completedActive=null;ReaderAutomation.refreshViews();ReaderAutomation.schedule();}
+  },
   async sweep(){
+    if(this.completedActive)throw NoteCore.error('BUSY','正在清理已完成任务，请稍后重试。');
     if(this.active)return this.active;
     if(ReaderCodex.active||ReaderAutomation.active||ReaderNotes.pending||this.app.state.busy)throw NoteCore.error('BUSY','请等待当前精读、导入或解析结束后再清理。');
     this.active=(async()=>{

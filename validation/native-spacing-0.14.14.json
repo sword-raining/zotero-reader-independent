@@ -1,0 +1,50 @@
+{
+  "completed": true,
+  "pluginVersion": "0.14.14",
+  "normal": [
+    {
+      "reasonHasLeadingSpace": true
+    },
+    {
+      "reasonHasLeadingSpace": true
+    },
+    {
+      "reasonHasLeadingSpace": true
+    },
+    {
+      "reasonHasLeadingSpace": true
+    }
+  ],
+  "inline": [
+    {
+      "gap": 3.5500030517578125,
+      "separateLine": false
+    },
+    {
+      "gap": 3.5500030517578125,
+      "separateLine": false
+    },
+    {
+      "gap": 3.5500030517578125,
+      "separateLine": false
+    },
+    {
+      "gap": 3.5500030517578125,
+      "separateLine": false
+    }
+  ],
+  "baseChecks": [
+    {
+      "name": "manual note import reuses the checked suggestion without any model request or membership change",
+      "ok": true
+    },
+    {
+      "name": "saving and finishing the suggestion automatically opens a separate dialog without opening settings",
+      "ok": true
+    }
+  ],
+  "modelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "inlineStyleOverrideIsProbeOnly": true
+}

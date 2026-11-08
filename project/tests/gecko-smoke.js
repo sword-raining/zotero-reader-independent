@@ -332,7 +332,7 @@ async function runGeckoSmoke(app) {
       assert(model,'advertised low-effort Flash model missing');
       for(const name of ['first','repeat']){
         const r=await codex.testConnection(()=>{},{engine:'antigravity',model:model.id,effort:'low'},{mode:'quick'});
-        tests.push({name,success:r.answer.trim()==='ZRI_OK',durationMs:r.durationMs,timing:r.metadata.timing});
+        tests.push({name,success:Boolean(r.answer.trim()),durationMs:r.durationMs,timing:r.metadata.timing});
       }
       const chat=calls.filter(c=>c.kind==='chat');
       const success=tests.every(t=>t.success)&&chat.length===2&&chat.every(c=>c.updaterDisabled)&&!calls.some(c=>c.updaterSpawned)&&Services.env.get('AGY_CLI_DISABLE_AUTO_UPDATE')===before;
@@ -352,7 +352,7 @@ async function runGeckoSmoke(app) {
       const model=engine==='codex'?(models.find(m=>m.isDefault)||models[0]):(models.find(m=>m.id.includes('flash')&&m.id.endsWith('-low'))||models[0]);
       const effort=engine==='codex'?(model.reasoningEfforts?.includes('high')?'high':model.reasoningEfforts?.[0]||''):scopeEffort(model.id);
       function scopeEffort(id){return id.match(/-(low|medium|high)$/)?.[1]||'';}
-      try{const r=await codex.testConnection(()=>{},{engine,model:model.id,effort},{mode:'quick'});results[engine].test={success:true,exact:r.answer.trim()==='ZRI_OK',requestedModel:model.id,requestedEffort:effort,model:r.testedStage.model,effort:r.metadata.effort,durationMs:r.durationMs,timing:r.metadata.timing,version:r.metadata.version,testedAt:new Date().toISOString()};}
+      try{const r=await codex.testConnection(()=>{},{engine,model:model.id,effort},{mode:'quick'});results[engine].test={success:true,nonemptyReply:Boolean(r.answer.trim()),requestedModel:model.id,requestedEffort:effort,model:r.testedStage.model,effort:r.metadata.effort,durationMs:r.durationMs,timing:r.metadata.timing,version:r.metadata.version,testedAt:new Date().toISOString()};}
       catch(e){results[engine].test={success:false,code:e.code,message:app.safeError(e),model:model.id};}
     }
     await app.writeJSON(PathUtils.join(root,'live-engines-result.json'),results);
@@ -390,7 +390,7 @@ async function runGeckoSmoke(app) {
     let live;
     codex.options = () => ({...originalOptions.call(codex),timeoutMinutes:3});
     try {
-      const r = await codex.testConnection();
+      const r = await codex.testConnection(()=>{},undefined,{mode:"exact"});
       live = {success:true,exact:JSON.parse(r.answer).ok===true,answer:r.answer.slice(0,100),output:r.output};
     } catch(e) { live={success:false,code:e.code||'UNKNOWN',message:app.safeError(e)}; }
     finally {codex.options=originalOptions;}

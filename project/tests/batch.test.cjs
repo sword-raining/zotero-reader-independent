@@ -36,3 +36,17 @@ test('batch UI provides template, selection, skip-completed and batch stop contr
  for(const id of ['zrb-template','zrb-list','zrb-skip','zrb-start','zrb-stop','zrb-pause'])assert.ok(html.includes(id));
  assert.ok(html.includes('不需要开启自动精读'));
 });
+
+
+test('batch language filter recognizes Zotero Chinese codes and names, including mixed declarations',()=>{
+ for(const value of ['zh','zh-CN','ZH_tw','zh-Hans-CN','zho','chi','cmn','Chinese','Chinese (Simplified)','Traditional Chinese','中文','简体中文','漢語','中文（繁体）'])assert.equal(B.languageInfo(value).chinese,true,value);
+ assert.equal(B.languageInfo('en;zh-CN').chinese,true);assert.equal(B.languageInfo('English / 中文').label,'多语言（含中文）');
+});
+test('English and unknown metadata are not mistaken for Chinese',()=>{
+ for(const value of ['en','EN_us','en-GB','eng','English','English (United States)','英文'])assert.equal(B.languageInfo(value).kind,'en',value);
+ for(const value of ['',null,'fr','ja','ch','unknown'])assert.equal(B.languageInfo(value).chinese,false,String(value));assert.equal(B.languageInfo('').label,'未标注');
+});
+test('language filtering uses the metadata value only, without inspecting translated titles or notes',()=>{
+ const scope={BatchCore:B};require('node:vm').createContext(scope);require('node:vm').runInContext(fs.readFileSync(path.join(__dirname,'../content/batch-runtime.js'),'utf8'),scope);const batch=scope.ReaderBatch;
+ assert.equal(batch.skipChinese,true);assert.equal(batch.excludedChinese({language:'en',display:'中文翻译标题',note:'中文手写笔记'}),false);assert.equal(batch.excludedChinese({language:'',display:'中文标题'}),false);assert.equal(batch.excludedChinese({language:'zh-CN'}),true);batch.skipChinese=false;assert.equal(batch.excludedChinese({language:'zh-CN'}),false);
+});

@@ -1,0 +1,62 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "one native click queues retained drafts, unpauses the queue and skips edited or incomplete drafts",
+      "ok": true
+    },
+    {
+      "name": "the same button aborts both running checks, preserves their drafts and blocks the pending paper",
+      "ok": true
+    },
+    {
+      "name": "continue queue finishes the remaining paper without parsing or full regeneration",
+      "ok": true
+    },
+    {
+      "name": "a change made after queueing is detected again before any model request",
+      "ok": true
+    },
+    {
+      "name": "the same button also pauses queued continuations before any request starts",
+      "ok": true
+    },
+    {
+      "name": "the toolbar remains reachable in a narrow settings window",
+      "ok": true
+    },
+    {
+      "name": "pausing an unfinished generation retains its record and Start regenerates only that unfinished step",
+      "ok": true
+    },
+    {
+      "name": "pausing an archive at its write boundary preserves the saved note and resumes the cached suggestion",
+      "ok": true
+    }
+  ],
+  "shots": [
+    "01-continue-all.png",
+    "02-all-paused.png",
+    "03-resumed-complete.png",
+    "04-continue-narrow.png"
+  ],
+  "stageCalls": [
+    "verification",
+    "verification",
+    "verification",
+    "verification",
+    "correction",
+    "verification",
+    "verification",
+    "generation",
+    "generation",
+    "verification"
+  ],
+  "peakModelCalls": 2,
+  "parseCalls": 2,
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.20",
+  "zoteroVersion": "10.0.8"
+}

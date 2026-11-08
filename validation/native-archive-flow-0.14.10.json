@@ -1,0 +1,103 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "manual note import reuses the checked suggestion without any model request or membership change",
+      "ok": true
+    },
+    {
+      "name": "saving and finishing the suggestion automatically opens a separate dialog without opening settings",
+      "ok": true
+    },
+    {
+      "name": "declining the recommendation and selecting extras does not mutate the library and survives a rerender",
+      "ok": true
+    },
+    {
+      "name": "another completed paper is queued without replacing the current decision or opening a second window",
+      "ok": true
+    },
+    {
+      "name": "one native confirmation adds only the chosen extras and preserves the intake and existing categories",
+      "ok": true
+    },
+    {
+      "name": "the same window advances to the next ready paper; closing defers it without moving or reopening",
+      "ok": true
+    },
+    {
+      "name": "the user can add more categories later without another model request and explicitly choose intake removal",
+      "ok": true
+    },
+    {
+      "name": "a target becoming unavailable before confirmation prevents every planned addition",
+      "ok": true
+    },
+    {
+      "name": "a failed native save rolls back all selected changes and restores cached memberships",
+      "ok": true
+    },
+    {
+      "name": "already-filed recommendations need no selection and can complete without changing memberships",
+      "ok": true
+    },
+    {
+      "name": "proposed old-category removal is opt-in and is applied atomically with a selected replacement",
+      "ok": true
+    },
+    {
+      "name": "a deferred saved paper can leave intake using its existing category without adding a new one",
+      "ok": true
+    },
+    {
+      "name": "notes, PDFs and unfinished-run guards remain intact",
+      "ok": true
+    },
+    {
+      "name": "updating an old saved proposal requests three suggestions from the checker without rereading or changing categories",
+      "ok": true
+    },
+    {
+      "name": "settings contain only global controls and a deferred-suggestion entry, never per-paper decisions",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "00-ready.png",
+      "width": 880,
+      "height": 960
+    },
+    {
+      "name": "01-my-selection.png",
+      "width": 880,
+      "height": 960
+    },
+    {
+      "name": "02-explicit-remove.png",
+      "width": 880,
+      "height": 768
+    },
+    {
+      "name": "03-keep-existing.png",
+      "width": 880,
+      "height": 768
+    },
+    {
+      "name": "04-adjustment-plan.png",
+      "width": 880,
+      "height": 768
+    },
+    {
+      "name": "05-remove-intake-only.png",
+      "width": 880,
+      "height": 768
+    }
+  ],
+  "simulatedModelCalls": 1,
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.10",
+  "zoteroVersion": "10.0.8",
+  "headless": true
+}

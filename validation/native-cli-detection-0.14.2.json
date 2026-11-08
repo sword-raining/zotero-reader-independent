@@ -1,0 +1,41 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "native Windows discovery finds a complete per-user Codex install without PATH or a fixed username",
+      "ok": true
+    },
+    {
+      "name": "native Antigravity fallback resolves per-user install and rejects invalid explicit paths",
+      "ok": true
+    },
+    {
+      "name": "both synthetic CLI protocols discover models in native Zotero",
+      "ok": true
+    },
+    {
+      "name": "native settings show a fresh synthetic connectivity success",
+      "ok": true
+    },
+    {
+      "name": "discovery failure removes old green status immediately in the already-open native settings view",
+      "ok": true
+    },
+    {
+      "name": "successful retry refreshes the native error text and badge without claiming a refreshed catalog",
+      "ok": true
+    },
+    {
+      "name": "editing and saving a CLI path invalidates success in the native settings view and on disk",
+      "ok": true
+    }
+  ],
+  "pluginVersion": "0.14.2",
+  "zoteroVersion": "10.0.8",
+  "realModelRequests": 0,
+  "syntheticCLI": true,
+  "personalLibraryTouched": false,
+  "headless": true,
+  "scope": "Headless isolated Zotero with synthetic user install directories and synthetic CLI subprocesses; actual settings DOM assertions.",
+  "welcomePageFix": "firstRun2=false added to fixture generator and verified in generated user.js after this run; no subsequent launch."
+}

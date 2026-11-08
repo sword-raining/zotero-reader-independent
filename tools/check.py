@@ -45,7 +45,7 @@ for file in [project / 'bootstrap.js', *sorted((project / 'content').glob('*.js'
 for file in (project / 'content').glob('*.xhtml'):
     ET.parse(file)
 tests = sorted((project / 'tests').glob('*.test.cjs'))
-log = run([node, '--test', *map(str, tests)])
+log = run([node, '--test', '--test-reporter=tap', *map(str, tests)])
 (work / 'unit.log').write_text(log, encoding='utf-8')
 passed = re.search(r'^# pass (\d+)$', log, re.MULTILINE)
 failed = re.search(r'^# fail (\d+)$', log, re.MULTILINE)

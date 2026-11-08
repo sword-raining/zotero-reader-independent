@@ -31,14 +31,14 @@ test('author explanations retain attribution and journal limits appear alongside
  const {draft,review}=fixture();draft.sections.find(s=>s.key==='mechanisms').entries[0].kind='author_interpretation';
  assert.doesNotThrow(()=>R.parseDraft(JSON.stringify(draft)));
  const text=R.renderDraft(draft,R.assess(draft,review,source));
- assert.match(text,/（作者解释）/);assert.match(text,/不代表编辑或审稿人的实际录用理由/);
+ assert.match(text,/【作者解释】/);assert.match(text,/不代表编辑或审稿人的实际录用理由/);
  for(const text of [R.generationPrompt('ecology',source),R.verificationPrompt(source,draft),R.repairPrompt(source,draft,review,R.assess(draft,review,source),R.defaultTemplateText('ecology'))])assert.ok(text.includes('录用理由'));
 });
-test('two fixed templates and no free-question interface',()=>{
- assert.deepEqual(Object.keys(R.TEMPLATES),['ecology','general']);
+test('one unified template with legacy IDs and no free-question interface',()=>{
+ assert.deepEqual(Object.keys(R.TEMPLATES),['general']);
  assert.throws(()=>R.template('free'),{code:'TEMPLATE'});
  const ui=fs.readFileSync(path.join(__dirname,'../content/codex.xhtml'),'utf8');
- assert.ok(!ui.includes('zrc-question')&&!ui.includes('<html:textarea'));
+ assert.ok(!ui.includes('zrc-question')&&ui.includes('id="zrc-editor"'));
  assert.ok(ui.includes('zrc-template')&&!ui.includes('逐条核验报告'));
 });
 test('full source is partitioned without truncating scientific text',()=>{
@@ -118,4 +118,18 @@ test('repair requests preserve original source, draft and diagnostic feedback, t
  const prompt=R.repairPrompt(source,draft,review,assessment,R.defaultTemplateText('ecology'));
  assert.ok(prompt.includes('An observational survey')&&prompt.includes('contradicted')&&prompt.includes('修订稿将再次逐条检查'));
  assert.equal(R.MAX_REPAIR_ROUNDS,2);
+});
+
+
+test('rendering duplicate attribution prefixes preserves source claims, kind and inline label references',()=>{
+ const {draft}=fixture();const cases=[['publication','interpretation','【读后判断】'],['mechanisms','author_interpretation','【作者解释】'],['implications','interpretation','【读后推断】']];
+ for(const [section,kind,label] of cases){const e=draft.sections.find(s=>s.key===section).entries[0];e.kind=kind;e.text=label+' **'+label+'** '+label+' 正文保留“'+label+'”的引用。';}
+ const original=structuredClone(draft),markdown=R.renderDraft(draft);assert.deepEqual(draft,original);
+ for(const [,,label] of cases)assert.ok(markdown.includes('- '+label+' 正文保留“'+label+'”的引用。'));
+ const conflicting={kind:'reported',text:'【读后推断】这条文本的分类不一致。'};
+ assert.equal(R.displayEntryText('mechanisms',conflicting),conflicting.text);
+});
+test('generated Markdown formatting is idempotent and leaves headings, quotes, inline labels and line endings intact',()=>{
+ const text='## 【作者解释】\r\n- 【作者解释】【作者解释】 正文。\r\n> 【作者解释】【作者解释】引句\r\n- 正文中的【读后推断】【读后推断】不删。\r\n- 【待核实】【读后判断】【读后判断】 保留检查标记。\r\n'.replaceAll('\\r\\n','\r\n');
+ const result=R.normalizeGeneratedMarkdown(text);assert.equal(result,text.replace('- 【作者解释】【作者解释】 正文。','- 【作者解释】 正文。').replace('- 【待核实】【读后判断】【读后判断】 保留检查标记。','- 【待核实】【读后判断】 保留检查标记。'));assert.equal(R.normalizeGeneratedMarkdown(result),result);
 });

@@ -1,0 +1,52 @@
+{
+  "version": "0.14.3",
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build only; not installed in personal Zotero or pushed.",
+  "changes": [
+    "Nonshrinking single-line enable checkbox label, responsive narrow layout",
+    "Optional personal-library collection watch using stable collection key",
+    "Local collection-entry and later PDF-add intake; excludes descendants, unrelated collections and synced changes",
+    "Recheck membership before processing; cancel old-scope automatic tasks and preserve saved notes/drafts"
+  ],
+  "automated": {
+    "version": "0.14.3",
+    "passed": 123,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "c3327dcbd23a1e78ac713c90837ac660e46229e90f55c77f27cebf42bdd59449",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "record": "native-collection-watch-0.14.3.json",
+    "passed": 8,
+    "failed": 0,
+    "zotero": "10.0.8",
+    "layoutWidths": [
+      760,
+      520,
+      340
+    ],
+    "syntheticData": true,
+    "realModelRequests": 0
+  },
+  "realCLI": {
+    "record": "live-cli-status-0.14.2.json",
+    "testedPluginVersion": "0.14.2",
+    "codexModels": 8,
+    "antigravityModels": 13,
+    "defaultConnectivityPassedBoth": true,
+    "paperContentSent": false,
+    "allModelsIndividuallyTested": false
+  },
+  "notVerified": [
+    "Real two-computer cloud synchronization",
+    "Every model and reasoning level",
+    "Real paper workflow in a personal library"
+  ],
+  "xpiSHA256": "c3327dcbd23a1e78ac713c90837ac660e46229e90f55c77f27cebf42bdd59449",
+  "packageFiles": 30
+}

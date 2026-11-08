@@ -1,0 +1,30 @@
+{
+  "version": "0.14.11",
+  "date": "2026-11-08",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build; not installed or pushed",
+  "automated": {
+    "version": "0.14.11",
+    "passed": 192,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "dac9c4167a1a1439c4132e400538156bc7fa66fae05833c5bb7d0d4a7452d610",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "passed": 7,
+    "failed": 0,
+    "syntheticData": true,
+    "productionMatchesFixture": true,
+    "queueReload": "shutdown/init, not a host-process restart",
+    "concurrency": "simulated running worker",
+    "missingNote": "injected lookup failure"
+  },
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "packageFiles": 33,
+  "xpiSHA256": "dac9c4167a1a1439c4132e400538156bc7fa66fae05833c5bb7d0d4a7452d610"
+}

@@ -1,0 +1,56 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "manual note import queues exactly one suggestion without rereading or changing memberships",
+      "ok": true
+    },
+    {
+      "name": "the native card separates the recommendation and reason from optional multi-select additions",
+      "ok": true
+    },
+    {
+      "name": "declining the recommendation and selecting extras does not mutate the library and survives a rerender",
+      "ok": true
+    },
+    {
+      "name": "one native confirmation adds only the chosen extras and preserves the intake and existing categories",
+      "ok": true
+    },
+    {
+      "name": "the user can add more categories later without another model request and explicitly choose intake removal",
+      "ok": true
+    },
+    {
+      "name": "a target becoming unavailable before confirmation prevents every planned addition",
+      "ok": true
+    },
+    {
+      "name": "a failed native save rolls back all selected changes and restores cached memberships",
+      "ok": true
+    },
+    {
+      "name": "notes, PDFs and unfinished-run guards remain intact",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "01-my-selection.png",
+      "width": 1160,
+      "height": 1020
+    },
+    {
+      "name": "02-explicit-remove.png",
+      "width": 1160,
+      "height": 1020
+    }
+  ],
+  "simulatedModelCalls": 1,
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.6",
+  "zoteroVersion": "10.0.8",
+  "headless": true,
+  "scope": "Native library transactions and settings controls with synthetic documents; unavailable target and save failure injected. No real model calls."
+}

@@ -1,0 +1,43 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "stopping through the native task menu retains the revised draft and records the exact stop source",
+      "ok": true
+    },
+    {
+      "name": "a stopped task never resumes just because the queue ticks again",
+      "ok": true
+    },
+    {
+      "name": "the native Continue Check action resumes only verification and preserves original parsing and generation",
+      "ok": true
+    },
+    {
+      "name": "shutdown cancellation before a complete draft does not expose a false resume action",
+      "ok": true
+    },
+    {
+      "name": "a no-draft cancellation can reopen the ordinary start screen without running a model",
+      "ok": true
+    }
+  ],
+  "shots": [
+    "01-cancelled-can-resume.png",
+    "02-check-resumed.png"
+  ],
+  "pluginVersion": "0.14.18",
+  "zoteroVersion": "10.0.8",
+  "stageCalls": [
+    "generation",
+    "verification",
+    "correction",
+    "verification",
+    "verification",
+    "generation"
+  ],
+  "parseCalls": 2,
+  "realModelRequests": 0,
+  "syntheticCLI": true,
+  "personalLibraryTouched": false
+}

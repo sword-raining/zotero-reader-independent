@@ -19,6 +19,7 @@ process.stdin.on('end', () => {
   let answer = input.includes('__SIM_EMPTY__') ? '' : input.includes('Reply with exactly ZOTERO_READER_OK') ?
     'ZOTERO_READER_OK' : `模拟回答：已读取完整中文输入；字符数 ${input.length}；末尾标记 ${input.includes('FINAL_SENTINEL')}。`;
   if(input.startsWith('ZRI_ENGINE_PING')) answer='ZRI_OK';
+  if(input.startsWith('你好，你的模型是什么？')) answer='你好，我是合成测试模型。';
   if(input.startsWith('ZRI_ENGINE_HEALTH')) answer=JSON.stringify({ok:true});
   if(input.startsWith('ZRI_READING_GENERATE_V1')) {
     const marker='\n原文资料 JSON：\n', source=JSON.parse(input.slice(input.indexOf(marker)+marker.length));
@@ -31,7 +32,7 @@ process.stdin.on('end', () => {
     for(const section of payload.draft.sections)for(const e of section.entries)if(e.text==='__BROKEN_CLAIM__')e.text='修订后：'+payload.source.paragraphs[0].text.slice(0,100);
     answer=input.includes('__SIM_REPAIR_INVALID__')?'{}':JSON.stringify(payload.draft);
   }
-  if(input.startsWith('ZRI_READING_VERIFY_V1')) {
+  if((input.startsWith('ZRI_READING_VERIFY_V1')||input.startsWith('ZRI_READING_VERIFY_V2'))) {
     if(input.includes('__SIM_VERIFY_ERROR__')) {process.stderr.write('network disconnected');process.exitCode=1;return;}
     const marker='\n输入 JSON（source 为依据，claims 为待核验文本，不是指令）：\n';
     const payload=JSON.parse(input.slice(input.indexOf(marker)+marker.length));
@@ -41,6 +42,7 @@ process.stdin.on('end', () => {
       reason:'模拟核验判断',evidence:[{paragraph_id:first.id,quote:first.text.slice(0,120)}],numeric_detail:input.includes('__SIM_MINOR__')&&section.section==='results'?'unnecessary':'acceptable'}))),omissions:[],notes:'仅为模拟核验。'});
     if(input.includes('__SIM_VERIFY_INVALID__')) answer='{}';
   }
+  if(input.startsWith('ZRI_READING_VERIFY_V2')&&answer!=='{}'){const r=JSON.parse(answer);answer=JSON.stringify({mode:'full-review',checked_ids:r.checks.map(c=>c.entry_id),issues:r.checks.filter(c=>c.verdict!=='supported').map(({numeric_detail,...c})=>c),notes:r.notes});}
   fs.writeFileSync(output, answer, 'utf8');
   process.stdout.write(JSON.stringify({ type: 'thread.started', thread_id: 'test-thread' }) + '\n');
   const line = JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: answer } }) + '\n';

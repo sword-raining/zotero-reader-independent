@@ -54,18 +54,19 @@ async function runAttachmentsSmoke(app,scope,main,check,{createPDF,until,sleep})
     auto.state.paused=false;auto.schedule(0);await sleep(300);
     assert(auto.state.jobs[jobID].state==='waiting_file','selected cloud-only supplement was silently omitted');await auto.stopBatch(wait.members);
   });
-  await check('automatic intake skips supplemental/duplicate files and waits for ambiguous main choice',async()=>{
+  await check('automatic intake skips supplemental/duplicate files and prefers the published main version',async()=>{
     auto.state.paused=true;await auto.setEnabled(true);
     const copy=await createPDF('Duplicate download after auto enabled',mainPath,parent),supplement=await createPDF('Supplementary material after auto enabled',suppPath,parent);
     const ambiguousParent=new Zotero.Item('journalArticle');ambiguousParent.libraryID=lib;ambiguousParent.setField('title','Ambiguous versions');await ambiguousParent.saveTx({skipSelect:true});
     const alternate=PathUtils.join(root,'accepted-version.pdf');await IOUtils.writeUTF8(alternate,'%PDF-1.4 alternate version');
     const a=await createPDF('Published version',mainPath,ambiguousParent),b=await createPDF('Accepted manuscript',alternate,ambiguousParent);
     await until(()=>auto.state.jobs[lib+':'+copy.key]&&auto.state.jobs[lib+':'+b.key]);
+    const execute=auto.execute;auto.execute=async function(job,...args){if(job.key===a.key||job.key===b.key)return {status:'awaiting_import'};return execute.call(this,job,...args);};
     auto.state.paused=false;auto.schedule(0);
-    await until(()=>auto.state.jobs[lib+':'+copy.key].state==='cancelled'&&auto.state.jobs[lib+':'+a.key].state==='awaiting_selection'&&auto.state.jobs[lib+':'+b.key].state==='awaiting_selection');
+    await until(()=>auto.state.jobs[lib+':'+copy.key].state==='cancelled'&&auto.state.jobs[lib+':'+a.key].state==='awaiting_import'&&auto.state.jobs[lib+':'+b.key].state==='cancelled');
     assert(!auto.state.jobs[lib+':'+supplement.key],'supplement auto-enqueued');
     assert(!auto.state.jobs[lib+':'+a.key].workflowPath&&!auto.state.jobs[lib+':'+b.key].workflowPath,'ambiguous main was sent to a model');
-    const group=(await batch.collectItems([ambiguousParent])).entries[0];assert(!group.mainKey,'ambiguous versions auto-selected');
+    const group=(await batch.collectItems([ambiguousParent])).entries[0];assert(group.mainKey===a.key,'published version not selected');auto.execute=execute;
     await auto.setEnabled(false);
   });
   await auto.setEnabled(false);auto.state.paused=false;

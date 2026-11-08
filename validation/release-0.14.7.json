@@ -1,0 +1,44 @@
+{
+  "version": "0.14.7",
+  "date": "2026-11-07",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local build only; not installed in personal Zotero or pushed.",
+  "changes": [
+    "Per-paper classification moved out of settings into a standalone confirmation window",
+    "Automatic prompt only after the note is saved and its suggestion and task have completed",
+    "One window queues ready papers without replacing the current selection",
+    "Closing or deferring leaves categories unchanged; late results respect deferral of the same note",
+    "Settings retain only global controls and a deferred-suggestion entry; task/result windows reopen the dialog",
+    "Current displayed note/source fingerprint binds confirmation; critical controls remain in the fixed footer"
+  ],
+  "automated": {
+    "version": "0.14.7",
+    "passed": 161,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "ab5323ca7abbe333ec4551cd09d8ab7e376bbaaa1a3d585edf958ed3af85b68d",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "archiveDialog": {
+      "passed": 11,
+      "failed": 0,
+      "record": "native-archive-dialog-0.14.7.json"
+    },
+    "workflow": {
+      "passed": 8,
+      "failed": 0,
+      "record": "native-workflow-0.14.7.json"
+    },
+    "productionPackageMatchedBothFixtures": true,
+    "zotero": "10.0.8",
+    "realModelRequests": 0,
+    "syntheticData": true
+  },
+  "testIsolation": "Fresh test profiles skip welcome pages and built-in WinWord/OpenOffice auto-installation; personal preferences were not changed by the preparation script.",
+  "xpiSHA256": "ab5323ca7abbe333ec4551cd09d8ab7e376bbaaa1a3d585edf958ed3af85b68d",
+  "packageFiles": 33
+}

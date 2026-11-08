@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-08",
+  "readOnly": true,
+  "parentDOI": "10.1038/ncomms10541",
+  "matchingAttachmentDOI": "10.1038/ncomms10541",
+  "mismatchedAttachmentDOI": "10.1111/gcb.16387",
+  "correctExistingParentDOI": "10.1111/gcb.16387",
+  "samePDFBytes": 6343527,
+  "sameSHA256": "3864f9977c3aa39c34127e2b3147fc9d19095712218c4ec94c95586df6aab923",
+  "incomingAnnotations": 2,
+  "exclusiveLinkedNoteCount": 1,
+  "targetChildAnnotations": 0,
+  "libraryMutations": 0,
+  "scope": "Metadata and first-page inspection of the user-selected example; no live cleanup or reparenting"
+}

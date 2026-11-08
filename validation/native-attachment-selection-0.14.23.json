@@ -1,0 +1,99 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "the native PDF worker identifies the main and supporting-information PDF locally",
+      "ok": true
+    },
+    {
+      "name": "content overrides generic filenames and the published paper outranks an earlier accepted manuscript",
+      "ok": true
+    },
+    {
+      "name": "the batch picker is immediately usable and a manual override remains available",
+      "ok": true
+    },
+    {
+      "name": "duplicate PDFs are read once and equal published versions select one stable candidate",
+      "ok": true
+    },
+    {
+      "name": "existing verified parser caches are reused without invoking the local PDF worker",
+      "ok": true
+    },
+    {
+      "name": "source changes invalidate old hints and extraction is capped at two pages",
+      "ok": true
+    },
+    {
+      "name": "supplemental-only groups stay unselected while extraction errors fall back to explicit filename version hints",
+      "ok": true
+    },
+    {
+      "name": "inspection never changes PDFs, notes or collections and never sends a reading or upload request",
+      "ok": true
+    }
+  ],
+  "shots": [
+    "01-automatic-selection.png"
+  ],
+  "localPDFExtractions": [
+    {
+      "itemID": 2,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 3,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 5,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 6,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 7,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 10,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 11,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 5,
+      "extractedPages": 2,
+      "totalPages": 3
+    },
+    {
+      "itemID": 16,
+      "extractedPages": 1,
+      "totalPages": 1
+    },
+    {
+      "itemID": 17,
+      "extractedPages": 1,
+      "totalPages": 1
+    }
+  ],
+  "cloudParsingRequests": 0,
+  "realModelRequests": 0,
+  "syntheticPDFs": 14,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.23",
+  "zoteroVersion": "10.0.8"
+}
