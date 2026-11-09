@@ -124,3 +124,10 @@ test('a recorded intermediate checksum is enforced and cannot be bypassed by leg
 test('changes to the current imported result remain protected even with reproducible historic data',()=>fixture(async f=>{
  await f.register();const text=await obsoleteReview(f);await fs.writeFile(path.join(f.dir,'reading.md'),text);const r=await f.scope.ReaderCleanup.afterSave(f.workflowPath,f.main);assert.equal(r.state,'retained');assert.match(r.message,/reading.md/);
 }));
+
+test('same-run lookup recalculates edited status instead of trusting the saved index',()=>fixture(async f=>{
+ await f.register();assert.equal((await f.scope.ReaderSaved.byRun(runID,f.main)).status,'checked');f.editNote('<p>Human changes</p>');const result=await f.scope.ReaderSaved.byRun(runID,f.main);assert.equal(result.status,'edited');assert.equal(result.entry.status,'edited');assert.match(f.note.getNote(),/Human changes/);
+}));
+test('same-run lookup rejects a note moved away from its source or a mismatched receipt parent',()=>fixture(async f=>{
+ await f.register();f.note.parentID=999;assert.equal(await f.scope.ReaderSaved.byRun(runID,f.main),null);f.note.parentID=f.main.parentID;f.parent.key='OTHER123';assert.equal(await f.scope.ReaderSaved.byRun(runID,f.main),null);
+}));

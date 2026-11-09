@@ -7,19 +7,28 @@ var ReaderSaved={
     const snapshot={schema:1,records:JSON.parse(JSON.stringify(this.records))};
     this.io=this.io.catch(()=>{}).then(()=>this.app.writeJSON(this.file(),snapshot));await this.io;
   },
+  async noteState(note){
+    const record=SavedCore.read(note.getNote()),bodyHash=await this.app.sha256Text(SavedCore.body(note.getNote()));
+    return {record,bodyHash,status:record&&bodyHash===record.bodySHA256?record.status:'edited'};
+  },
   async record(workflow,note,status,attachment){
-    const runID=SavedCore.legacyRun(note.getNote())||SavedCore.read(note.getNote())?.runID;
+    const runID=SavedCore.read(note.getNote())?.runID||SavedCore.legacyRun(note.getNote());
     if(!SavedCore.validID(runID))throw NoteCore.error('SAVED_RECORD','笔记缺少本次精读标记，未清理临时内容。');
+    status=(await this.noteState(note)).status;
     const entry={runID,libraryID:note.libraryID,noteKey:note.key,attachmentKey:attachment.key,status,
       inputs:SavedCore.inputs(workflow),savedAt:new Date().toISOString(),cleanup:'pending'};
     this.records[runID]=entry;await this.persist();return entry;
   },
   async byRun(runID,attachment){
+    if(!attachment||attachment.deleted)return null;
     const entry=this.records[runID];if(!entry||entry.libraryID!==attachment.libraryID||entry.attachmentKey!==attachment.key)return null;
     const note=await Zotero.Items.getByLibraryAndKeyAsync(entry.libraryID,entry.noteKey);
     if(!note?.isNote()||note.deleted)return null;
     if((SavedCore.read(note.getNote())?.runID||SavedCore.legacyRun(note.getNote()))!==runID)return null;
-    return {note,entry};
+    if((note.parentID||false)!==(attachment.parentID||false))return null;
+    const state=await this.noteState(note);if(state.record&&!state.record.inputs.some(s=>s.role==='main'&&s.key===attachment.key))return null;
+    if(state.record){const parent=attachment.parentID?await Zotero.Items.getAsync(attachment.parentID):null;if(state.record.itemKey!==(parent?.key||attachment.key))return null;}
+    entry.status=state.status;return {note,entry,...state};
   },
   async candidates(attachment){
     const parent=attachment.parentID?await Zotero.Items.getAsync(attachment.parentID):null;

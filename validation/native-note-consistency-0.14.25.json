@@ -1,0 +1,38 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "same-content repeated saves reuse one note and a changed draft fails explicitly without overwriting or cleanup",
+      "ok": true
+    },
+    {
+      "name": "recovery after cache cleanup reports an edited note accurately and strict bulk import still refuses it",
+      "ok": true
+    },
+    {
+      "name": "an existing note edited inside Zotero is not overwritten by the old retained Markdown",
+      "ok": true
+    },
+    {
+      "name": "an unreadable existing workflow is not mistaken for an absent cleaned workflow",
+      "ok": true
+    },
+    {
+      "name": "an interrupted pre-transaction confirmation becomes pending without any category changes and can be confirmed manually",
+      "ok": true
+    },
+    {
+      "name": "a committed transaction with failed final journal persistence is recognized after restart without repeating the write",
+      "ok": true
+    },
+    {
+      "name": "changed note content prevents automatic confirmation recovery even if the category plan already matches",
+      "ok": true
+    }
+  ],
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.25",
+  "zoteroVersion": "10.0.8"
+}

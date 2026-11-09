@@ -1,0 +1,38 @@
+{
+  "version": "0.14.25",
+  "date": "2026-11-09",
+  "timezone": "Asia/Shanghai",
+  "distribution": "Local validated source and XPI on fix/note-recovery-01425; not installed or pushed",
+  "baseCommit": "5cc7a3fc5e78ddeed37e232fb3a4ff5511ac2b18",
+  "automated": {
+    "version": "0.14.25",
+    "passed": 280,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "c0772b292c300b8f451a0fa3e38c8ab01e7cb125e701bcbdf976633722a2058f",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "passed": 20,
+    "failed": 0,
+    "suites": {
+      "note-consistency": 7,
+      "existing-classification": 6,
+      "bulk-save": 7
+    },
+    "zoteroVersion": "10.0.8",
+    "syntheticData": true,
+    "productionMatchesFixtures": true
+  },
+  "environment": {
+    "node": "24.16.0",
+    "python": "3.13.7"
+  },
+  "realModelRequests": 0,
+  "personalLibraryWritten": false,
+  "packageFiles": 35,
+  "xpiSHA256": "c0772b292c300b8f451a0fa3e38c8ab01e7cb125e701bcbdf976633722a2058f"
+}

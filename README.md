@@ -1,6 +1,6 @@
 # Zotero Reader 独立版
 
-面向文献梳理的 Zotero 插件：MinerU 解析、模型精读、独立核验、必要修订和笔记保存。当前源码及安装包版本为 **0.14.24**。
+面向文献梳理的 Zotero 插件：MinerU 解析、模型精读、独立核验、必要修订和笔记保存。当前源码及安装包版本为 **0.14.25**。
 
 ## 继续开发
 
@@ -19,15 +19,15 @@ cd zotero-reader-independent
 python tools/check.py --baseline
 ```
 
-基线包含 270 项自动检查，并验证语法、XML 和重建安装包。没有 npm/pip 依赖。此命令不启动 Zotero、不调用模型；部分文件系统检查会在临时测试目录创建 Windows 目录联接。
+基线包含 280 项自动检查，并验证语法、XML 和重建安装包。没有 npm/pip 依赖。此命令不启动 Zotero、不调用模型；部分文件系统检查会在临时测试目录创建 Windows 目录联接。
 
 修改源码后使用 `python tools/check.py`。开发源码在 `project/`，测试与构建输出在 `.work/`。`.gitattributes` 保留原始文件字节，便于复现基线 XPI。
 
-当前更新：收紧设置页留白，将并发篇数、自动修订和修订次数合并为紧凑控制行，刷新分类按钮与监听分类同行；窄面板自动换行。 [0.14.24 版本说明](docs/RELEASE-0.14.24.md)。
+当前更新：增加“以后自动按建议处理”开关；开启后，后续已完成并保存的精读自动采用有效建议中的新增和移出，其他分类保留。修复同次精读改稿保存被误报成功、人工编辑笔记状态恢复和归档确认中断恢复。 [0.14.25 版本说明](docs/RELEASE-0.14.25.md)。
 
 ## 安装与功能
 
-安装包：[zotero-reader-independent-0.14.24.xpi](release/zotero-reader-independent-0.14.24.xpi)。下载后在 Zotero 安装并重启。
+安装包：[zotero-reader-independent-0.14.25.xpi](release/zotero-reader-independent-0.14.25.xpi)。下载后在 Zotero 安装并重启。
 
 - 单篇、批量及可选新增文献自动精读；可在“监听分类”中限定为 `00_新导入文献` 等分类，不补扫历史、不包含子分类；自动优先选择已发表正文，补充材料仍需手动勾选。
 - 精读与核验可分别配置模型和思考强度；核验中断可继续检查已有草稿。

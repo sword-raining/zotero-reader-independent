@@ -158,6 +158,7 @@ var ReaderCleanup={
             cleanup=await this.afterSave(path,att);
             if(cleanup.state!=='done')throw NoteCore.error('HISTORY_RETAINED',cleanup.message||'缓存暂未清理，记录保留以便重试。');
           }
+          const currentState=await ReaderSaved.noteState(note);job.state=currentState.status==='checked'?'done':'imported';
           await ReaderAutomation.hideCompletedHistory(job,proposal,runID);
           ReaderAutomation.noteSaved(path,{notes:job.notes,status:job.state==='imported'?'edited':'checked',cleanup});
           result.cleaned++;if(cleanup.sharedCacheRetained)result.sharedCacheRetained++;
@@ -181,8 +182,8 @@ var ReaderCleanup={
         const att=await Zotero.Items.getByLibraryAndKeyAsync(w.source?.libraryID,w.source?.key),note=await Zotero.Items.getByLibraryAndKeyAsync(w.source?.libraryID,w.zoteroNotes.reading.key);
         if(!att||!note?.isNote()||note.deleted){retained++;continue;}
         if((SavedCore.read(note.getNote())?.runID||SavedCore.legacyRun(note.getNote()))!==PathUtils.filename(dir)){retained++;continue;}
-        await ReaderSaved.record(w,note,w.noteStatus==='edited'?'edited':'checked',att);
-        const result=await this.afterSave(path,att);if(result.state==='done'){cleaned++;const saved={notes:w.zoteroNotes,status:w.noteStatus||'checked',cleanup:result};await ReaderAutomation.compactImported(path,saved);ReaderAutomation.noteSaved(path,saved);}else retained++;
+        const receipt=await ReaderSaved.record(w,note,w.noteStatus==='edited'?'edited':'checked',att);
+        const result=await this.afterSave(path,att);if(result.state==='done'){cleaned++;const saved={notes:w.zoteroNotes,status:receipt.status,cleanup:result};await ReaderAutomation.compactImported(path,saved);ReaderAutomation.noteSaved(path,saved);}else retained++;
       }
       return {cleaned,retained};
     })();

@@ -1,9 +1,30 @@
 var ReaderClassifier={
- app:null,proposals:{},views:new Set(),io:Promise.resolve(),renderID:0,selections:new Map(),focusProposalID:null,lastAction:"",settingsViews:new Set(),dialog:null,currentID:null,autoPromptPaused:false,closingByAction:false,closing:false,
+ app:null,proposals:{},views:new Set(),io:Promise.resolve(),renderID:0,selections:new Map(),focusProposalID:null,lastAction:"",settingsViews:new Set(),dialog:null,currentID:null,autoPromptPaused:false,closingByAction:false,closing:false,recovered:new Map(),recoveryWarning:"",
  file(){return PathUtils.join(Zotero.DataDirectory.dir,'zotero-reader-independent','classification-proposals.json');},
- mode(){const value=Zotero.Prefs.get(this.app.pref+'classification.mode',true);return value===undefined||value===null||value===''?'auto':['auto','confirm','off'].includes(value)?value:'off';},
+ mode(){const value=Zotero.Prefs.get(this.app.pref+'classification.mode',true);return value===undefined||value===null||value===''?'auto':['auto','auto-adjust','confirm','off'].includes(value)?value:'off';},
  enabled(){return this.mode()!=='off';},
- async init(app){this.app=app;this.closing=false;this.autoPromptPaused=false;this.proposals=(await app.readJSON(this.file()))?.proposals||{};},
+ async init(app){
+  this.app=app;this.closing=false;this.autoPromptPaused=false;this.recovered=new Map();this.recoveryWarning='';this.proposals=(await app.readJSON(this.file()))?.proposals||{};
+  for(const [id,p]of Object.entries(this.proposals))if(p?.status==='confirming'){await this.recoverConfirmation(p);this.recovered.set(id,p);}
+  if(this.recovered.size)try{await this.persist();}catch(_){this.recoveryWarning='归档恢复记录尚未写入磁盘，请检查插件目录权限。';}
+ },
+ async recoverConfirmation(p){
+  let applied=false;
+  try{
+   const validKeys=a=>Array.isArray(a)&&a.length<=100&&a.every(k=>typeof k==='string'&&/^[A-Z0-9]{8}$/.test(k));
+   if(!p.approvedAt||!validKeys(p.approvedTargetKeys)||!validKeys(p.approvedRemovedKeys)||typeof p.approvedRemoveSource!=='boolean'||p.approvedRemovedKeys.some(k=>p.approvedTargetKeys.includes(k)))throw Error('Missing approved plan');
+   const item=await Zotero.Items.getByLibraryAndKeyAsync(p.libraryID,p.itemKey),note=await Zotero.Items.getByLibraryAndKeyAsync(p.libraryID,p.noteKey);
+   if(!item||item.deleted||!item.isRegularItem()||!note?.isNote()||note.deleted||note.parentID!==item.id||item.libraryID!==p.libraryID||note.libraryID!==p.libraryID)throw Error('Identity changed');
+   if(await this.app.sha256Text(SavedCore.body(note.getNote()))!==p.noteHash){p.noteStatus='edited';throw Error('Note changed');}
+   await item.loadDataType?.('collections');
+   const keys=[...new Set([...p.approvedTargetKeys,...p.approvedRemovedKeys,...(p.approvedRemoveSource?[p.sourceKey]:[])])],collections=new Map();
+   for(const key of keys){const c=await Zotero.Collections.getByLibraryAndKeyAsync(p.libraryID,key);if(!c||c.deleted||c.libraryID!==p.libraryID)throw Error('Collection changed');collections.set(key,c);}
+   applied=p.approvedTargetKeys.every(k=>item.inCollection(collections.get(k).id))&&p.approvedRemovedKeys.every(k=>!item.inCollection(collections.get(k).id))&&(!p.approvedRemoveSource||!item.inCollection(collections.get(p.sourceKey).id));
+  }catch(_){}
+  p.autoEligible=false;p.autoPrompt=false;p.recoveredAt=new Date().toISOString();
+  if(applied){p.status='confirmed';p.recovery='verified-applied';p.confirmedTargetKeys=[...p.approvedTargetKeys];p.confirmedRemovedKeys=[...p.approvedRemovedKeys];p.removedSource=p.approvedRemoveSource;p.confirmedAt=p.recoveredAt;p.recoveryMessage='已核对上次归档结果，原操作已经完成，未重复调整分类。';delete p.lastError;}
+  else{p.status='pending';p.recovery='needs-confirmation';p.requiresReview=true;p.lastError='CONFIRM_INTERRUPTED';p.recoveryMessage='上次归档确认中断，未能确认原方案已全部完成；请核对现有分类后重新决定，当前归属保持不变。';}
+ },
  persist(){const data={schema:1,proposals:JSON.parse(JSON.stringify(this.proposals))};this.io=this.io.catch(()=>{}).then(()=>this.app.writeJSON(this.file(),data));return this.io;},
  choices({scoped=true}={}){
   const rootKey=scoped?String(Zotero.Prefs.get(this.app.pref+'classification.rootKey',true)||''):'',all=Zotero.Collections.getByLibrary(Zotero.Libraries.userLibraryID,true);
@@ -64,8 +85,10 @@ var ReaderClassifier={
   const count=this.ready(false).length;
   for(const win of [...this.settingsViews]){
    if(win.closed){this.settingsViews.delete(win);continue;}
+   const mode=win.document.getElementById('zri-classification-mode');if(mode)mode.value=this.mode();
    const summary=win.document.getElementById('zri-classification-summary'),button=win.document.getElementById('zri-classification-open');
-   if(summary)summary.textContent=this.mode()==='auto'?('未分类的新文献可自动归档；已有分类的文献若有新增或移出建议，会先请你确认。'+(count?` ${count} 项旧建议或未完成归档可手动查看。`:'')):this.mode()==='off'?'已关闭自动归档和自动建议。精读与保存继续，分类保持不变；仍可从任务中手动归档。':count?`有 ${count} 篇笔记的归档建议待确认，可在独立窗口中处理。`:'笔记保存、建议生成后弹出窗口，由你逐篇确认。';
+   if(summary)summary.textContent=this.mode()==='auto-adjust'?'新完成并保存的精读将自动采用有效建议中的新增与移出；未提及的分类保留，旧待确认记录不自动补执行。':this.mode()==='auto'?('未分类的新文献可自动归档；已有分类的文献若有新增或移出建议，会先请你确认。'+(count?` ${count} 项旧建议或未完成归档可手动查看。`:'')):this.mode()==='off'?'已关闭自动归档和自动建议。精读与保存继续，分类保持不变；仍可从任务中手动归档。':count?`有 ${count} 篇笔记的归档建议待确认，可在独立窗口中处理。`:'笔记保存、建议生成后弹出窗口，由你逐篇确认。';
+   if(summary&&this.recoveryWarning)summary.textContent+=' '+this.recoveryWarning;
    if(button){button.disabled=!count;button.textContent=count?`打开待确认建议（${count}）`:'打开待确认建议';}
   }
  },
@@ -116,21 +139,22 @@ var ReaderClassifier={
    if(!suggestion)throw NoteCore.error('CLASSIFY_FORMAT','分类建议格式或范围无效，笔记已保存，未改变任何分类。');
   }
   if(signal?.aborted)throw CodexCore.error('CANCELLED','分类建议已停止，笔记仍保留。');
-  const deferredAt=this.proposals[id]?.noteHash===hash?this.proposals[id].deferredAt:null,requiresReview=!!(valid||force)&&this.needsReview(suggestion,currentCollections);
+  const deferredAt=this.proposals[id]?.noteHash===hash?this.proposals[id].deferredAt:null,requiresReview=!!(valid||force)&&this.needsReview(suggestion,currentCollections)&&(this.mode()!=='auto-adjust'||force);
   this.proposals[id]={id,status:'pending',origin:force?'model':valid?'review':'manual',autoEligible:!force&&!!valid&&!requiresReview,requiresReview,autoPrompt:!force&&!deferredAt,...(deferredAt?{deferredAt}:{}),libraryID:parent.libraryID,itemKey:parent.key,noteKey:note.key,noteHash:hash,title:parent.getField('title'),sourceKey,targetKey:suggestion.recommendations[0]?.collectionKey||'',recommendations:suggestion.recommendations,adjustments:suggestion.adjustments,reason:suggestion.reason,noteStatus:result.status,createdAt:new Date().toISOString(),jobID:job.id};
   if(this.selections.get(id)?.noteHash!==hash)this.selections.delete(id);await this.persist();this.render();return this.proposals[id];
  },
  async autoArchive(job,p,worker){
   try{
   if(!p||p.status==='confirmed')return p;
-  if(this.mode()!=='auto'||worker?.job!==job||ReaderAutomation.running.get(p.jobID)!==worker||job.cancelRequested)throw NoteCore.error('CLASSIFY_MODE','自动归档条件已变化，未改变分类。');
+  const mode=this.mode();if(!['auto','auto-adjust'].includes(mode)||worker?.job!==job||ReaderAutomation.running.get(p.jobID)!==worker||job.cancelRequested)throw NoteCore.error('CLASSIFY_MODE','自动归档条件已变化，未改变分类。');
   if((!p.autoEligible&&!p.requiresReview)||p.origin!=='review')throw NoteCore.error('CLASSIFY_AUTO','没有可用的本轮归档建议；笔记已保存，文献保留原分类，可手动归档。');
   const keys=[...new Set(this.recommendations(p).map(r=>r.collectionKey))];
   const item=await Zotero.Items.getByLibraryAndKeyAsync(p.libraryID,p.itemKey);if(!item||item.deleted)throw NoteCore.error('CLASSIFY_STATE','文献不可用，未自动归档。');await item.loadDataType?.('collections');
-  if(p.requiresReview||this.needsReview(p,this.choices({scoped:false}).filter(c=>c.key!==p.sourceKey&&item.inCollection(c.id))))return this.requestReview(p);
-  if(!keys.length)throw NoteCore.error('CLASSIFY_AUTO','没有明确的推荐分类；笔记已保存，文献保留原分类，可手动归档。');
+  if(p.requiresReview||mode==='auto'&&this.needsReview(p,this.choices({scoped:false}).filter(c=>c.key!==p.sourceKey&&item.inCollection(c.id))))return this.requestReview(p);
+  const removeKeys=mode==='auto-adjust'?(p.adjustments||[]).map(a=>a.collectionKey):[];
+  if(!keys.length&&!removeKeys.length)throw NoteCore.error('CLASSIFY_AUTO','没有明确的推荐分类；笔记已保存，文献保留原分类，可手动归档。');
   const source=p.sourceKey?await Zotero.Collections.getByLibraryAndKeyAsync(p.libraryID,p.sourceKey):null;
-  await this.confirm(p.id,keys,{removeSource:!!source&&!source.deleted&&item.inCollection(source.id),expectedNoteHash:p.noteHash,expectedSourceKey:p.sourceKey,automaticWorker:worker});return p;
+  await this.confirm(p.id,keys,{removeKeys,removeSource:!!source&&!source.deleted&&item.inCollection(source.id),expectedNoteHash:p.noteHash,expectedSourceKey:p.sourceKey,automaticWorker:worker,automaticMode:mode});return p;
   }catch(e){if(e.code==='CLASSIFY_REVIEW'&&p?.status==='pending')return this.requestReview(p);if(p?.status==='pending'&&!job.pauseRequested){p.autoPrompt=false;p.autoEligible=false;p.lastError=e.code||'LOCAL';await this.persist();}throw e;}
  },
  async openForJob(jobID){
@@ -148,20 +172,21 @@ var ReaderClassifier={
   }
   this.showDialog(id,{manual:true});
  },
- async applySuggested(id,{removeSource=false,expectedNoteHash,expectedSourceKey}={}){
+ async applySuggested(id,{removeSource=false,expectedNoteHash,expectedSourceKey,autoNext=false}={}){
   const p=this.proposals[id];if(!p||p.status!=='pending')throw NoteCore.error('CLASSIFY_STATE','建议已失效，请重新打开。');
   const keys=[...new Set(this.recommendations(p).map(r=>r.collectionKey))],removeKeys=[...new Set((p.adjustments||[]).map(a=>a.collectionKey))];
   if(!keys.length&&!removeKeys.length)throw NoteCore.error('CLASSIFY_TARGET','当前没有可直接采用的建议，请手动选择或更新推荐。');
-  return this.confirm(id,keys,{removeKeys,removeSource,expectedNoteHash:expectedNoteHash??p.noteHash,expectedSourceKey:expectedSourceKey??p.sourceKey,suggested:true});
+  await this.confirm(id,keys,{removeKeys,removeSource,expectedNoteHash:expectedNoteHash??p.noteHash,expectedSourceKey:expectedSourceKey??p.sourceKey,suggested:true});
+  if(autoNext){Zotero.Prefs.set(this.app.pref+'classification.mode','auto-adjust',true);this.updateSettings();}
  },
- async confirm(id,targetKeys,{removeKeys=[],removeSource=false,expectedNoteHash,expectedSourceKey,automaticWorker=null,suggested=false}={}){
+ async confirm(id,targetKeys,{removeKeys=[],removeSource=false,expectedNoteHash,expectedSourceKey,automaticWorker=null,automaticMode='auto',suggested=false}={}){
   removeSource=removeSource===true;
   const p=this.proposals[id];if(!p||p.status!=='pending')throw NoteCore.error('CLASSIFY_STATE','归档选择已失效，请重新打开。');
   if(expectedNoteHash!==undefined&&expectedNoteHash!==p.noteHash||expectedSourceKey!==undefined&&expectedSourceKey!==p.sourceKey)throw NoteCore.error('CLASSIFY_CHANGED','建议依据或原分类已变化，请查看更新后的选择再确认。');
   const job=ReaderAutomation.state.jobs[p.jobID];
-  const autoAllowed=()=>this.mode()==='auto'&&p.autoEligible===true&&!p.requiresReview&&automaticWorker?.job===job&&ReaderAutomation.running.get(p.jobID)===automaticWorker&&!job.cancelRequested;
+  const autoAllowed=()=>['auto','auto-adjust'].includes(automaticMode)&&this.mode()===automaticMode&&p.autoEligible===true&&!p.requiresReview&&automaticWorker?.job===job&&ReaderAutomation.running.get(p.jobID)===automaticWorker&&!job.cancelRequested;
   const automatic=!!automaticWorker;if(automatic&&!autoAllowed())throw NoteCore.error('CLASSIFY_MODE','自动归档条件已变化，未改变分类。');
-  if(automatic&&removeKeys.length)throw NoteCore.error('CLASSIFY_TARGET','自动归档不会移出其他已有分类。');
+  if(automatic&&automaticMode!=='auto-adjust'&&removeKeys.length)throw NoteCore.error('CLASSIFY_TARGET','自动归档不会移出其他已有分类。');
   if(ReaderAutomation.historyClearing?.has(p.jobID))throw NoteCore.error('BUSY','正在清理此篇完成记录，请稍后确认。');
   if(ReaderAutomation.running.has(p.jobID)&&!automatic||job?.classificationPending)throw NoteCore.error('BUSY','此篇仍在生成建议，请稍后确认。');
   if(!this.eligible(job,p.noteKey))throw NoteCore.error('CLASSIFY_UNFINISHED','当前这轮精读尚未完成并保存，不能归档。');
@@ -170,7 +195,7 @@ var ReaderClassifier={
   if(!valid(targetKeys)||!valid(removeKeys))throw NoteCore.error('CLASSIFY_TARGET','分类选择无效，请刷新后重试。');
   const keys=[...new Set(targetKeys)],removed=[...new Set(removeKeys)],all=this.choices({scoped:false}),allowed=new Set(all.map(c=>c.key));
   if([...keys,...removed].some(k=>!allowed.has(k)||k===p.sourceKey)||removed.some(k=>keys.includes(k))||removeSource&&!p.sourceKey)throw NoteCore.error('CLASSIFY_TARGET','新增和移出的分类无效或冲突，请核对选择。');
-  p.status='confirming';p.approvalMode=automatic?'automatic':suggested?'suggested':'manual';p.approvedTargetKeys=[...keys];p.approvedRemovedKeys=[...removed];p.approvedRemoveSource=removeSource;p.approvedAt=new Date().toISOString();
+  p.status='confirming';p.approvalMode=automatic?(automaticMode==='auto-adjust'?'automatic-suggestions':'automatic'):suggested?'suggested':'manual';p.approvedTargetKeys=[...keys];p.approvedRemovedKeys=[...removed];p.approvedRemoveSource=removeSource;p.approvedAt=new Date().toISOString();
   try{await this.persist();}catch(_){p.status='pending';throw NoteCore.error('CLASSIFY_RECORD','无法保存确认记录，未改变分类。');}
   let item,added=[];
   try{await Zotero.DB.executeTransaction(async()=>{
@@ -180,7 +205,7 @@ var ReaderClassifier={
    if(!item||item.deleted||!item.isEditable()||!note||note.deleted||note.parentID!==item.id||p.libraryID!==Zotero.Libraries.userLibraryID||[...targets,...removals].some(c=>!c||c.deleted||c.libraryID!==p.libraryID))throw NoteCore.error('CLASSIFY_STATE','条目、笔记或分类已变化，未改变分类。');
    if(await this.app.sha256Text(SavedCore.body(note.getNote()))!==p.noteHash)throw NoteCore.error('CLASSIFY_CHANGED','笔记已修改，请重新打开归档选择后确认。');
    await item.loadDataType?.('collections');
-   if(automatic&&this.needsReview(p,all.filter(c=>c.key!==p.sourceKey&&item.inCollection(c.id))))throw NoteCore.error('CLASSIFY_REVIEW','现有分类已有变化，请确认调整建议。');
+   if(automatic&&automaticMode!=='auto-adjust'&&this.needsReview(p,all.filter(c=>c.key!==p.sourceKey&&item.inCollection(c.id))))throw NoteCore.error('CLASSIFY_REVIEW','现有分类已有变化，请确认调整建议。');
    const source=removeSource?await Zotero.Collections.getByLibraryAndKeyAsync(p.libraryID,p.sourceKey):null;
    if(removeSource&&(!source||source.deleted||!item.inCollection(source.id))||removals.some(c=>!item.inCollection(c.id)))throw NoteCore.error('CLASSIFY_CHANGED','要移出的分类归属已变化，请刷新后核对。');
    const removeIDs=new Set([...removals.map(c=>c.id),...(source?[source.id]:[])]),existing=item.getCollections?item.getCollections():all.filter(c=>item.inCollection(c.id)).map(c=>c.id);
@@ -222,6 +247,7 @@ var ReaderClassifier={
    if(revision!==this.renderID)return;
    for(const win of [...this.views]){
     if(win.closed){this.views.delete(win);continue;}const doc=win.document,box=doc.getElementById('zri-classification-proposals');if(!box)continue;box.replaceChildren();
+    for(const old of doc.querySelectorAll('[data-auto-next]'))old.closest('label')?.remove();
     const footerActions=doc.getElementById('zri-archive-actions'),footerPlan=doc.getElementById('zri-archive-plan');footerActions?.replaceChildren();if(footerPlan)footerPlan.textContent='';const removeSlot=doc.getElementById('zri-archive-remove-slot');removeSlot?.replaceChildren();
     const count=doc.getElementById('zri-archive-count');if(count)count.textContent=`${this.ready(false).length} 篇待确认 · 关闭窗口可稍后处理`;
     const el=(tag,text,cls)=>{const n=doc.createElementNS('http://www.w3.org/1999/xhtml',tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -232,6 +258,7 @@ var ReaderClassifier={
      let draft=this.selections.get(p.id);if(!draft||draft.noteHash!==p.noteHash){draft={noteHash:p.noteHash,keys:new Set(),removeKeys:new Set(),removeSource:false,search:''};this.selections.set(p.id,draft);}if(!draft.removeKeys)draft.removeKeys=new Set();
      const row=el('section',undefined,'zr-archive-card');row.dataset.proposalId=p.id;row.appendChild(el('h3',p.title));
      row.appendChild(el('p',p.noteStatus==='edited'?'笔记已保存（人工修改稿，未经再次核验）。下面只决定分类。':'精读和笔记保存已完成。下面只决定分类，不会重新精读。','zr-caption'));
+     if(p.recoveryMessage)row.appendChild(el('p',p.recoveryMessage,'zr-caption'));
      if(p.requiresReview)row.appendChild(el('p','本次精读对已有分类提出了调整建议。现有归属保持不变。可一键按建议处理，也可自行勾选后确认；其他原分类保留。','zr-caption'));
      row.appendChild(el('h4','已有分类 · 默认保留'));
      const kept=el('div',undefined,'zr-archive-current');row.appendChild(kept);
@@ -265,13 +292,15 @@ var ReaderClassifier={
      const removeLabel=el('label',undefined,'zr-archive-choice zr-archive-remove'),remove=el('input');remove.type='checkbox';remove.dataset.removeSource='true';remove.checked=draft.removeSource;remove.disabled=!!busy||!source||!current.has(p.sourceKey);remove.hidden=!source||!current.has(p.sourceKey);if(!source||!current.has(p.sourceKey)){remove.checked=false;draft.removeSource=false;}removeLabel.appendChild(remove);const sourceText=el('span',source&&current.has(p.sourceKey)?'同时移出待处理分类「'+short(source)+'」':'当前没有待处理分类需要移出');if(source)sourceText.title=source.path;removeLabel.appendChild(sourceText);(removeSlot||row).appendChild(removeLabel);remove.addEventListener('change',()=>{draft.removeSource=remove.checked;updatePlan();});
      const plan=footerPlan||el('p',undefined,'zr-archive-plan');if(!footerPlan)row.appendChild(plan);const actions=footerActions||el('div',undefined,'zr-actions');if(!footerActions)row.appendChild(actions);
      const button=(label,fn)=>{const b=el('button',label);b.addEventListener('click',()=>{b.disabled=true;Promise.resolve().then(fn).catch(e=>{plan.textContent=this.app.safeError(e);b.disabled=false;updatePlan(false);});});actions.appendChild(b);return b;};
-     const suggested=button('按建议处理',()=>this.applySuggested(p.id,{removeSource:draft.removeSource,expectedNoteHash:p.noteHash,expectedSourceKey:p.sourceKey}));suggested.dataset.action='suggested';
+     const autoNextLabel=el('label',undefined,'zr-archive-choice'),autoNext=el('input');autoNext.type='checkbox';autoNext.checked=draft.autoNext===true;autoNext.dataset.autoNext='true';autoNext.disabled=!!busy;autoNextLabel.append(autoNext,el('span','以后自动按建议处理（包含移出已有分类）'));autoNextLabel.title='本篇按建议处理成功后生效，仅对后续完成的精读自动执行；可在设置中关闭。';actions.before(autoNextLabel);autoNext.addEventListener('change',()=>{draft.autoNext=autoNext.checked;});
+     const suggested=button('按建议处理',()=>this.applySuggested(p.id,{removeSource:draft.removeSource,expectedNoteHash:p.noteHash,expectedSourceKey:p.sourceKey,autoNext:draft.autoNext===true}));suggested.dataset.action='suggested';
      const confirm=button('保留现有分类并完成',()=>this.confirm(p.id,[...draft.keys],{removeKeys:[...draft.removeKeys],removeSource:draft.removeSource,expectedNoteHash:p.noteHash,expectedSourceKey:p.sourceKey}));confirm.className='zr-primary';confirm.dataset.action='confirm';button('稍后决定',()=>this.deferCurrent(p.id));
      const updatePlan=(replaceText=true)=>{
       const selected=all.filter(c=>draft.keys.has(c.key)&&c.key!==p.sourceKey),added=selected.filter(c=>!current.has(c.key)),removed=existing.filter(c=>draft.removeKeys.has(c.key)),keptCount=existing.filter(c=>!draft.removeKeys.has(c.key)).length;
       const stale=[...draft.keys,...draft.removeKeys].some(k=>!all.some(c=>c.key===k))||[...draft.removeKeys].some(k=>!current.has(k)),emptyAfter=(removed.length||draft.removeSource)&&!keptCount&&!added.length&&(!source||!current.has(p.sourceKey)||draft.removeSource);
       const suggestedAdded=all.filter(c=>recommendedKeys.has(c.key)&&!current.has(c.key)&&c.key!==p.sourceKey),suggestedRemoved=existing.filter(c=>adjustments.some(a=>a.collectionKey===c.key));
       suggested.hidden=!suggestedAdded.length&&!suggestedRemoved.length&&!draft.removeSource;
+      autoNextLabel.hidden=suggested.hidden||this.mode()==='auto-adjust';
       const suggestedEmpty=(suggestedRemoved.length||draft.removeSource)&&existing.length===suggestedRemoved.length&&!suggestedAdded.length&&(!source||!current.has(p.sourceKey)||draft.removeSource);
       suggested.disabled=!!busy||!this.eligible(job,p.noteKey)||suggestedEmpty||!recommendations.length&&!adjustments.length;
       suggested.textContent=`按建议处理（新增 ${suggestedAdded.length}，移出 ${suggestedRemoved.length+(draft.removeSource?1:0)}）`;suggested.title=`按建议新增：${suggestedAdded.map(short).join('；')||'无'}；移出：${[...suggestedRemoved.map(short),...(draft.removeSource&&source?[short(source)]:[])].join('；')||'无'}。其他已有分类保留。`;

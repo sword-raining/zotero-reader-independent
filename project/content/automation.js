@@ -59,6 +59,9 @@ var ReaderAutomation={
       if(workflow?.status==='verification_incomplete'){job.state='verification_incomplete';job.message=ReadingCore.incompleteMessage(workflow.errorCode);}
     }
     for(const job of Object.values(this.state.jobs))if(['cancelled','failed'].includes(job.state))await this.refreshResumeState(job);
+    let recovered=false;
+    if(typeof ReaderClassifier!=='undefined')for(const p of ReaderClassifier.recovered?.values?.()||[]){const job=this.state.jobs[p.jobID];if(!job||!['done','imported'].includes(job.state)||job.notes?.reading?.key!==p.noteKey)continue;job.classificationPending=false;job.classificationForce=false;job.classificationStatus=p.status;job.message=p.recoveryMessage;if(p.noteStatus==='edited')job.state='imported';if(p.status==='confirmed')job.archiveConfirmedAt=p.confirmedAt;recovered=true;}
+    if(recovered)try{await this.persist();}catch(_){}
     this.started=true;this.epoch++;
     this.observer=Zotero.Notifier.registerObserver({notify:(event,type,ids,extra)=>this.notify(event,type,ids,extra)},["item","collection-item","collection"],"zri-auto-reader");
     this.schedule();
@@ -262,7 +265,7 @@ var ReaderAutomation={
     try{
       job.message=force?'笔记已保存，正在请求检查模型建议':'笔记已保存，正在准备归档选择';this.refreshViews();
       const proposal=await worker.codex.exclusive(signal=>ReaderClassifier.suggest(job,result,worker.codex,signal,{force}));
-      if(!force&&ReaderClassifier.mode()==='auto'&&proposal?.status!=='confirmed')await ReaderClassifier.autoArchive(job,proposal,worker);
+      if(!force&&['auto','auto-adjust'].includes(ReaderClassifier.mode())&&proposal?.status!=='confirmed')await ReaderClassifier.autoArchive(job,proposal,worker);
       job.classificationStatus=proposal?.status||'skipped';job.message=proposal?.status==='confirmed'?(job.message||'自动归档完成'):proposal?.status==='pending'?(proposal.requiresReview?'笔记已保存；已有分类的调整建议待你确认，当前归属保持不变':'笔记已保存；请查看推荐理由，可追加分类后确认'):'笔记已保存；可在“归档／添加分类”中继续选择';return proposal;
     }catch(e){if(job.pauseRequested){this.deferClassification(job,result,force);return null;}job.classificationStatus='failed';job.classificationError=this.app.safeError(e);job.message='笔记已保存；建议未完成：'+job.classificationError;return null;}
   },
@@ -469,7 +472,7 @@ var ReaderAutomation={
   },
   noteSaved(path,result){
     if(ReaderCodex.state.output!==path)return;
-    ReaderCodex.update({deliveryPending:false,source:'已保存为 Zotero 笔记',savedNoteKey:result.notes?.reading?.key,
+    ReaderCodex.update({deliveryPending:false,resultStatus:result.status,source:'已保存为 Zotero 笔记',savedNoteKey:result.notes?.reading?.key,
       message:result.cleanup?.message||(result.status==='edited'?'已导入人工修改稿。':result.cleanup?.state==='done'?'已导入精读笔记，临时内容已清理。':'已导入精读笔记。'),
       ...(result.cleanup?.state==='done'?{output:'',cache:null}:{})});
   },

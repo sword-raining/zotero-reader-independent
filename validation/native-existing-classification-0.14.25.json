@@ -1,0 +1,52 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "an existing-classification change suggestion opens for review only after reading and saving finish, even in automatic mode",
+      "ok": true
+    },
+    {
+      "name": "the dialog presents keep, add and remove recommendations with reasons and no preselected changes",
+      "ok": true
+    },
+    {
+      "name": "the actual Later button defers the suggestions without moving the paper or reopening the dialog",
+      "ok": true
+    },
+    {
+      "name": "confirmation applies only selected additions and removals while keeping the PDF, note and other categories",
+      "ok": true
+    },
+    {
+      "name": "the one-click button applies only this papers displayed suggestions without another model request",
+      "ok": true
+    },
+    {
+      "name": "future completed readings use cached suggestions to add and remove automatically while preserving other categories",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "01-review-existing.png",
+      "width": 880,
+      "height": 1000
+    },
+    {
+      "name": "02-selected-changes.png",
+      "width": 880,
+      "height": 768
+    },
+    {
+      "name": "03-apply-suggestions.png",
+      "width": 880,
+      "height": 768
+    }
+  ],
+  "realModelRequests": 0,
+  "standaloneClassificationRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.25",
+  "zoteroVersion": "10.0.8"
+}

@@ -45,9 +45,10 @@ var ReaderNotes={
     if(workflowPath!==expected)throw NoteCore.error("NOTE_PATH","精读结果目录不属于本插件。");
     const workflow=await this.app.readJSON(workflowPath);
     if(!workflow){
+      if(await IOUtils.exists(workflowPath))throw NoteCore.error('NOTE_STATE','本地精读记录无法读取，本次未导入或复用；稿件已保留。');
       const saved=await ReaderSaved.byRun(runID,attachment);
       if(saved&&options.requireChecked){await this.checkedSavedNote(saved.note,runID,attachment);options.validateTask?.();}
-      if(saved)return {notes:{reading:{key:saved.note.key,id:saved.note.id,reused:true}},status:saved.entry.status,parentID:saved.note.parentID,cleanup:{state:'done'}};
+      if(saved)return {notes:{reading:{key:saved.note.key,id:saved.note.id,reused:true}},status:saved.status,parentID:saved.note.parentID,cleanup:{state:'done',message:saved.status==='edited'?'已有笔记含人工修改或无法确认原核验状态，保留为人工稿；未写入新内容。':'已有同次精读笔记，未重复保存。'}};
     }
     if(workflow&&options.preferMarkdown&&["verifying","correcting"].includes(workflow.status)){
       if(ReaderAutomation.running&&[...ReaderAutomation.running.values()].some(w=>w.job.workflowPath===workflowPath))throw NoteCore.error("BUSY","此篇仍在处理，未导入正在变化的稿件。");
@@ -84,10 +85,11 @@ var ReaderNotes={
     if(options.requireChecked&&(manualEdited||workflow.status!=='checked'||assessment?.status!=='checked'))throw NoteCore.error('NOTE_BULK_REVIEW','稿件有修改或尚未通过检查，请打开结果单独核对后保存。');
     if(!manualEdited&&(workflow.status!=="checked"||assessment?.status!=="checked"))throw NoteCore.error("NOTE_UNRESOLVED","还有重要问题未解决，暂不导入。请重新精读，或修改 Markdown 后再导入人工修改稿。");
     const html=NoteCore.render({workflow,draft,review,assessment,...target,sections:ReadingCore.sectionsFor(draft),runID,naming,manualEdited,manualMarkdown});
-    const notes={};let savedReadingBody=null;
+    const desiredBodyHash=await this.app.sha256Text(SavedCore.body(html.reading));
+    const notes={};let savedReadingBody=null,reusedStatus=null;
     await Zotero.DB.executeTransaction(async()=>{
       options.validateTask?.();
-      if(options.requireChecked&&importedMarkdownPath&&await this.app.sha256(importedMarkdownPath)!==importedMarkdownSHA256)throw NoteCore.error('NOTE_CHANGED','保存前稿件发生变化，本次跳过，原稿保留。');
+      if(importedMarkdownPath&&await this.app.sha256(importedMarkdownPath)!==importedMarkdownSHA256)throw NoteCore.error('NOTE_CHANGED','保存前稿件发生变化，本次跳过，原稿保留。');
       // Recheck target immediately before writes. Never overwrite a user-edited note.
       const latest=await this.destination(attachment);
       if(latest.parentID!==target.parentID)throw NoteCore.error("NOTE_MOVED","PDF 的所属文献刚刚发生变化，请重试生成笔记。");
@@ -104,7 +106,14 @@ var ReaderNotes={
         if(matching.some(n=>n.deleted))throw NoteCore.error("NOTE_TRASHED","同次生成的笔记已被移入回收站，不会自动恢复或重建。");
         if(matching.length&&options.requireChecked){if(matching.length!==1)throw NoteCore.error('NOTE_BULK_REVIEW','已有多份同次笔记，请单独查看，未重复保存。');await this.checkedSavedNote(matching[0],runID,attachment);}
         options.validateTask?.();
-        if(matching.length){notes[role]={key:matching[0].key,id:matching[0].id,reused:true};continue;}
+        if(matching.length){
+          if(matching.length!==1)throw NoteCore.error('NOTE_CONFLICT','已有多份同次笔记，无法确认要复用哪一份；本地稿件保留。');
+          const note=matching[0],record=SavedCore.read(note.getNote()),storedRun=record?.runID||SavedCore.legacyRun(note.getNote());
+          if(storedRun!==runID||note.libraryID!==target.libraryID||(note.parentID||false)!==(target.parentID||false)||record&&(record.itemKey!==(target.bibliography.itemKey||attachment.key)||!record.inputs.some(s=>s.role==='main'&&s.key===attachment.key)))throw NoteCore.error('NOTE_MISMATCH','已有笔记的身份或所属文献已变化，未重复保存或覆盖。');
+          const state=await ReaderSaved.noteState(note);
+          if(state.bodyHash!==desiredBodyHash)throw NoteCore.error('NOTE_CONTENT_CONFLICT','这次稿件与已保存笔记的内容不同，本次未导入或覆盖。已有笔记和本地改稿均已保留，请打开笔记核对。');
+          reusedStatus=state.status;notes[role]={key:note.key,id:note.id,reused:true};continue;
+        }
         const note=new Zotero.Item("note");note.libraryID=target.libraryID;
         if(target.parentID)note.parentID=target.parentID;
         else if(target.collections.length)note.setCollections(target.collections);
@@ -128,7 +137,7 @@ var ReaderNotes={
       }
     });
     // Embedded record IDs provide recovery even if this file write is interrupted.
-    const reused=Object.values(notes).every(n=>n.reused),status=reused?(workflow.noteStatus||html.status):html.status;
+    const reused=Object.values(notes).every(n=>n.reused),status=reused?reusedStatus:html.status;
     let stored=false;
     const savedWorkflow={...workflow,zoteroNotes:{...workflow.zoteroNotes,...notes},noteStatus:status,
       noteNaming:reused?(workflow.noteNaming||naming):naming,
