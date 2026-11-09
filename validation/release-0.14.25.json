@@ -2,7 +2,7 @@
   "version": "0.14.25",
   "date": "2026-11-09",
   "timezone": "Asia/Shanghai",
-  "distribution": "Local validated source and XPI on fix/note-recovery-01425; not installed or pushed",
+  "distribution": "Source and verified XPI included in private-repository main publication; not installed",
   "baseCommit": "5cc7a3fc5e78ddeed37e232fb3a4ff5511ac2b18",
   "automated": {
     "version": "0.14.25",
