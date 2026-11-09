@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-09",
+  "version": "1.0.0",
+  "license": "GPL-3.0-only",
+  "copyright": "Copyright (c) 2026 sword-raining",
+  "licenseTextSource": "https://api.github.com/licenses/gpl-3.0",
+  "licenseTextSHA256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+  "scope": "license and documentation only",
+  "productionSourceUnchanged": true,
+  "xpiSHA256": "d2b3e5edef3551eccda7495ccdc1e9ea3273a340f3bfa0a67b09bba8905aaf93",
+  "modelRequests": 0,
+  "zoteroLaunched": false,
+  "validation": {
+    "version": "1.0.0",
+    "passed": 348,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "d2b3e5edef3551eccda7495ccdc1e9ea3273a340f3bfa0a67b09bba8905aaf93",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  }
+}

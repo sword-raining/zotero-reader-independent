@@ -154,3 +154,17 @@ python tools/check.py --baseline
 ```
 
 开发检查需要 Node.js 和 Python，不需要 `npm install`。修改后运行 `python tools/check.py`，可重建 XPI 输出至 `.work/`。基础检查不启动 Zotero、不调用模型；真实调用和原生测试必须另行明确执行。当前验证范围见[版本说明](docs/RELEASE-1.0.0.md)。
+
+## 开源许可
+
+Copyright (c) 2026 sword-raining.
+
+本项目由 sword-raining 提供的源码、配套文档及 1.0.0 安装包采用 **GNU General Public License v3.0 only（SPDX: `GPL-3.0-only`）**，完整条款见 [LICENSE](LICENSE)。
+
+- 允许使用、修改、分发及商用。
+- 分发本程序或其衍生版本时，应保留版权和许可声明、标明修改，并按 GPL-3.0 提供对应源码及构建所需文件；衍生版本须继续遵守该许可。
+- 本程序不提供适销性、特定用途适用性等担保，具体以许可证为准。
+
+本授权不改变 Zotero、MinerU、Codex CLI、Antigravity CLI 等独立软件或服务的许可与使用条款，也不授予第三方论文、PDF 或用户笔记的版权。使用插件生成的普通笔记不会仅因使用本插件而必须按 GPL 发布。
+
+1.0.0 已发布 XPI 的字节与校验值保持不变；同一 [Release 页面](https://github.com/sword-raining/zotero-reader-independent/releases/tag/v1.0.0) 提供许可证及附带许可声明的对应源码下载。再分发时请一并提供许可声明和完整许可证。
