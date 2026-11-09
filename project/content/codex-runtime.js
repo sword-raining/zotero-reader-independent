@@ -276,14 +276,16 @@ var ReaderCodex = {
       const cache = await this.app.cached(source, this.app.options());
       if (!cache || cache.dir !== this.state.cache.dir) throw CodexCore.error("CACHE_CHANGED", "PDF 或解析结果已变化，请关闭此窗口并重新打开后再发送。");
       const assembled=await this.app.readModelSource(cache,signal);
-      const paper=ReadingCore.paper(assembled.markdown,this.state.title);
-      return this.readPaper(paper, {source,bibliography:await ReaderNotes.bibliography(this.state.attachment),cacheGeneration:PathUtils.filename(cache.dir), markdownSHA256:cache.manifest.markdownSha256,sourceAssemblyVersion:SourceCore.VERSION,textAssembly:assembled.diagnostics}, signal);
+      const inputSelection={mainKey:source.key,supplementKeys:[],pageLimit:Number(cache.manifest.options?.pageLimit)||0},inputSources=await ReaderAttachments.sources(this.state.attachment,inputSelection,signal);
+      const paper=ReadingCore.paperSet([{...inputSources[0],markdown:assembled.markdown}],this.state.title);
+      return this.readPaper(paper, {source,inputSelection,inputSources,bibliography:await ReaderNotes.bibliography(this.state.attachment),cacheGeneration:PathUtils.filename(cache.dir), markdownSHA256:cache.manifest.markdownSha256,sourceAssemblyVersion:SourceCore.VERSION,textAssembly:assembled.diagnostics}, signal);
     });
   },
   async readPaper(paper, context, signal, hooks = {}) {
     this.app.assertIndexes?.();
-    if(typeof ReaderLanguage!=='undefined'){const att=await Zotero.Items.getByLibraryAndKeyAsync(context.source.libraryID,context.source.key);await ReaderLanguage.check(att,ReaderAutomation.state.jobs[context.queueJobID],(paper.paragraphs||[]).map(p=>p.text||'').join('\n'));}
-    const resumed=hooks.resume;
+    const resumed=hooks.resume,inputContext=resumed?.metadata||context;
+    if(!inputContext?.source)throw NoteCore.error('NOTE_SOURCE','缺少本次精读的来源身份，原稿已保留。');
+    if(typeof ReaderLanguage!=='undefined'){const att=await Zotero.Items.getByLibraryAndKeyAsync(inputContext.source.libraryID,inputContext.source.key);await ReaderLanguage.check(att,ReaderAutomation.state.jobs[inputContext.queueJobID],(paper.paragraphs||[]).map(p=>p.text||'').join('\n'));}
     const templateID=resumed?.metadata.templateID||this.state.templateID;
     ReadingCore.template(templateID);
     const generation=ReaderEngines.stage("generation"),verification=ReaderEngines.stage("verification");
@@ -331,14 +333,17 @@ var ReaderCodex = {
         const archiveContext=typeof ReaderClassifier==='undefined'?null:await ReaderClassifier.reviewContext(metadata);
         delete metadata.classificationReview;
         const groups=WorkflowCore.reviewGroups(draft,workflowOptions.checks);let completed=0;
-        metadata.verificationGroups=groups.length;metadata.verificationCompleted=0;
+        metadata.verificationGroups=groups.length;metadata.verificationCompleted=0;metadata.verificationAttemptOutputs=[];delete metadata.verificationCoverage;
         const verified=await WorkflowCore.parallelMap(groups,workflowOptions.checks,async(group,index,checkSignal)=>{
           const r=await this.invoke(ReadingCore.verificationPromptV2(paper,group,groups.length>1,archiveContext?.collections,archiveContext?.currentCollections),{readingID:id,stage:"verification",round,group:index+1,templateID},checkSignal,
             ()=>{}, {schema:ReadingCore.reviewSchemaForArchive(archiveContext?.collections,archiveContext?.currentCollections),...verification});
+          metadata.verificationAttemptOutputs[index]=r.output;await this.app.writeJSON(workflowPath,metadata);
           const parsed=ReadingCore.parseReview(r.answer);completed++;metadata.verificationCompleted=completed;
           this.update({message:groups.length===1?"全文检查完成":`对照原文检查：${completed}/${groups.length} 组完成`,phase:'verifying'});return {review:parsed,output:r.output};
         },signal);
-        try{review=WorkflowCore.mergeReviews(draft,groups,verified.map(r=>r.review));}catch(_){throw ReadingCore.error('CHECK_INCOMPLETE','并行核验记录缺失或重复，未标记为通过。');}
+        metadata.verificationRuns=verified.map(r=>r.output);metadata.verificationRun=verified[verified.length-1].output;
+        metadata.verificationCoverage=WorkflowCore.reviewDiagnostics(groups,verified.map(r=>r.review));await this.app.writeJSON(workflowPath,metadata);
+        try{review=WorkflowCore.mergeReviews(draft,groups,verified.map(r=>r.review));}catch(_){const d=metadata.verificationCoverage;throw ReadingCore.error(d.truncationReported?'INPUT_INCOMPLETE':'CHECK_INCOMPLETE',d.truncationReported?'核验模型报告输入被截断，未收到完整观点；草稿已保留。':`核验编号未完整对应：应有 ${d.expected} 项，返回 ${d.received} 项；具体遗漏或重复已记录，草稿已保留。`);}
         assessment=ReadingCore.assess(draft,review,paper);
         const archive=ReadingCore.archiveSuggestion(verified[0].review,archiveContext?.collections,archiveContext?.currentCollections);
         if(!assessment.hasMajorIssues&&archive)metadata.classificationReview={...archive,sourceKey:archiveContext.sourceKey,rootKey:archiveContext.rootKey};
@@ -474,7 +479,7 @@ var ReaderCodex = {
       const callStarted=Date.now();
       if(engine==="antigravity"){
         const result=await ReaderEngines.invokeAgy(input,{model,effort,prepared,workdir,schemaPath,settingsPath:PathUtils.join(dir,"agy-settings.json"),timeoutMs:request.timeoutMs||opts.timeoutMinutes*60000},signal,report);
-        metadata.version=result.version;await IOUtils.writeUTF8(temporary,result.answer);
+        metadata.version=result.version;if(result.inputTransfer)metadata.inputTransfer=result.inputTransfer;await IOUtils.writeUTF8(temporary,result.answer);
       }else{
         const result = await this.run(executable, CodexCore.argumentsFor({ model, effort, workdir, output: temporary, schemaPath }), {
         workdir, input, signal, timeoutMs: request.timeoutMs||opts.timeoutMinutes * 60000, onStdout: text => events.push(text)

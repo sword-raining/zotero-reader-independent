@@ -25,15 +25,16 @@ var MineruCore;
     return key;
   }
   function settings(input = {}) {
+    const pageLimit=input.pageLimit===undefined?0:Number(input.pageLimit);if(![0,20].includes(pageLimit))throw error("PAGE_RANGE","阅读范围只支持前 20 页或全部页面。");
     return {
       model: input.model === "pipeline" ? "pipeline" : "vlm",
       language: ["ch","en"].includes(input.language) ? input.language : "auto",
-      ocr: input.ocr === true
+      ocr: input.ocr === true, pageLimit
     };
   }
   function settingsKey(input) {
     const s = settings(input);
-    return `${s.model}-${s.language === "auto" ? "ch" : s.language}-${s.ocr ? "ocr" : "text"}`;
+    return `${s.model}-${s.language === "auto" ? "ch" : s.language}-${s.ocr ? "ocr" : "text"}${s.pageLimit?"-p"+s.pageLimit:""}`;
   }
   function secureURL(value) {
     let url;
@@ -129,7 +130,7 @@ var MineruCore;
       if (!batchID) {
         report("requesting", "正在申请上传地址…");
         const data = await this.json("/file-urls/batch", key, signal, {
-          files: [{ name: source.name, data_id: dataID, is_ocr: opts.ocr }],
+          files: [{ name: source.name, data_id: dataID, is_ocr: opts.ocr, ...(opts.pageLimit?{page_ranges:"1-"+opts.pageLimit}:{}) }],
           model_version: opts.model, language: opts.language === "auto" ? "ch" : opts.language, enable_formula: true, enable_table: true
         });
         if (typeof data?.batch_id !== "string" || !/^[A-Za-z0-9_-]+$/.test(data.batch_id) ||

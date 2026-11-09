@@ -2,9 +2,10 @@
 from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import argparse, base64, hashlib, json, os, subprocess, sys, threading, time, uuid
+from urllib.parse import urlparse
 parser=argparse.ArgumentParser();parser.add_argument('--zotero',required=True);args=parser.parse_args()
 root=Path(__file__).resolve().parents[1];run=root/'.work'/('multidevice-native-'+uuid.uuid4().hex[:8]);run.mkdir(parents=True)
-state={'records':{},'roles':set(),'notes':{},'grants':[],'peakRunning':0};mutex=threading.Lock()
+state={'records':{},'roles':set(),'notes':{},'grants':[],'peakRunning':0,'currentTasks':{}};mutex=threading.Lock()
 class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args): pass
     def answer(self,status,value=None,etag=None):
@@ -32,20 +33,30 @@ class Handler(BaseHTTPRequestHandler):
         if self.headers.get('Authorization')!=expected:return self.answer(401)
         raw=self.rfile.read(int(self.headers.get('Content-Length','0')));data=json.loads(raw)
         with mutex:
-            old=state['records'].get(self.path);create=self.headers.get('If-None-Match')=='*';match=self.headers.get('If-Match')
-            if create and old or match and (not old or old['etag']!=match):return self.answer(412)
-            if not create and not match:return self.answer(428)
+            old=state['records'].get(self.path)
+            # Deliberately ignore HTTP If-Match/If-None-Match, matching the reported service.
             etag='"'+hashlib.sha256(raw).hexdigest()+'"';state['records'][self.path]={'data':data,'etag':etag}
-            if '/probe-' not in self.path:
-                if data.get('state')=='running' and (not old or old['data'].get('token')!=data.get('token')):state['grants'].append({'task':data['task'],'owner':data['owner'],'token':data['token']})
-                active=sum(x['data'].get('state')=='running' for k,x in state['records'].items() if '/probe-' not in k);state['peakRunning']=max(state['peakRunning'],active)
             return self.answer(204 if old else 201,etag=etag)
+    def do_MOVE(self):
+        target=urlparse(self.headers.get('Destination','')).path
+        with mutex:
+            if not target.startswith('/claims/') or self.headers.get('Overwrite')!='F':return self.answer(400)
+            if target in state['records']:return self.answer(412)
+            source=state['records'].get(self.path)
+            if not source:return self.answer(404)
+            state['records'][target]=source;del state['records'][self.path]
+            data=source['data']
+            if '/probe-' not in target and 'task' in data:
+                old=state['currentTasks'].get(data['task'])
+                if data.get('state')=='running' and (not old or old.get('token')!=data.get('token')):state['grants'].append({'task':data['task'],'owner':data['owner'],'token':data['token']})
+                state['currentTasks'][data['task']]=data
+                state['peakRunning']=max(state['peakRunning'],sum(x.get('state')=='running' for x in state['currentTasks'].values()))
+            return self.answer(201)
     def do_DELETE(self):
         with mutex:
-            if not self.path.startswith('/claims/probe-'):return self.answer(403)
+            if not self.path.startswith('/claims/probe-') and '-tmp-' not in self.path:return self.answer(403)
             old=state['records'].get(self.path)
             if not old:return self.answer(404)
-            if self.headers.get('If-Match')!=old['etag']:return self.answer(412)
             del state['records'][self.path];return self.answer(204)
 server=ThreadingHTTPServer(('127.0.0.1',0),Handler);threading.Thread(target=server.serve_forever,daemon=True).start();url='http://127.0.0.1:'+str(server.server_port)
 prepare=root/'project/tests/prepare_smoke.py';original_args=sys.argv[:];profiles=[];processes=[]
@@ -67,10 +78,10 @@ try:
         fatal=p/'multidevice-fatal.json';result=p/'multidevice-result.json'
         reports.append(json.loads((fatal if fatal.exists() else result).read_text(encoding='utf-8')) if fatal.exists() or result.exists() else {'error':'Native fixture timed out','profile':str(p)})
     with mutex:
-        shared={'grants':state['grants'],'peakRunning':state['peakRunning'],'completedTasks':sum(x['data']['state']=='done' for k,x in state['records'].items() if '/probe-' not in k),'savedSyntheticNotes':len(state['notes'])}
+        shared={'grants':state['grants'],'peakRunning':state['peakRunning'],'completedTasks':sum(x['state']=='done' for x in state['currentTasks'].values()),'savedSyntheticNotes':len(state['notes'])}
     good=all(r.get('completed') and all(t['ok'] for t in r['tests']) for r in reports)
     good=good and len(shared['grants'])==3 and len({x['task'] for x in shared['grants']})==3 and len({x['owner'] for x in shared['grants']})==3 and shared['peakRunning']==3 and shared['completedTasks']==3
-    result={'passed':good,'clients':reports,'shared':shared,'realCloudRequests':0,'realModelRequests':0,'personalLibraryTouched':False,'simulatedZoteroSync':True}
+    result={'passed':good,'clients':reports,'shared':shared,'realCloudRequests':0,'realModelRequests':0,'personalLibraryTouched':False,'simulatedZoteroSync':True,'serverIgnoresConditionalPUT':True,'serverSupportsMoveWithoutOverwrite':True}
     (run/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(result,ensure_ascii=True),flush=True)
     if not good:raise SystemExit(1)
 finally:

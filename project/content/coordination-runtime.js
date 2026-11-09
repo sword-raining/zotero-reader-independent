@@ -11,7 +11,7 @@ var ReaderCoordination={
   const account=String(Zotero.Users.getCurrentUserID()||'');if(!/^\d+$/.test(account))throw CoordinationCore.error('COORD_CONFIG','请先登录并同步同一个 Zotero 账号。');
   const scheme=Zotero.Prefs.get('sync.storage.scheme'),host=String(Zotero.Prefs.get('sync.storage.url')||'');
   if(scheme!=='https'||!host||/[?#@]/.test(host))throw CoordinationCore.error('COORD_CONFIG','多机协作需要不含查询参数或凭据的 HTTPS WebDAV 地址。');
-  const base='https://'+host.replace(/\/+$/,'')+'/zotero-reader-coordination-v1/';Services.io.newURI(base);
+  const base='https://'+host.replace(/\/+$/,'')+'/zotero-reader-coordination-v2/';Services.io.newURI(base);
   const username=String(Zotero.Prefs.get('sync.storage.username')||'');
   const id=await this.app.sha256Text(base+'|'+username+'|'+account);return {base,username,account,id};
  },
@@ -19,23 +19,27 @@ var ReaderCoordination={
   const password=await new Zotero.Sync.Storage.Mode.WebDAV({}).getPassword();if(!config.username||!password)throw CoordinationCore.error('COORD_CONFIG','本机尚未保存 WebDAV 应用密码，请在 Zotero 同步设置中填写。');
   const win=Zotero.getMainWindow(),auth='Basic '+win.btoa(String.fromCharCode(...new win.TextEncoder().encode(config.username+':'+password)));
   const request=async(method,name,body,condition)=>{
-   if(name&&!/^(?:[a-f0-9]{64}|probe-[a-f0-9]{64})\.json$/.test(name))throw CoordinationCore.error('COORD_PATH','协作路径无效。');
+   if(name&&!/^(?:probe-)?[a-f0-9]{64}(?:-v[0-9]{8}|-head|-tmp-[A-Za-z0-9]{16,64})\.json$/.test(name))throw CoordinationCore.error('COORD_PATH','协作路径无效。');
    const headers={Authorization:auth,'Cache-Control':'no-cache',...(body?{'Content-Type':'application/json; charset=utf-8'}:{}),...condition};
    let response;try{response=await Zotero.HTTP.request(method,config.base+name,{headers,body,timeout:15000,followRedirects:false,logBodyLength:0,debug:false,successCodes:false,errorDelayIntervals:[],errorDelayMax:0});}catch(_){throw CoordinationCore.error('COORD_NETWORK','协作服务暂时无法连接，未继续争抢或写入；本地稿件保留。');}
-   const status=response.status;if(status===429||status===503)throw CoordinationCore.error('COORD_RATE','协作服务暂时限流，稍后再试；本机未绕过协作单独运行。');
+   const status=response.status;if(this.probeTrace&&this.probeTrace.length<100)this.probeTrace.push({method,resource:!name?'directory':name.includes('-tmp-')?'temporary':name.endsWith('-head.json')?'head':'version',nameLength:name.length,status,noOverwrite:condition?.Overwrite==='F'});if(status===429||status===503)throw CoordinationCore.error('COORD_RATE','协作服务暂时限流，稍后再试；本机未绕过协作单独运行。');
    return response;
   };
-  const path=key=>key.startsWith('probe-')?key+'.json':key+'.json';
-  const read=async key=>{const r=await request('GET',path(key));if(![200,404].includes(r.status))throw CoordinationCore.error('COORD_HTTP','协作读取失败（HTTP '+r.status+'），未继续。');const now=Date.parse(r.getResponseHeader('Date'));if(!Number.isFinite(now))throw CoordinationCore.error('COORD_CLOCK','服务没有返回可确认的服务器时间，不能安全领取任务。');if(r.status===404)return {record:null,etag:null,now};if(r.responseText.length>16384)throw CoordinationCore.error('COORD_FORMAT','协作记录过大，未读取或覆盖。');let record;try{record=JSON.parse(r.responseText);}catch(_){throw CoordinationCore.error('COORD_FORMAT','协作记录损坏，未覆盖。');}return {record,etag:r.getResponseHeader('ETag'),now};};
-  const write=async(key,value,etag)=>{const r=await request('PUT',path(key),JSON.stringify(value),etag?{'If-Match':etag}:{'If-None-Match':'*'});if(r.status===412)return false;if(![200,201,204].includes(r.status))throw CoordinationCore.error('COORD_HTTP','协作登记失败（HTTP '+r.status+'），未继续。');return true;};
-  return {read,write,async prepare(){const r=await request('MKCOL','');if(![201,405].includes(r.status))throw CoordinationCore.error('COORD_HTTP','无法创建独立协作目录（HTTP '+r.status+'）。');},async removeProbe(key){if(!key.startsWith('probe-'))throw Error('Only probe resources may be deleted');const s=await read(key);if(s.record&&s.etag)await request('DELETE',path(key),null,{'If-Match':s.etag});}};
+  const store=DAVStore.create(async(method,name,body,headers)=>{const r=await request(method,name,body,headers);return {status:r.status,text:r.responseText||'',date:r.getResponseHeader('Date')};},{baseURL:config.base,nonce:()=>this.nonce()});
+  return {...store,async prepare(){const r=await request('MKCOL','');if(![201,405].includes(r.status))throw CoordinationCore.error('COORD_HTTP','无法创建独立协作目录（HTTP '+r.status+'）。');}};
+ },
+ async verifyStore(store,cfg){
+  this.probeTrace=[];const startedAt=new Date().toISOString();let failure=null;
+  try{await store.prepare();const key=await this.app.sha256Text(this.nonce()),probeStore={...store,read:k=>store.read('probe-'+k),write:(k,v,e)=>store.write('probe-'+k,v,e),removeProbe:k=>store.removeProbe('probe-'+k)};await CoordinationCore.probe(probeStore,key,()=>this.nonce());Zotero.Prefs.set(this.app.pref+'coordination.verified',cfg.id,true);Zotero.Prefs.set(this.app.pref+'coordination.protocol',2,true);}
+  catch(e){failure=e;throw e;}
+  finally{const steps=this.probeTrace;this.probeTrace=null;try{await this.app.writeJSON(PathUtils.join(Zotero.DataDirectory.dir,'zotero-reader-independent','coordination-diagnostic.json'),{schema:1,startedAt,finishedAt:new Date().toISOString(),protocol:'immutable-move-v2',serverHost:new URL(cfg.base).hostname,success:!failure,errorCode:failure?.code||null,steps});}catch(_){}}
  },
  async connect({verify=false}={}){
   this.app.assertIndexes?.();
   if(this.corrupt)throw CoordinationCore.error('COORD_LOCAL','本机协作回执损坏，已暂停；原文件保留。');
   const cfg=await this.configuration();
   if(!verify&&Zotero.Prefs.get(this.app.pref+'coordination.verified',true)!==cfg.id)throw CoordinationCore.error('COORD_VERIFY','WebDAV 或账号设置已改变，请重新检测协作能力。');
-  if(!this.client||this.configID!==cfg.id||verify){const store=await this.makeStore(cfg);if(verify){await store.prepare();const key=await this.app.sha256Text(this.nonce());const probeStore={...store,read:k=>store.read('probe-'+k),write:(k,v,e)=>store.write('probe-'+k,v,e),removeProbe:k=>store.removeProbe('probe-'+k)};await CoordinationCore.probe(probeStore,key,()=>this.nonce());Zotero.Prefs.set(this.app.pref+'coordination.verified',cfg.id,true);}this.client=new CoordinationCore.Client({store,owner:this.owner,nonce:()=>this.nonce()});this.configID=cfg.id;this.account=cfg.account;await this.recoverLocalCommits();}
+  if(!this.client||this.configID!==cfg.id||verify){const store=await this.makeStore(cfg);if(verify)await this.verifyStore(store,cfg);this.client=new CoordinationCore.Client({store,owner:this.owner,nonce:()=>this.nonce()});this.configID=cfg.id;this.account=cfg.account;await this.recoverLocalCommits();}
   return this.client;
  },
  async recoverLocalCommits(){
@@ -48,7 +52,7 @@ var ReaderCoordination={
     if(await this.app.sha256Text(this.account+':'+parent.key)!==key)continue;
     const ids=await Zotero.DB.columnQueryAsync('SELECT N.itemID FROM itemNotes N JOIN items I ON I.itemID=N.itemID WHERE I.libraryID=? AND N.note LIKE ?',[local.libraryID,'%'+NoteCore.identity(local.runID,'reading')+'%']);
     const notes=await Zotero.Items.getAsync(ids),h={key,token:local.token,inputHash:local.inputHash,state:'committing'};
-    if(notes.length===1){const n=notes[0],record=SavedCore.read(n.getNote());if(!n.deleted&&record?.runID===local.runID&&record.itemKey===parent.key&&(n.parentID||false)===(att.parentID||false)){const input=await this.app.sha256Text(JSON.stringify(record.inputs.map(x=>({key:x.key,role:x.role||'main',sha256:x.sha256})).sort((a,b)=>a.key.localeCompare(b.key))));if(input===local.inputHash){await this.client.complete(h,n.key);delete this.records[key];await this.persist();}}}
+    if(notes.length===1){const n=notes[0],record=SavedCore.read(n.getNote());if(!n.deleted&&record?.runID===local.runID&&record.itemKey===parent.key&&(n.parentID||false)===(att.parentID||false)){const input=await this.app.sha256Text(JSON.stringify(record.inputs.map(x=>({key:x.key,role:x.role||'main',sha256:x.sha256,pageLimit:x.pageLimit||0})).sort((a,b)=>a.key.localeCompare(b.key))));if(input===local.inputHash){await this.client.complete(h,n.key);delete this.records[key];await this.persist();}}}
     else if(!notes.length){
      // A prior process's SQLite transaction is settled when this profile finishes startup.
      // Keep the old draft reserved for this device; do not let another device restart it.
@@ -62,7 +66,7 @@ var ReaderCoordination={
   if(!parent||att.libraryID!==Zotero.Libraries.userLibraryID)throw CoordinationCore.error('COORD_LIBRARY','当前多机协作仅支持同一账号的个人文库。');
   const account=String(Zotero.Users.getCurrentUserID()||'');if(!/^\d+$/.test(account))throw CoordinationCore.error('COORD_CONFIG','请先登录 Zotero 账号。');
   const key=await this.app.sha256Text(account+':'+parent.key),sources=await ReaderAttachments.sources(att,selection);
-  const inputHash=await this.app.sha256Text(JSON.stringify(sources.map(s=>({key:s.key,role:s.role||'main',sha256:s.sha256})).sort((a,b)=>a.key.localeCompare(b.key))));
+  const inputHash=await this.app.sha256Text(JSON.stringify(sources.map(s=>({key:s.key,role:s.role||'main',sha256:s.sha256,pageLimit:s.pageLimit||0})).sort((a,b)=>a.key.localeCompare(b.key))));
   return {key,inputHash};
  },
  async acquire(att,{selection,jobID=null,abort=null}={}){
@@ -130,7 +134,8 @@ var ReaderCoordination={
   ReaderCodex.readPaper=async function(paper,context,signal,hooks){
    if(!service.enabled())return read.call(this,paper,context,signal,hooks);
    if(this.coordination){await service.check(this.coordination);return read.call(this,paper,context,signal,hooks);}
-   const att=await Zotero.Items.getByLibraryAndKeyAsync(context.source.libraryID,context.source.key),r=await service.acquire(att,{selection:context.inputSelection,abort:()=>this.controller?.abort()});
+   const inputContext=hooks?.resume?.metadata||context;if(!inputContext?.source)throw NoteCore.error('NOTE_SOURCE','缺少续检来源身份，原稿已保留。');
+   const att=await Zotero.Items.getByLibraryAndKeyAsync(inputContext.source.libraryID,inputContext.source.key),r=await service.acquire(att,{selection:inputContext.inputSelection,abort:()=>this.controller?.abort()});
    if(r.kind!=='owned')throw CoordinationCore.error('COORD_BUSY','另一台正在处理或已有结果，本机未重复精读。');this.coordination=r.handle;
    try{return await read.call(this,paper,context,signal,hooks);}finally{await service.leave(r.handle,{park:true});this.coordination=null;}
   };
@@ -141,6 +146,6 @@ var ReaderCoordination={
   const get=id=>win.document.getElementById('zri-coordination-'+id);if(!get('toggle')||get('toggle').dataset.bound)return;get('toggle').dataset.bound='true';this.views.add(win);win.addEventListener('unload',()=>this.views.delete(win),{once:true});
   get('toggle').addEventListener('click',async()=>{if(this.testing)return;if(ReaderAutomation.running.size||ReaderAutomation.bulkSaving||ReaderAutomation.starting||ReaderAutomation.resumeEnqueueing||ReaderCodex.active||ReaderNotes.pending||Object.values(ReaderClassifier.proposals).some(p=>p.status==='confirming')){this.error='请先暂停并等待当前任务收尾，再切换协作方式。';this.render();return;}this.testing=true;this.error='';const wasPaused=ReaderAutomation.state.paused;ReaderAutomation.state.paused=true;this.render();try{await ReaderAutomation.persist();if(this.enabled()){Zotero.Prefs.set(this.app.pref+'coordination.enabled',false,true);}else{await this.connect({verify:true});Zotero.Prefs.set(this.app.pref+'coordination.enabled',true,true);}}catch(e){this.error=e.message;}finally{ReaderAutomation.state.paused=wasPaused;await ReaderAutomation.persist();ReaderAutomation.schedule();this.testing=false;this.render();}});this.render();
  },
- render(){for(const win of [...this.views]){if(win.closed){this.views.delete(win);continue;}const button=win.document.getElementById('zri-coordination-toggle'),status=win.document.getElementById('zri-coordination-status');if(button){button.disabled=this.testing;button.textContent=this.testing?'检测三端领取中…':this.enabled()?'关闭本机协作':'检测并开启多机协作';}if(status)status.textContent=this.error||(this.enabled()?'已开启：同一文献先领取再精读，其他机器继续处理别篇。所有处理端都需安装新版并开启。':'未开启。复用本机 WebDAV 登录，仅存任务归属；每台机器分别开启，不复制凭据。');}},
+ render(){for(const win of [...this.views]){if(win.closed){this.views.delete(win);continue;}const button=win.document.getElementById('zri-coordination-toggle'),status=win.document.getElementById('zri-coordination-status');if(button){button.disabled=this.testing;button.textContent=this.testing?'检测三端领取中…':this.enabled()?'关闭并行防重复':'检测并开启（仅同时运行时）';}if(status)status.textContent=this.error||(this.enabled()?'已开启：同一文献先领取再精读，其他机器继续处理别篇。所有处理端都需安装新版并开启。':'未开启。轮换设备可直接使用；已保存笔记先完成 Zotero 同步。仅同时运行重叠任务时才需检测开启。');}},
  async shutdown(){for(const h of this.active.values()){if(h.timer)ReaderTimers.clearTimeout(h.timer);h.abort?.();}this.client=null;this.views.clear();await this.io.catch(()=>{});}
 };

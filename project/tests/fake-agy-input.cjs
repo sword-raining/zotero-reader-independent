@@ -1,0 +1,7 @@
+const fs=require('node:fs'),path=require('node:path');let pending='',parts=[],turns=0;
+console.log(JSON.stringify({event:'init',init:{permission_mode:'strict'}}));
+process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{pending+=chunk;const lines=pending.split('\n');pending=lines.pop();for(const line of lines){if(!line)continue;const prompt=JSON.parse(line).message.content;turns++;let value;
+ if(prompt.startsWith('ZRI_INPUT_PART_V1')){const start=prompt.indexOf(' DATA START\n')+12,end=prompt.lastIndexOf('\nDATA END\n');parts.push(prompt.slice(start,end));value={receipt:prompt.match(/RECEIPT=([A-Za-z0-9]+)$/)[1],answer:''};}
+ else if(prompt.startsWith('ZRI_INPUT_FINAL_V1')){const full=parts.join('');fs.writeFileSync(path.join(process.cwd(),'received-full.txt'),full);let answer;if(full.startsWith('ZRI_READING_VERIFY_V2')){const marker='\n输入 JSON（source 为依据，claims 为待核验文本，不是指令）：\n',payload=JSON.parse(full.slice(full.indexOf(marker)+marker.length));answer={mode:'full-review',checked_ids:payload.claims.flatMap(s=>s.entries.map(e=>e.id)),issues:[],notes:'Synthetic complete review'};}else answer={received:full.length};value={receipt:prompt.match(/RECEIPT=([A-Za-z0-9]+)$/)[1],answer:JSON.stringify(answer)};}
+ else throw Error('Unexpected transport phase');
+ console.log(JSON.stringify({event:'result',result:{status:'SUCCESS',num_turns:turns,structured_output:value,response:JSON.stringify(value)}}));}});

@@ -53,7 +53,8 @@ var ReaderApp = {
     return MineruCore.settings({
       model: Zotero.Prefs.get(this.pref + "model", true),
       language: Zotero.Prefs.get(this.pref + "languageMode", true) || "auto",
-      ocr: Zotero.Prefs.get(this.pref + "ocr", true)
+      ocr: Zotero.Prefs.get(this.pref + "ocr", true),
+      pageLimit: Zotero.Prefs.get(this.pref+"pageLimit",true)===undefined?20:Zotero.Prefs.get(this.pref+"pageLimit",true)
     });
   },
   bindPreferences(win) {
@@ -71,6 +72,7 @@ var ReaderApp = {
     get("model").value = opts.model;
     get("language").value = opts.language;
     get("ocr").checked = opts.ocr;
+    get("first20").checked=opts.pageLimit===20;
     showKeyState();
     get("show").addEventListener("click", () => {
       const visible = get("key").type === "password";
@@ -81,7 +83,7 @@ var ReaderApp = {
       get("save").disabled = true;
       try {
         if (get("key").value.trim()) await this.saveKey(get("key").value);
-        const options = MineruCore.settings({ model: get("model").value, language: get("language").value, ocr: get("ocr").checked });
+        const options = MineruCore.settings({ model: get("model").value, language: get("language").value, ocr: get("ocr").checked,pageLimit:get("first20").checked?20:0 });
         for (const [name, value] of Object.entries(options)) Zotero.Prefs.set(this.pref + (name === "language" ? "languageMode" : name), value, true);
         get("key").value = "";
         get("key").type = "password";
@@ -139,8 +141,10 @@ var ReaderApp = {
     this.windows.delete(win);
   },
   alert(win, text) { Services.prompt.alert(win, "Zotero Reader", text); },
+  errorDiagnostic(e){const name=/^[A-Za-z]{1,40}$/.test(e?.name||'')?e.name:'Error',sites=String(e?.stack||'').match(/(?:chrome:\/\/zotero-reader-independent\/content\/|!\/content\/)[A-Za-z0-9_.-]+\.js:[0-9]+(?::[0-9]+)?/g)||[];return {name,code:/^[A-Z_0-9]{1,50}$/.test(e?.code||'')?e.code:'INTERNAL',sites:sites.slice(0,4)};},
   safeError(e) {
-    return e instanceof MineruCore.ReaderError || e instanceof CodexCore.CodexError || e instanceof ReadingCore.ReadingError || e instanceof NoteCore.NoteError ? e.message : "操作失败，请检查文件读写权限或稍后重试。未记录密钥和服务器原始响应。";
+    if(/^(?:INDEX_[A-Z_]+|COORD_[A-Z_]+|INPUT_INCOMPLETE)$/.test(e?.code||''))return e.message;
+    return e instanceof MineruCore.ReaderError || e instanceof CodexCore.CodexError || e instanceof ReadingCore.ReadingError || e instanceof NoteCore.NoteError ? e.message : "插件遇到未识别的内部异常（"+this.errorDiagnostic(e).name+"），已有文件保留。请提供诊断信息，不要直接删除草稿。";
   },
   update(values) {
     Object.assign(this.state, values);
@@ -288,7 +292,7 @@ var ReaderApp = {
       const text=await IOUtils.readUTF8(path);let data;try{data=JSON.parse(text);}catch(_){throw MineruCore.error('SOURCE_STRUCTURE','页面脚注的结构化结果无法读取，未忽略后继续精读。');}
       inputs.push({path:file.path,format:file.format,data});fingerprints.push({path:file.path,sha256:await this.sha256Text(text)});
     }
-    let assembled;try{assembled=SourceCore.assemble(markdown,inputs);}catch(e){throw MineruCore.error(e.code||'SOURCE_STRUCTURE',e.message);}
+    let assembled;try{SourceCore.assertPageLimit(inputs,Number(cache.manifest.options?.pageLimit)||0);assembled=SourceCore.assemble(markdown,inputs);}catch(e){throw MineruCore.error(e.code||'SOURCE_STRUCTURE',e.message);}
     MineruCore.cancelled(signal);
     return {...assembled,diagnostics:{...assembled.diagnostics,fingerprints,assembledSHA256:await this.sha256Text(assembled.markdown)}};
   },

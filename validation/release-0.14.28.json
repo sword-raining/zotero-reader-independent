@@ -1,0 +1,38 @@
+{
+  "version": "0.14.28",
+  "date": "2026-11-09",
+  "distribution": "Local trial build; user requested deliver then iterate",
+  "automated": {
+    "version": "0.14.28",
+    "passed": 345,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "aec10b91ad2295b957bf1959f6cd918b52dc1e7526cd62351a0790c22057938c",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "nativeDevelopmentChecks": 12,
+  "nativeAfterFinalLoggingAndUIEditsRerun": false,
+  "liveSyntheticInputTransfer": {
+    "cliVersion": "1.5.3",
+    "model": "gemini-3.8-flash-low",
+    "inputBytes": 249427,
+    "parts": 2,
+    "acceptedTurns": 3,
+    "allFactsMatched": true,
+    "seconds": 46.45,
+    "error": null,
+    "syntheticOnly": true,
+    "realModelTurns": 3,
+    "toolCalls": 1
+  },
+  "realModelTestProcesses": 3,
+  "realModelTestTurns": 5,
+  "realPaperSentToModel": false,
+  "realCloudCoordinationVerified": false,
+  "realPageRangeParsingVerified": false,
+  "personalLibraryWritten": false,
+  "xpiSHA256": "aec10b91ad2295b957bf1959f6cd918b52dc1e7526cd62351a0790c22057938c"
+}

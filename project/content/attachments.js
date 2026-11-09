@@ -87,7 +87,7 @@ var ReaderAttachments={
       if(seen.has(source.sha256))continue;
       seen.add(source.sha256);
       const index=result.length,target=await ReaderNotes.destination(att);
-      result.push({...source,role:index?'supplement':'main',id:index?'S'+index:'M',label:index?'补充材料 '+index:'正文',title:att.getField('title'),pdfURL:target.pdfURL});
+      result.push({...source,pageLimit:selection?.pageLimit===undefined?(Number(this.app.options?.().pageLimit)||0):Number(selection.pageLimit),role:index?'supplement':'main',id:index?'S'+index:'M',label:index?'补充材料 '+index:'正文',title:att.getField('title'),pdfURL:target.pdfURL});
     }
     return result;
   },
@@ -96,7 +96,7 @@ var ReaderAttachments={
   },
   async validateWorkflow(workflow,main){
     if(!workflow.inputSources?.length)return;
-    const selection={mainKey:main.key,supplementKeys:workflow.inputSources.filter(s=>s.role==='supplement').map(s=>s.key)};
+    const selection={mainKey:main.key,supplementKeys:workflow.inputSources.filter(s=>s.role==='supplement').map(s=>s.key),pageLimit:Number(workflow.inputSources[0]?.pageLimit)||0};
     if(!await this.matches(workflow,main,selection))throw NoteCore.error('NOTE_CHANGED','本次精读的正文或补充材料已变化、移动或尚未下载，请重新检查附件后精读。');
   }
 };

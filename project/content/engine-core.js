@@ -88,14 +88,14 @@ var EngineCore;
     if(schemaPath)args.push("--json-schema",schemaPath);
     return args;
   }
-  function agyReader(report=()=>{}){
+  function agyReader(report=()=>{},onResult=null){
     let buffer="",result=null,count=0;
     return {push(text){
       buffer+=text;if(buffer.length>5*1024*1024)throw new Error("Antigravity output limit exceeded");
       const lines=buffer.split("\n");buffer=lines.pop();
       for(const line of lines){let event;try{event=JSON.parse(line);}catch(_){continue;}
         if(event.event==="init")report("Antigravity 已启动，正在生成…");
-        if(event.event==="result"){count++;result=event.result;}
+        if(event.event==="result"){count++;result=event.result;onResult?.(result);}
       }
     },finish(){if(buffer.trim()){this.push("\n");}return count===1?result:null;}};
   }
@@ -114,7 +114,7 @@ var EngineCore;
     });
     const response=await run(executable,["app-server","--listen","stdio://","--disable","plugins","--disable","plugin_discovery_prefetch","--disable","shell_snapshot"],{timeoutMs:45000,signal,onStdout:receive,
       writeInput:async stdin=>{
-        send=stdin;await request("initialize",{clientInfo:{name:"zotero_reader_independent",title:"Zotero Reader",version:"0.14.27"}});
+        send=stdin;await request("initialize",{clientInfo:{name:"zotero_reader_independent",title:"Zotero Reader",version:"0.14.28"}});
         await stdin.write(JSON.stringify({method:"initialized"})+"\n");
         let cursor=null;
         for(let page=0;page<10;page++){

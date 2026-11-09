@@ -173,9 +173,32 @@ var ReaderEngines={
   },
   async discoverAll(){return Promise.allSettled([this.discover("codex"),this.discover("antigravity")]);},
   async shutdown(){this.closing=true;for(const c of Object.values(this.controllers))c.abort();await Promise.allSettled(Object.values(this.inflight));await this.healthIO.catch(()=>{});},
+  async invokeAgyParts(plan,request,signal,report,exe,version){
+    const schemaPath=PathUtils.join(request.workdir,'transport-schema.json');await this.app.writeJSON(schemaPath,plan.schema);
+    let pending=null,finalAnswer='',transferError=null,accepted=0,resultCount=0;
+    const reader=EngineCore.agyReader(()=>{},r=>{resultCount++;if(!pending)throw InputCore.error('输入确认顺序异常，未采纳结果。');const {resolve}=pending;pending=null;resolve(r);});
+    const abort=()=>{if(pending){pending.reject(CodexCore.error('CANCELLED','已停止传输，原稿保留。'));pending=null;}};signal?.addEventListener('abort',abort,{once:true});
+    try{
+      const r=await ReaderCodex.run(exe,EngineCore.agyArguments({...request,schemaPath}),{workdir:request.workdir,timeoutMs:request.timeoutMs,signal,
+        onStdout:text=>{try{reader.push(text);}catch(e){transferError=e;pending?.reject(e);pending=null;throw e;}},
+        writeInput:async stdin=>{
+          try{for(const [index,packet]of plan.packets.entries()){
+            if(signal?.aborted)throw CodexCore.error('CANCELLED','已停止传输，原稿保留。');
+            report(packet.phase==='part'?`长文完整传输 ${index+1}/${plan.packets.length-1}，随后执行全文任务…`:'全文已送达，正在完成原任务…');
+            const response=new Promise((resolve,reject)=>{pending={resolve,reject};});
+            await stdin.write(InputCore.encode(packet.text));const result=await response;const answer=InputCore.accept(result,packet);accepted++;if(packet.phase==='final')finalAnswer=answer;
+          }}catch(e){transferError=e;throw e;}
+        }});
+      reader.finish();if(transferError)throw transferError;
+      if(r.exitCode!==0||accepted!==plan.packets.length||resultCount!==plan.packets.length||!finalAnswer)throw InputCore.error('长文输入或最终回答未完整完成，未标记为通过。');
+      return {answer:finalAnswer,version,modelReported:request.model||null,inputTransfer:{mode:'confirmed-parts',inputBytes:plan.inputBytes,parts:plan.packets.length-1,turns:resultCount,acknowledged:true}};
+    }catch(e){const failure=transferError||e;if(failure?.code==='INPUT_INCOMPLETE')throw CodexCore.error('INPUT_INCOMPLETE',failure.message);throw failure;}finally{signal?.removeEventListener('abort',abort);}
+  },
   async invokeAgy(input,request,signal,report){
     const {executable:exe,version}=request.prepared||await this.prepare("antigravity",signal);
     await this.app.writeJSON(request.settingsPath,EngineCore.agySettings);
+    const originalSchema=request.schemaPath?await this.app.readJSON(request.schemaPath):null,plan=InputCore.plan(input,originalSchema,()=>Zotero.Utilities.randomString(24));
+    if(plan.mode==='parts')return this.invokeAgyParts(plan,request,signal,report,exe,version);
     const reader=EngineCore.agyReader(report);
     const r=await ReaderCodex.run(exe,EngineCore.agyArguments(request),{workdir:request.workdir,input:JSON.stringify({event:"user",message:{content:input}})+"\n",
       timeoutMs:request.timeoutMs,signal,onStdout:text=>reader.push(text)});

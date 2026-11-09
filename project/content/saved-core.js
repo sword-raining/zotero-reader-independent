@@ -6,7 +6,7 @@ var SavedCore;
   function valid(record){
     return record?.schema===1&&validID(record.runID)&&validKey(record.itemKey)&&['checked','edited'].includes(record.status)&&
       /^[a-f0-9]{64}$/.test(record.bodySHA256||'')&&Array.isArray(record.inputs)&&record.inputs.length>0&&record.inputs.length<=100&&
-      record.inputs.every(s=>validKey(s.key)&&['main','supplement'].includes(s.role)&&/^[a-f0-9]{64}$/.test(s.sha256||''))&&
+      record.inputs.every(s=>validKey(s.key)&&['main','supplement'].includes(s.role)&&(s.pageLimit===undefined||[0,20].includes(s.pageLimit))&&/^[a-f0-9]{64}$/.test(s.sha256||''))&&
       record.inputs.filter(s=>s.role==='main').length===1;
   }
   function strip(html){return String(html).replace(/\sdata-zri-record=(?:"[^"]*"|'[^']*')/g,'').replace(/(zotero:\/\/open-pdf\/(?:library|groups\/\d+)\/items\/[A-Z0-9]{8})\?zri-record=[^"'&<>\s]+/g,'$1').trim();}
@@ -38,10 +38,10 @@ var SavedCore;
     if(!linked)throw new Error('Saved note requires a persistent source link');
     return result.replace(/^<div\b/,'<div data-zri-record="'+encoded+'"');
   }
-  function inputs(workflow){return (workflow.inputSources?.length?workflow.inputSources:[{...workflow.source,role:'main'}]).map(s=>({key:s.key,role:s.role||'main',sha256:s.sha256}));}
+  function inputs(workflow){return (workflow.inputSources?.length?workflow.inputSources:[{...workflow.source,role:'main'}]).map(s=>({key:s.key,role:s.role||'main',sha256:s.sha256,...(s.pageLimit?{pageLimit:s.pageLimit}:{})}));}
   function matches(record,sources){
     const sort=list=>list.map(s=>`${s.role||'main'}:${s.sha256}`).sort();
-    return valid(record)&&JSON.stringify(sort(record.inputs))===JSON.stringify(sort(sources));
+    return valid(record)&&JSON.stringify(sort(record.inputs))===JSON.stringify(sort(sources))&&sources.every(want=>{const stored=record.inputs.find(x=>(x.role||'main')===(want.role||'main')&&x.sha256===want.sha256),old=stored.pageLimit||0,next=want.pageLimit||0;return !old||next>0&&old>=next;});
   }
   function legacyRun(html){return String(html).match(/<!--\s*ZRI:([a-z0-9-]{8,100}):reading\s*-->/)?.[1]||null;}
   const api={validID,validKey,valid,strip,body,read,embed,inputs,matches,legacyRun};SavedCore=api;root.SavedCore=api;

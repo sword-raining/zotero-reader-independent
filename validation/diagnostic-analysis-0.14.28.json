@@ -1,0 +1,17 @@
+{
+  "case": "user-provided-v5-diagnostic",
+  "draftClaimCount": 31,
+  "duplicateDraftIDs": 0,
+  "verificationGroups": 1,
+  "successfulVerificationOutputs": 4,
+  "returnedCheckedIDs": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "allFourReportTruncatedInput": true,
+  "originalFilesModified": false,
+  "rawPaperAndCredentialsIncluded": false,
+  "livePaperReverified": false
+}

@@ -226,6 +226,7 @@ var ReaderAutomation={
   createWorker(job){
     const app=Object.create(this.app);app.state={...this.app.state,busy:false};app.taskWindows=new Set();app.windows=new Set();app.controller=null;app.activeRun=null;
     app.update=values=>{Object.assign(app.state,values);if(values.message)job.message=values.message;this.refreshViews();};
+    if(this.app.options){const options=this.app.options();app.options=()=>({...options,pageLimit:job.inputSelection?.pageLimit===undefined?options.pageLimit:job.inputSelection.pageLimit});}
     const codex=Object.create(ReaderCodex);codex.app=app;codex.window=null;codex.active=null;codex.controller=null;codex.state={...ReaderCodex.state,busy:false,output:'',answer:'',attachment:null,templateID:job.templateID,reviewIssues:[],report:'',message:'',resultStatus:'',savedNoteKey:null,bibliography:null,deliveryPending:false,queued:false,editing:false,followJobID:null};
     codex.update=values=>{Object.assign(codex.state,values);if(values.message)job.message=values.message;ReaderCodex.syncWorker?.(job,codex);this.refreshViews();};
     codex.exclusive=async action=>{
@@ -290,12 +291,18 @@ var ReaderAutomation={
     try{await this.persist();if(!this.started)return;await this.suggestAfterSave(job,{status:job.state==='imported'?'edited':'checked',notes:job.notes,archiveSuggestion:job.archiveSuggestion},worker,{force});}
     finally{if(!job.classificationPending)delete job.archiveSuggestion;job.updatedAt=Date.now();this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);await this.persist();this.refreshViews();ReaderClassifier.render();this.schedule();}
   },
+  async freezeScope(job){
+    const w=job.workflowPath?await this.app.readJSON(job.workflowPath):null,selection=w?.inputSelection||job.inputSelection||{mainKey:job.key,supplementKeys:[]};
+    const limit=w?(Number(w.inputSources?.[0]?.pageLimit)||0):selection.pageLimit===undefined?(Number(this.app.options?.().pageLimit)||0):Number(selection.pageLimit);
+    job.inputSelection={...selection,pageLimit:limit};
+  },
   async runJob(worker){
     const {job}=worker;
     try{
       await this.persist();
       if(!this.started||job.cancelRequested||(job.trigger==='auto'&&!this.enabled()))throw CodexCore.error('CANCELLED','任务已停止');
       if(typeof ReaderLanguage!=='undefined')await ReaderLanguage.check(await this.attachment(job),job);
+      await this.freezeScope(job);
       if(typeof ReaderCoordination!=='undefined'&&!await ReaderCoordination.enterJob(job,worker))return;
       const result=await this.execute(job,worker);
       job.state=result.status==='awaiting_import'?'awaiting_import':result.status==='verification_incomplete'?'verification_incomplete':result.status==='checked'?'done':result.notes?'imported':'needs_review';
@@ -573,6 +580,7 @@ var ReaderAutomation={
         await this.persist();
         if(!this.started||job.cancelRequested)throw CodexCore.error('CANCELLED','续检已停止，草稿保留。');
         if(typeof ReaderLanguage!=='undefined')await ReaderLanguage.check(await this.attachment(job),job);
+        await this.freezeScope(job);
         if(typeof ReaderCoordination!=='undefined'&&!await ReaderCoordination.enterJob(job,worker)){if(job.state==='queued')job.resumePending={path:job.workflowPath,repair};return;}
         await worker.codex.resumeVerification(job.workflowPath,{repair});
         const w=await this.app.readJSON(job.workflowPath);
@@ -580,7 +588,7 @@ var ReaderAutomation={
           if(ReaderPreferences.delivery()==='manual'){job.state='awaiting_import';job.message='检查完成，等待导入';}
           else{const att=await this.attachment(job),result=await this.notes.save(job.workflowPath,att,{validateTask:()=>{if(job.cancelRequested)throw CodexCore.error('CANCELLED','任务已暂停或停止，完整结果保留。');}});job.state='done';job.notes=result.notes;job.message='复查通过，笔记已保存';await this.compactImported(job.workflowPath,result);await this.suggestAfterSave(job,result,worker);}
         }else{job.state='needs_review';job.message='仍有需要修订的内容，草稿已保留';}
-      }catch(e){if(worker.coordination?.lost)e=worker.coordination.error;const w=await this.app.readJSON(job.workflowPath);job.state=e.code==='LANGUAGE_SKIPPED'||e.code==='CANCELLED'||job.cancelRequested?'cancelled':w?.status==='verification_incomplete'?'verification_incomplete':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.message=this.app.safeError(e);job.errorCode=e.code;await this.refreshResumeState(job);}
+      }catch(e){if(worker.coordination?.lost)e=worker.coordination.error;const w=await this.app.readJSON(job.workflowPath);if(w&&this.app.errorDiagnostic){w.lastResumeFailure={at:new Date().toISOString(),...this.app.errorDiagnostic(e)};try{await this.app.writeJSON(job.workflowPath,w);}catch(_){}}job.state=e.code==='LANGUAGE_SKIPPED'||e.code==='CANCELLED'||job.cancelRequested?'cancelled':w?.status==='verification_incomplete'?'verification_incomplete':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.message=this.app.safeError(e);job.errorCode=e.code||'INTERNAL';await this.refreshResumeState(job);}
       finally{if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);if(!job.pauseRequested)delete job.resumeRepair;this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);job.updatedAt=Date.now();await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
     })();this.updateActivity();this.refreshViews();return worker;
   },

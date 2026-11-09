@@ -1,0 +1,13 @@
+{
+  "cliVersion": "1.5.3",
+  "model": "gemini-3.8-flash-low",
+  "inputBytes": 249427,
+  "parts": 2,
+  "acceptedTurns": 3,
+  "allFactsMatched": true,
+  "seconds": 46.45,
+  "error": null,
+  "syntheticOnly": true,
+  "realModelTurns": 3,
+  "toolCalls": 1
+}

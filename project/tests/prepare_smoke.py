@@ -62,6 +62,7 @@ prefs = {
     'extensions.zoteroOpenOfficeIntegration.skipInstallation': True,
     'extensions.zotero.sync.autoSync': False,
     'extensions.zotero.readerIndependent.auto.enabled': False,
+    'extensions.zotero.readerIndependent.pageLimit': 0,
     'extensions.zotero.readerIndependent.reading.skipChinese': bool(args.batch_language),
     'extensions.zotero.readerIndependent.delivery.mode': 'auto',
     'extensions.zotero.readerIndependent.ui.tab': 'overview',
