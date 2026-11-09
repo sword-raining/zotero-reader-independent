@@ -34,6 +34,13 @@ var DAVStore;
     const body=JSON.stringify(value),put=await send('PUT',temp,body);if(![200,201,204].includes(put.status))throw error('COORD_HTTP','协作暂存失败（HTTP '+put.status+'）。');uploaded=true;tracked(key,temp);
     const moved=await send('MOVE',temp,null,{Destination:baseURL+target,Overwrite:'F'});
     if(moved.status===412)return false;
+    if(moved.status===409){
+      // Some WebDAV services report an existing destination as 409, not 412.
+      // A missing destination is not an ownership conflict and must remain an error.
+      const existing=await get(target);
+      if(existing.status===200){json(existing);return false;}
+      throw error('COORD_HTTP','创建协作版本返回 HTTP 409，但目标版本不存在；请查看检测记录，未继续处理。');
+    }
     if(moved.status!==201)throw error('COORD_UNSAFE','服务未确认创建唯一新版本（HTTP '+moved.status+'），未启用或继续协作。');
     tracked(key,target);hints.set(key,version);
     // This is only an advisory pointer. Immutable next-version creation is the actual CAS.

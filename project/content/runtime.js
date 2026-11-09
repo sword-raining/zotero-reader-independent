@@ -72,7 +72,7 @@ var ReaderApp = {
     get("model").value = opts.model;
     get("language").value = opts.language;
     get("ocr").checked = opts.ocr;
-    get("first20").checked=opts.pageLimit===20;
+    get("page-limit").value=String(opts.pageLimit);
     showKeyState();
     get("show").addEventListener("click", () => {
       const visible = get("key").type === "password";
@@ -83,7 +83,7 @@ var ReaderApp = {
       get("save").disabled = true;
       try {
         if (get("key").value.trim()) await this.saveKey(get("key").value);
-        const options = MineruCore.settings({ model: get("model").value, language: get("language").value, ocr: get("ocr").checked,pageLimit:get("first20").checked?20:0 });
+        const options = MineruCore.settings({ model: get("model").value, language: get("language").value, ocr: get("ocr").checked,pageLimit:get("page-limit").value });
         for (const [name, value] of Object.entries(options)) Zotero.Prefs.set(this.pref + (name === "language" ? "languageMode" : name), value, true);
         get("key").value = "";
         get("key").type = "password";

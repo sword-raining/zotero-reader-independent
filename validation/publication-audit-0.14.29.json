@@ -1,0 +1,9 @@
+{
+  "commits": 15,
+  "uniqueBlobs": 551,
+  "textAndArchiveFilesScanned": 1380,
+  "xpiMembersInspected": 948,
+  "secretPatternFindings": [],
+  "unexpectedDataFiles": [],
+  "scope": "All blobs reachable from intended public HEAD; remote main is an ancestor; excludes untracked local work"
+}

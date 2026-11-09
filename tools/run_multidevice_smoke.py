@@ -41,7 +41,7 @@ class Handler(BaseHTTPRequestHandler):
         target=urlparse(self.headers.get('Destination','')).path
         with mutex:
             if not target.startswith('/claims/') or self.headers.get('Overwrite')!='F':return self.answer(400)
-            if target in state['records']:return self.answer(412)
+            if target in state['records']:return self.answer(409)
             source=state['records'].get(self.path)
             if not source:return self.answer(404)
             state['records'][target]=source;del state['records'][self.path]

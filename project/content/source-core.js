@@ -30,7 +30,7 @@ var SourceCore;
  }
  function assertPageLimit(inputs,limit){
   if(!limit)return;let seen=0;
-  const check=(index,hasContent=true)=>{if(!hasContent)return;if(!Number.isInteger(index)||index<0)throw error('SOURCE_SCOPE','解析结果缺少可靠页码，未猜测前 20 页。');seen++;if(index>=limit)throw error('SOURCE_SCOPE','解析结果包含阅读范围以外的页面，未把它冒充前 20 页。');};
+  const check=(index,hasContent=true)=>{if(!hasContent)return;if(!Number.isInteger(index)||index<0)throw error('SOURCE_SCOPE','解析结果缺少可靠页码，未猜测指定页面范围。');seen++;if(index>=limit)throw error('SOURCE_SCOPE','解析结果包含阅读范围以外的页面，未把它冒充指定页面范围。');};
   for(const input of inputs){if(input.format==='v1'&&Array.isArray(input.data))for(const row of input.data)check(row?.page_idx);else if(input.format==='v2'&&Array.isArray(input.data))for(const [i,page]of input.data.entries())check(i,Array.isArray(page)&&page.length>0);else if(input.format==='layout'&&Array.isArray(input.data?.pdf_info))for(const [i,page]of input.data.pdf_info.entries())check(Number.isInteger(page.page_idx)?page.page_idx:i,[...(page.para_blocks||[]),...(page.discarded_blocks||[]),...(page.preproc_blocks||[])].length>0);}
   if(!seen)throw error('SOURCE_SCOPE','解析结果没有可核对的页码，未自动采用不明范围的内容。');
  }

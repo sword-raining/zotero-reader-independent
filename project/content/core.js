@@ -25,7 +25,7 @@ var MineruCore;
     return key;
   }
   function settings(input = {}) {
-    const pageLimit=input.pageLimit===undefined?0:Number(input.pageLimit);if(![0,20].includes(pageLimit))throw error("PAGE_RANGE","阅读范围只支持前 20 页或全部页面。");
+    const value=input.pageLimit,pageLimit=value===undefined?0:Number(value);if(value!==undefined&&(typeof value!=="number"&&typeof value!=="string"||typeof value==="string"&&!value.trim())||!Number.isInteger(pageLimit)||pageLimit<0||pageLimit>200)throw error("PAGE_RANGE","请输入 0–200 的整数页数，0 表示全部页面。");
     return {
       model: input.model === "pipeline" ? "pipeline" : "vlm",
       language: ["ch","en"].includes(input.language) ? input.language : "auto",

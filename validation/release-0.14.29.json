@@ -1,0 +1,30 @@
+{
+  "version": "0.14.29",
+  "date": "2026-11-09",
+  "distribution": "Source and XPI prepared for public repository publication; no automatic installation",
+  "automated": {
+    "version": "0.14.29",
+    "passed": 348,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "7755838539758dc7ef723d57efb0c081af15a20ba38901014f760e6f57e67f35",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "passed": 20,
+    "failed": 0,
+    "taskMarkingClients": 12,
+    "settings": 8,
+    "productionMatchesFixtures": true,
+    "profiles": 4,
+    "simulatedExistingDestinationStatus": 409
+  },
+  "realModelRequests": 0,
+  "realCloudCoordinationRetested": false,
+  "personalLibraryWritten": false,
+  "packageFiles": 41,
+  "xpiSHA256": "7755838539758dc7ef723d57efb0c081af15a20ba38901014f760e6f57e67f35"
+}

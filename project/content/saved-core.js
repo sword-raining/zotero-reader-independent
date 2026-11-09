@@ -6,7 +6,7 @@ var SavedCore;
   function valid(record){
     return record?.schema===1&&validID(record.runID)&&validKey(record.itemKey)&&['checked','edited'].includes(record.status)&&
       /^[a-f0-9]{64}$/.test(record.bodySHA256||'')&&Array.isArray(record.inputs)&&record.inputs.length>0&&record.inputs.length<=100&&
-      record.inputs.every(s=>validKey(s.key)&&['main','supplement'].includes(s.role)&&(s.pageLimit===undefined||[0,20].includes(s.pageLimit))&&/^[a-f0-9]{64}$/.test(s.sha256||''))&&
+      record.inputs.every(s=>validKey(s.key)&&['main','supplement'].includes(s.role)&&(s.pageLimit===undefined||Number.isInteger(s.pageLimit)&&s.pageLimit>=0&&s.pageLimit<=200)&&/^[a-f0-9]{64}$/.test(s.sha256||''))&&
       record.inputs.filter(s=>s.role==='main').length===1;
   }
   function strip(html){return String(html).replace(/\sdata-zri-record=(?:"[^"]*"|'[^']*')/g,'').replace(/(zotero:\/\/open-pdf\/(?:library|groups\/\d+)\/items\/[A-Z0-9]{8})\?zri-record=[^"'&<>\s]+/g,'$1').trim();}
