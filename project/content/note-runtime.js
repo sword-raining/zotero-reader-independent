@@ -87,7 +87,9 @@ var ReaderNotes={
     const html=NoteCore.render({workflow,draft,review,assessment,...target,sections:ReadingCore.sectionsFor(draft),runID,naming,manualEdited,manualMarkdown});
     const desiredBodyHash=await this.app.sha256Text(SavedCore.body(html.reading));
     const notes={};let savedReadingBody=null,reusedStatus=null;
-    await Zotero.DB.executeTransaction(async()=>{
+    const coordination=typeof ReaderCoordination!=='undefined'?await ReaderCoordination.beforeSave(attachment,workflowPath,workflow):null;
+    try{await Zotero.DB.executeTransaction(async()=>{
+      if(coordination)await ReaderCoordination.check(coordination.h);
       options.validateTask?.();
       if(importedMarkdownPath&&await this.app.sha256(importedMarkdownPath)!==importedMarkdownSHA256)throw NoteCore.error('NOTE_CHANGED','保存前稿件发生变化，本次跳过，原稿保留。');
       // Recheck target immediately before writes. Never overwrite a user-edited note.
@@ -135,7 +137,8 @@ var ReaderNotes={
         const owner=target.parentID?await Zotero.Items.getAsync(target.parentID):attachment;
         owner.addTag('AI精读');await owner.save({skipSelect:true,notifierData:{zriGenerated:true}});
       }
-    });
+    });}catch(e){if(coordination)await ReaderCoordination.rollbackSave(coordination);throw e;}
+    if(coordination)await ReaderCoordination.saved(coordination,notes.reading.key);
     // Embedded record IDs provide recovery even if this file write is interrupted.
     const reused=Object.values(notes).every(n=>n.reused),status=reused?reusedStatus:html.status;
     let stored=false;

@@ -12,7 +12,7 @@ var ReaderBatch={
     if(!selected?.length)throw NoteCore.error("BATCH_SELECTION","请先多选需要精读的文献或 PDF。");
     collected=collected||await this.collectItems(selected);
     if(!collected.entries.length)throw NoteCore.error("BATCH_SELECTION","所选条目没有 PDF 附件。");
-    Object.assign(this,collected,{members:[],outcomes:{},submitted:false,selectionNotice:false,focusedSelection:null,message:"每篇文献选择一个正文。补充材料默认不读，需要时勾选。",skipProcessed:true,skipChinese:true});
+    Object.assign(this,collected,{members:[],outcomes:{},submitted:false,selectionNotice:false,focusedSelection:null,message:"每篇文献选择一个正文。补充材料默认不读，需要时勾选。",skipProcessed:true,skipChinese:typeof ReaderLanguage!=='undefined'?ReaderLanguage.skip():true});
     this.templateID="general";
     if(this.window&&!this.window.closed){this.buildList();this.render();this.window.focus();}
     else win.openDialog("chrome://zotero-reader-independent/content/batch.xhtml","","chrome,dialog=no,resizable,centerscreen",{batch:this});

@@ -1,0 +1,133 @@
+{
+  "passed": true,
+  "clients": [
+    {
+      "completed": true,
+      "role": 0,
+      "tests": [
+        {
+          "name": "native WebDAV transport verifies atomic creation, three-way CAS and stale-write rejection",
+          "ok": true
+        },
+        {
+          "name": "a real isolated Zotero worker saves only the paper it acquired",
+          "ok": true
+        },
+        {
+          "name": "synchronized saved notes are adopted without a second reading or a second note",
+          "ok": true
+        },
+        {
+          "name": "language gate covers automatic, single and resumed jobs before execution",
+          "ok": true
+        }
+      ],
+      "executions": 1,
+      "ownedNotes": [
+        {
+          "parentKey": "PAPERAA2",
+          "noteKey": "WX4VIEXR"
+        }
+      ],
+      "realModelRequests": 0,
+      "syntheticData": true,
+      "personalLibraryTouched": false,
+      "pluginVersion": "0.14.26",
+      "zoteroVersion": "10.0.8"
+    },
+    {
+      "completed": true,
+      "role": 1,
+      "tests": [
+        {
+          "name": "native WebDAV transport verifies atomic creation, three-way CAS and stale-write rejection",
+          "ok": true
+        },
+        {
+          "name": "a real isolated Zotero worker saves only the paper it acquired",
+          "ok": true
+        },
+        {
+          "name": "synchronized saved notes are adopted without a second reading or a second note",
+          "ok": true
+        },
+        {
+          "name": "language gate covers automatic, single and resumed jobs before execution",
+          "ok": true
+        }
+      ],
+      "executions": 1,
+      "ownedNotes": [
+        {
+          "parentKey": "PAPERAA3",
+          "noteKey": "33LK4IK5"
+        }
+      ],
+      "realModelRequests": 0,
+      "syntheticData": true,
+      "personalLibraryTouched": false,
+      "pluginVersion": "0.14.26",
+      "zoteroVersion": "10.0.8"
+    },
+    {
+      "completed": true,
+      "role": 2,
+      "tests": [
+        {
+          "name": "native WebDAV transport verifies atomic creation, three-way CAS and stale-write rejection",
+          "ok": true
+        },
+        {
+          "name": "a real isolated Zotero worker saves only the paper it acquired",
+          "ok": true
+        },
+        {
+          "name": "synchronized saved notes are adopted without a second reading or a second note",
+          "ok": true
+        },
+        {
+          "name": "language gate covers automatic, single and resumed jobs before execution",
+          "ok": true
+        }
+      ],
+      "executions": 1,
+      "ownedNotes": [
+        {
+          "parentKey": "PAPERAA4",
+          "noteKey": "YK2QXU8D"
+        }
+      ],
+      "realModelRequests": 0,
+      "syntheticData": true,
+      "personalLibraryTouched": false,
+      "pluginVersion": "0.14.26",
+      "zoteroVersion": "10.0.8"
+    }
+  ],
+  "shared": {
+    "grants": [
+      {
+        "task": "98656b0902dff166322a9145f67958288011bc26d31f6c8a21e7851253ce6e78",
+        "owner": "lNMfDjfcnEZMz3ry5HlyNmDH1BozGTJS",
+        "token": "7jRvFPgX90qncAdCA2OCV9dV4Hsvc94p"
+      },
+      {
+        "task": "5a13c6c49f6cc8ddf2214efb0697258e40e9cb93fcc4fee4f6194644c8addefc",
+        "owner": "XbJcM3qgs0EtWqNGI4Fd7QwjDCfkr7Z5",
+        "token": "sNUlJgbCTns1EyADOcYSzg99dxwkpRv8"
+      },
+      {
+        "task": "aa80b19c5424a1a05766566024e3b9b1b47a4032ba9e32ea7adc572ba1906b3e",
+        "owner": "dndiS6FyKwrzXJ8hHgR9Mp3PefQb2few",
+        "token": "f3SS0v5I1GmvM1d64BdikBMiDQ26RGgl"
+      }
+    ],
+    "peakRunning": 3,
+    "completedTasks": 3,
+    "savedSyntheticNotes": 3
+  },
+  "realCloudRequests": 0,
+  "realModelRequests": 0,
+  "personalLibraryTouched": false,
+  "simulatedZoteroSync": true
+}

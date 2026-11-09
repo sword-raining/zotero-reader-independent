@@ -1,0 +1,5 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');const L=require('../content/language.js');
+test('Chinese Zotero field and clearly Chinese titles are both recognized',()=>{assert.equal(L.infer({language:'zh-CN',title:'English placeholder'}).chinese,true);assert.equal(L.infer({language:'en',title:'全球气候变化对干旱区影响分析'}).chinese,true);});
+test('actual English PDF text overrides a translated Chinese title',()=>{const x=L.infer({language:'en',title:'全球气候变化对干旱区影响分析',text:'The original English article reports an ecological relationship. '.repeat(25)});assert.equal(x.chinese,false);assert.equal(x.basis,'PDF 正文文字');});
+test('Chinese PDF text catches incorrect English metadata',()=>{const x=L.infer({language:'en',title:'An ecological study',text:'本文研究全球气候变化对干旱生态系统的影响并分析了研究结果。'.repeat(15)});assert.equal(x.chinese,true);});
+test('short Chinese affiliations and labels do not classify an English paper as Chinese',()=>{assert.equal(L.infer({language:'en',title:'Drought resistance in ecosystems',text:'中国科学院\n'+'English methods and ecological results. '.repeat(30)}).chinese,false);assert.equal(L.infer({title:'Drought 中文'}).chinese,false);});

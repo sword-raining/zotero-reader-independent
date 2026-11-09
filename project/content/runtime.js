@@ -97,6 +97,8 @@ var ReaderApp = {
     ReaderCodex.bindPreferences(win).catch(e => status(this.safeError(e)));
     ReaderAutomation.bindPreferences(win);
     ReaderClassifier.bind(win);
+    ReaderCoordination.bind(win);
+    ReaderLanguage.bind(win);
     ReaderPreferences.bind(win);
     const clean=get('cleanup-saved'),cleanupStatus=get('cleanup-status');clean.addEventListener('click',async()=>{
       clean.disabled=true;clean.textContent='正在清理…';cleanupStatus.textContent='正在核对已保存笔记与生成记录…';

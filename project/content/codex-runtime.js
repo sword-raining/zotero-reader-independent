@@ -281,6 +281,7 @@ var ReaderCodex = {
     });
   },
   async readPaper(paper, context, signal, hooks = {}) {
+    if(typeof ReaderLanguage!=='undefined'){const att=await Zotero.Items.getByLibraryAndKeyAsync(context.source.libraryID,context.source.key);await ReaderLanguage.check(att,ReaderAutomation.state.jobs[context.queueJobID],(paper.paragraphs||[]).map(p=>p.text||'').join('\n'));}
     const resumed=hooks.resume;
     const templateID=resumed?.metadata.templateID||this.state.templateID;
     ReadingCore.template(templateID);

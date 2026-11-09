@@ -40,6 +40,9 @@ async function startup({ rootURI }, reason) {
   Services.scriptloader.loadSubScript(root + "content/classifier.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/batch-runtime.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/ui.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/coordination-core.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/coordination-runtime.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/language.js", readerScope);
   readerScope.ReaderCodex.init(readerScope.ReaderApp);
   await readerScope.ReaderEngines.init(readerScope.ReaderApp);
   readerScope.ReaderPreferences.init(readerScope.ReaderApp);
@@ -51,6 +54,8 @@ async function startup({ rootURI }, reason) {
   readerScope.ReaderAttachmentMaintenance.init(readerScope.ReaderApp);
   readerScope.ReaderBatch.init(readerScope.ReaderApp);
   Zotero.ReaderIndependent = readerScope.ReaderApp;
+  await readerScope.ReaderCoordination.init(readerScope.ReaderApp);
+  readerScope.ReaderCoordination.install();
   await readerScope.ReaderAutomation.init(readerScope.ReaderApp,readerScope.ReaderNotes);
   await readerScope.ReaderApp.startup(root);
   for (const win of Zotero.getMainWindows()) readerScope.ReaderApp.addWindow(win);
@@ -72,6 +77,7 @@ async function shutdown() {
   await readerScope?.ReaderCleanup?.active?.catch(()=>{});
   readerScope?.ReaderCleanup?.shutdown();
   await readerScope?.ReaderCodex?.shutdown();
+  await readerScope?.ReaderCoordination?.shutdown();
   await readerScope?.ReaderApp?.shutdown();
   if (Zotero.ReaderIndependent === readerScope?.ReaderApp) delete Zotero.ReaderIndependent;
   readerChrome?.destruct();

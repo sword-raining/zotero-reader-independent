@@ -27,7 +27,7 @@ var QueueCore;
   }
   function next(state,{enabled,paused,busy}={}){
     if(paused||busy)return null;
-    return Object.values(state.jobs).filter(j=>j.state==="queued"&&(j.trigger==="manual"||enabled))
+    return Object.values(state.jobs).filter(j=>j.state==="queued"&&(!j.coordinationWaitUntil||j.coordinationWaitUntil<=Date.now())&&(j.trigger==="manual"||enabled))
       .sort((a,b)=>a.createdAt-b.createdAt)[0]||null;
   }
   function recover(state){

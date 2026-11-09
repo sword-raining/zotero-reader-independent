@@ -1,0 +1,39 @@
+{
+  "version": "0.14.26",
+  "date": "2026-11-09",
+  "distribution": "Local validated development build; not installed or pushed",
+  "automated": {
+    "version": "0.14.26",
+    "passed": 308,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "fc85800524ffb2271bc024c350501067d793c76e5791c746125f11f12fc646ad",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "native": {
+    "passed": 38,
+    "failed": 0,
+    "suites": {
+      "multideviceClients": 12,
+      "note-consistency": 7,
+      "existing-classification": 6,
+      "bulk-save": 7,
+      "settings-ui": 6
+    },
+    "productionMatchesFixtures": true,
+    "profiles": 7,
+    "zoteroVersion": "10.0.8",
+    "syntheticData": true
+  },
+  "realCloudWebDAVTested": false,
+  "physicalThreeMachineTested": false,
+  "simulatedZoteroSync": true,
+  "realModelRequests": 0,
+  "realPaperSummaryQualityTested": false,
+  "personalLibraryWritten": false,
+  "packageFiles": 38,
+  "xpiSHA256": "fc85800524ffb2271bc024c350501067d793c76e5791c746125f11f12fc646ad"
+}

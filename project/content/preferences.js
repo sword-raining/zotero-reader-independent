@@ -4,7 +4,7 @@ var ReaderPreferences={
   init(app){this.app=app;},
   workflow(){return WorkflowCore.limits(Object.fromEntries(['papers','repairs','autoRepair'].map(k=>[k,Zotero.Prefs.get(this.app.pref+'workflow.'+k,true)])));},
   delivery(){return Zotero.Prefs.get(this.app.pref+"delivery.mode",true)==="manual"?"manual":"auto";},
-  templateText(id){return ReadingCore.validateTemplateText(Zotero.Prefs.get(this.app.pref+"templates.unified",true)||ReadingCore.defaultTemplateText(id));},
+  templateText(id){return ReadingCore.resolvedTemplateText(Zotero.Prefs.get(this.app.pref+"templates.unified",true),id);},
   naming(){return Object.fromEntries(Object.keys(NoteCore.DEFAULT_NAMES).map(role=>{const saved=Zotero.Prefs.get(this.app.pref+"noteNames."+role,true);return [role,NoteCore.validateName(!saved||saved==='精读｜{title}'?NoteCore.DEFAULT_NAMES[role]:saved)];}));},
   bind(win){
     const doc=win.document,get=id=>doc.getElementById("zri-"+id);

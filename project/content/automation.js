@@ -76,6 +76,7 @@ var ReaderAutomation={
   },
   notify(event,type,ids,extra={}){
     if(!this.started)return;
+    if(type==='item'&&['add','modify'].includes(event)&&Object.values(this.state.jobs).some(j=>j.coordinationWaitUntil))this.wakePeerNotes(ids).catch(()=>{});
     if(type==='collection-item'&&this.collectionKey()){
       if(event==='add'&&this.enabled()){
         const epoch=this.epoch;
@@ -90,6 +91,7 @@ var ReaderAutomation={
       ReaderTimers.setTimeout(()=>this.capture(ids,extra,epoch).catch(e=>{this.lastMessage=this.app.safeError(e);this.refreshViews();}),0);
     }else if(["modify","refresh"].includes(event)&&Object.values(this.state.jobs).some(j=>j.state==="waiting_file"))this.schedule();
   },
+  async wakePeerNotes(ids){const parents=new Set();for(const id of ids){const n=await Zotero.Items.getAsync(id);if(n?.isNote()&&n.parentID&&SavedCore.read(n.getNote()))parents.add(n.parentID);}if(!parents.size)return;for(const job of Object.values(this.state.jobs))if(job.coordinationWaitUntil){const att=await this.attachment(job);if(parents.has(att?.parentID))delete job.coordinationWaitUntil;}this.schedule();},
   async captureCollection(ids,extra,epoch){
     const collection=await this.collection();if(!collection||!this.enabled()||!this.started||epoch!==this.epoch)return;
     const pdfIDs=[];
@@ -97,7 +99,7 @@ var ReaderAutomation={
       const match=String(id).match(/^(\d+)-(\d+)$/);if(!match||Number(match[1])!==collection.id)continue;
       const item=await Zotero.Items.getAsync(Number(match[2]));
       // A local membership edit marks its owner unsynced; a server sync does not.
-      if(!item||item.deleted||item.synced||item.libraryID!==collection.libraryID||extra?.[id]?.zriGenerated)continue;
+      if(!item||item.deleted||item.synced&&!(typeof ReaderCoordination!=='undefined'&&ReaderCoordination.enabled())||item.libraryID!==collection.libraryID||extra?.[id]?.zriGenerated)continue;
       if(item.isRegularItem())pdfIDs.push(...item.getAttachments());
       else if(item.isPDFAttachment())pdfIDs.push(item.id);
     }
@@ -110,7 +112,7 @@ var ReaderAutomation={
       const item=await Zotero.Items.getAsync(id);
       if(!item)continue;
       if(!QueueCore.captureAllowed({enabled:this.enabled(),event:"add",isPDF:item.isPDFAttachment(),deleted:item.deleted,
-        synced:fromCollection?false:item.synced,libraryID:item.libraryID,userLibraryID:Zotero.Libraries.userLibraryID,
+        synced:fromCollection||this.collectionKey()&&typeof ReaderCoordination!=='undefined'&&ReaderCoordination.enabled()?false:item.synced,libraryID:item.libraryID,userLibraryID:Zotero.Libraries.userLibraryID,
         generated:extra?.[id]?.zriGenerated,epoch,currentEpoch:this.epoch}))continue;
       if(!await this.inScope(item))continue;
       if(epoch!==this.epoch||!this.enabled())return;
@@ -149,9 +151,10 @@ var ReaderAutomation={
   },
   async batchLanguage(att){
     const owner=att?.parentID?await Zotero.Items.getAsync(att.parentID):att;
+    if(typeof ReaderLanguage!=='undefined'){const info=await ReaderLanguage.inspect(att);if(info.chinese)return 'zh';}
     return owner?.isRegularItem?.()?String(owner.getField('language')||''):'';
   },
-  async enqueueBatch(entries,templateID,{skipProcessed=true,skipChinese=true}={}){
+  async enqueueBatch(entries,templateID,{skipProcessed=true,skipChinese=typeof ReaderLanguage!=='undefined'?ReaderLanguage.skip():true}={}){
     if(ReaderCleanup.completedActive)await ReaderCleanup.completedActive;
     ReadingCore.template(templateID);
     const ready=[],rejected=[];
@@ -289,14 +292,16 @@ var ReaderAutomation={
     try{
       await this.persist();
       if(!this.started||job.cancelRequested||(job.trigger==='auto'&&!this.enabled()))throw CodexCore.error('CANCELLED','任务已停止');
+      if(typeof ReaderLanguage!=='undefined')await ReaderLanguage.check(await this.attachment(job),job);
+      if(typeof ReaderCoordination!=='undefined'&&!await ReaderCoordination.enterJob(job,worker))return;
       const result=await this.execute(job,worker);
       job.state=result.status==='awaiting_import'?'awaiting_import':result.status==='verification_incomplete'?'verification_incomplete':result.status==='checked'?'done':result.notes?'imported':'needs_review';
       job.notes=result.notes;job.message=result.status==='verification_incomplete'?result.message:result.status==='awaiting_import'?'精读已完成，等待导入':result.status==='checked'?'已生成精读笔记':'草稿仍需核对，未自动导入';
       if(result.notes){job.message=result.message||result.cleanup?.message||'已保存精读笔记';await this.compactImported(job.workflowPath,result);}
       await this.suggestAfterSave(job,result,worker);
       return result;
-    }catch(e){job.state=e.code==='LANGUAGE_SKIPPED'?'cancelled':!this.started&&!job.cancelRequested?'failed':e.code==='CANCELLED'||job.cancelRequested?'cancelled':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.errorCode=e.code||'LOCAL';job.message=this.app.safeError(e);if(job.state==='cancelled'||job.state==='failed')await this.refreshResumeState(job);}
-    finally{job.updatedAt=Date.now();this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
+    }catch(e){if(worker.coordination?.lost)e=worker.coordination.error;job.state=e.code==='LANGUAGE_SKIPPED'?'cancelled':!this.started&&!job.cancelRequested?'failed':e.code==='CANCELLED'||job.cancelRequested?'cancelled':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.errorCode=e.code||'LOCAL';job.message=this.app.safeError(e);if(job.state==='cancelled'||job.state==='failed')await this.refreshResumeState(job);}
+    finally{if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);job.updatedAt=Date.now();this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
   },
   async tick(){
     if(!this.started||this.ticking)return;
@@ -305,7 +310,7 @@ var ReaderAutomation={
       if(this.attachmentMaintenanceBusy()||this.state.paused||this.starting||this.resumeEnqueueing||ReaderCodex.active||ReaderCleanup.active||ReaderCleanup.completedActive||ReaderNotes.pending||this.app.state.busy)return;
       let changed=false;
       for(const job of Object.values(this.state.jobs)){
-        if(!QueueCore.pending.has(job.state)||(job.trigger==="auto"&&!this.enabled()))continue;
+        if(!QueueCore.pending.has(job.state)||(job.trigger==="auto"&&!this.enabled())||job.coordinationWaitUntil>Date.now())continue;
         try{
           const att=await this.attachment(job);
           if(!att||att.deleted||!att.isPDFAttachment())throw NoteCore.error("QUEUE_SOURCE","来源 PDF 不存在或已进入回收站。");
@@ -335,7 +340,7 @@ var ReaderAutomation={
       if(changed)await this.persist();
       const limit=ReaderPreferences.workflow().papers;
       while(this.running.size<limit&&!this.state.paused&&this.started&&!this.resumeEnqueueing){
-        const resume=Object.values(this.state.jobs).find(j=>j.resumePending&&!this.isRunning(j));
+        const resume=Object.values(this.state.jobs).find(j=>j.resumePending&&!this.isRunning(j)&&!(j.coordinationWaitUntil>Date.now()));
         if(resume){await this.dispatchResume(resume);continue;}
         const job=QueueCore.next(this.state,{enabled:this.enabled(),paused:this.state.paused,busy:Boolean(ReaderCodex.active||this.app.state.busy)});
         if(!job)break;
@@ -550,14 +555,16 @@ var ReaderAutomation={
       try{
         await this.persist();
         if(!this.started||job.cancelRequested)throw CodexCore.error('CANCELLED','续检已停止，草稿保留。');
+        if(typeof ReaderLanguage!=='undefined')await ReaderLanguage.check(await this.attachment(job),job);
+        if(typeof ReaderCoordination!=='undefined'&&!await ReaderCoordination.enterJob(job,worker)){if(job.state==='queued')job.resumePending={path:job.workflowPath,repair};return;}
         await worker.codex.resumeVerification(job.workflowPath,{repair});
         const w=await this.app.readJSON(job.workflowPath);
         if(w.status==='checked'){
           if(ReaderPreferences.delivery()==='manual'){job.state='awaiting_import';job.message='检查完成，等待导入';}
           else{const att=await this.attachment(job),result=await this.notes.save(job.workflowPath,att,{validateTask:()=>{if(job.cancelRequested)throw CodexCore.error('CANCELLED','任务已暂停或停止，完整结果保留。');}});job.state='done';job.notes=result.notes;job.message='复查通过，笔记已保存';await this.compactImported(job.workflowPath,result);await this.suggestAfterSave(job,result,worker);}
         }else{job.state='needs_review';job.message='仍有需要修订的内容，草稿已保留';}
-      }catch(e){const w=await this.app.readJSON(job.workflowPath);job.state=e.code==='CANCELLED'||job.cancelRequested?'cancelled':w?.status==='verification_incomplete'?'verification_incomplete':'failed';job.message=this.app.safeError(e);job.errorCode=e.code;await this.refreshResumeState(job);}
-      finally{if(!job.pauseRequested)delete job.resumeRepair;this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);job.updatedAt=Date.now();await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
+      }catch(e){if(worker.coordination?.lost)e=worker.coordination.error;const w=await this.app.readJSON(job.workflowPath);job.state=e.code==='LANGUAGE_SKIPPED'||e.code==='CANCELLED'||job.cancelRequested?'cancelled':w?.status==='verification_incomplete'?'verification_incomplete':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.message=this.app.safeError(e);job.errorCode=e.code;await this.refreshResumeState(job);}
+      finally{if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);if(!job.pauseRequested)delete job.resumeRepair;this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);job.updatedAt=Date.now();await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
     })();this.updateActivity();this.refreshViews();return worker;
   },
   historyHidden(job){return !!job.historyClearedAt&&['done','imported'].includes(job.state)&&!this.isRunning(job)&&!job.classificationPending;},

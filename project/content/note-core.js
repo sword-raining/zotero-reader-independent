@@ -53,7 +53,7 @@ var NoteCore;
     const values={...B.titleFields(workflow.bibliography,title),pdf:pdfTitle,date:localDate(workflow.createdAt),status:label,template:"论文精读"};
     let html=`<div data-schema-version="9"><h1>${escape(noteTitle(naming.reading||DEFAULT_NAMES.reading,values,status))}</h1>`+
       `<p>${sourceLink(pdfURL,pdfTitle)} · ${escape(values.date)}</p>`;
-    if(status==='checked'&&typeof workflow.shortFinding==='string'&&workflow.shortFinding.length<=180&&draft.sections.find(s=>s.key==='results')?.entries.some(e=>e.text===workflow.shortFinding&&assessment.checks.some(c=>c.entry_id===e.id&&c.passed)))html+=`<p><strong>核心发现：</strong>${escape(workflow.shortFinding)}</p>`;
+    if(status==='checked'&&typeof workflow.shortFinding==='string'&&workflow.shortFinding.length<=180&&draft.coreFinding?.text===workflow.shortFinding&&assessment.checks.some(c=>c.entry_id===draft.coreFinding.id&&c.passed))html+=`<p><strong>核心发现：</strong>${escape(workflow.shortFinding)}</p>`;
     if(status!=="checked")html+=`<p><strong>${escape(label)}</strong> — ${escape(status==="edited"?"自动检查仅针对修改前内容。":"本稿尚有需要人工核对的内容。")}</p>`;
     if(manualEdited)html+=markdownHTML(manualMarkdown);
     else {
