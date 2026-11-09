@@ -43,6 +43,8 @@ async function startup({ rootURI }, reason) {
   Services.scriptloader.loadSubScript(root + "content/coordination-core.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/coordination-runtime.js", readerScope);
   Services.scriptloader.loadSubScript(root + "content/language.js", readerScope);
+  Services.scriptloader.loadSubScript(root + "content/index-store.js", readerScope);
+  readerScope.ReaderIndexes.init();
   readerScope.ReaderCodex.init(readerScope.ReaderApp);
   await readerScope.ReaderEngines.init(readerScope.ReaderApp);
   readerScope.ReaderPreferences.init(readerScope.ReaderApp);

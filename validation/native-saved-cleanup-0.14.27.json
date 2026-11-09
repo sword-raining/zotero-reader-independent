@@ -1,0 +1,41 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "successful native note transaction preserves the reading and PDF link, omits the evidence appendix, then cleans cache",
+      "ok": true
+    },
+    {
+      "name": "exported Zotero note JSON preserves receipt through import and works without local queue or receipt file",
+      "ok": true
+    },
+    {
+      "name": "editing the saved note is preserved and not represented as unchanged AI-checked content",
+      "ok": true
+    },
+    {
+      "name": "source-link receipt survives editor-style normalization and still routes to the correct PDF",
+      "ok": true
+    },
+    {
+      "name": "failed native note transaction never deletes pending drafts or source cache",
+      "ok": true
+    },
+    {
+      "name": "manual cleanup retains unimported workflows and does not alter saved note edits",
+      "ok": true
+    },
+    {
+      "name": "native filesystem guard rejects a Windows directory link before deletion",
+      "ok": true
+    },
+    {
+      "name": "a batch queued before PDF download rechecks synchronized notes when the file arrives",
+      "ok": true
+    }
+  ],
+  "modelRequests": 0,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.27",
+  "zoteroVersion": "10.0.8"
+}

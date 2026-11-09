@@ -23,7 +23,7 @@ var ReaderAttachments={
     }).catch(()=>({role:'unknown',version:'unknown',reason:'无法提取本地文本',roleSource:'unavailable'})).finally(()=>{this.probeBusy=false;});
     let timer;try{return await Promise.race([probe,new Promise(resolve=>{timer=ReaderTimers.setTimeout(()=>resolve({role:'unknown',version:'unknown',reason:'本地识别暂未完成',roleSource:'unavailable'}),this.probeTimeoutMs);})]);}finally{if(timer)ReaderTimers.clearTimeout(timer);}
   },
-  async collectItems(items){
+  async collectItems(items,{preflight=false}={}){
     const groups=new Map();let ignored=0;
     for(const item of items){
       if(!item||item.deleted){ignored++;continue;}
@@ -42,7 +42,7 @@ var ReaderAttachments={
           if(local){
             const before=await IOUtils.stat(path);size=before.size;lastModified=before.lastModified;
             if(before.size>0&&before.size<=MineruCore.MAX_PDF_BYTES){
-              sha256=await this.app.sha256(path);const after=await IOUtils.stat(path);
+              sha256=preflight&&this.app.preflightSHA256?await this.app.preflightSHA256(path,before):await this.app.sha256(path);const after=await IOUtils.stat(path);
               if(before.size!==after.size||before.lastModified!==after.lastModified)sha256=null;
             }
           }
@@ -75,10 +75,10 @@ var ReaderAttachments={
     }
     return result;
   },
-  async sources(main,selection,signal){
+  async sources(main,selection,signal,{preflight=false}={}){
     const attachments=await this.attachments(main,selection),result=[],seen=new Set();
     for(const att of attachments){
-      const {source,path}=await this.app.source(att,signal);
+      const {source,path}=await this.app.source(att,signal,{preflight});
       const parent=att.parentID?await Zotero.Items.getAsync(att.parentID):null;
       if(parent?.isRegularItem?.()){
         const stat=await IOUtils.stat(path),identity=await this.inspectPDF(att,{...source,path,local:true,lastModified:stat.lastModified},parent);

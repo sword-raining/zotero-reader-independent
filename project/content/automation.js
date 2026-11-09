@@ -106,6 +106,7 @@ var ReaderAutomation={
     await this.capture([...new Set(pdfIDs)],{},epoch,true);
   },
   async capture(ids,extra,epoch,fromCollection=false){
+    this.app.assertIndexes?.();
     if(!this.started||epoch!==this.epoch)return;
     let changed=false;
     for(const id of ids){
@@ -136,6 +137,7 @@ var ReaderAutomation={
     await this.persist();this.refreshViews();this.schedule();
   },
   async enqueueManual(attachment,templateID,options={}){
+    this.app.assertIndexes?.();
     if(this.attachmentMaintenanceBusy())throw NoteCore.error('BUSY','正在整理附件，请稍后加入精读。');
     if(this.historyClearing.has(QueueCore.key(attachment.libraryID,attachment.key)))await ReaderCleanup.completedActive;
     ReadingCore.template(templateID);await this.notes.destination(attachment);
@@ -155,6 +157,7 @@ var ReaderAutomation={
     return owner?.isRegularItem?.()?String(owner.getField('language')||''):'';
   },
   async enqueueBatch(entries,templateID,{skipProcessed=true,skipChinese=typeof ReaderLanguage!=='undefined'?ReaderLanguage.skip():true}={}){
+    this.app.assertIndexes?.();
     if(ReaderCleanup.completedActive)await ReaderCleanup.completedActive;
     ReadingCore.template(templateID);
     const ready=[],rejected=[];
@@ -304,6 +307,7 @@ var ReaderAutomation={
     finally{if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);job.updatedAt=Date.now();this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
   },
   async tick(){
+    this.app.assertIndexes?.();
     if(!this.started||this.ticking)return;
     this.ticking=true;
     try{
@@ -321,16 +325,22 @@ var ReaderAutomation={
           const was=job.state,stamp=job.fileStamp;
           const ready=QueueCore.ready(job,stat,Date.now(),this.settleMs);
           if(ready&&job.trigger==='auto'){
-            const group=(await ReaderAttachments.collectItems([att])).entries[0];
+            let group=(await ReaderAttachments.collectItems([att],{preflight:true})).entries[0];
             if(!group||group.issue)throw NoteCore.error('ATTACHMENT_SELECTION',group?.issue||'无法读取文献附件。');
-            const file=group.pdfs.find(f=>f.key===att.key);
+            let file=group.pdfs.find(f=>f.key===att.key);
+            if(file?.supplement||file?.duplicateOf||!group.mainKey||group.mainKey!==att.key){
+              group=(await ReaderAttachments.collectItems([att])).entries[0];
+              if(!group||group.issue)throw NoteCore.error('ATTACHMENT_SELECTION',group?.issue||'无法确认最新附件选择。');
+              file=group.pdfs.find(f=>f.key===att.key);
+            }
             job.groupID=group.groupID;
             if(file?.supplement||file?.duplicateOf){job.state='cancelled';job.message=file.duplicateOf?'内容完全重复，自动精读已跳过':'补充材料默认不自动精读；需要时在文献附件选择中勾选。';}
             else if(!group.mainKey){job.state='awaiting_selection';job.message='无法确定唯一正文。请右键该文献开始精读，并选择正文 PDF。';}
             else if(group.mainKey!==att.key){job.state='cancelled';job.message='这篇文献的另一附件已作为正文，未重复加入。';}
             else {job.inputSelection={mainKey:att.key,supplementKeys:[]};job.title=group.display;}
             if(job.state==='queued'){
-              const saved=await ReaderSaved.matching(att,job.inputSelection);
+              const preview=await ReaderSaved.matching(att,job.inputSelection,{preflight:true});
+              const saved=preview?await ReaderSaved.matching(att,job.inputSelection):null;
               if(saved){job.state=saved.status==='edited'?'imported':'done';job.notes={reading:{key:saved.note.key,id:saved.note.id}};job.message='已有 Zotero 精读笔记，未重复处理';}
             }
           }
@@ -359,11 +369,17 @@ var ReaderAutomation={
     }
   },
   async execute(job,worker=null){
+    this.app.assertIndexes?.();
     const codex=worker?.codex||ReaderCodex,app=worker?.app||this.app;
     return codex.exclusive(async signal=>{
       const att=await this.attachment(job),destination=await this.notes.destination(att);
       if(job.skipChinese&&BatchCore.languageInfo(await this.batchLanguage(att)).chinese)throw NoteCore.error('LANGUAGE_SKIPPED','本批已跳过：当前 Zotero 语言字段标为中文，未解析或调用模型。');
       if(job.trigger==='auto'&&((job.autoCollectionKey||'')!==this.collectionKey()||!await this.inScope(att)))throw NoteCore.error('CANCELLED','文献已移出监听范围，未开始处理。');
+      if(job.trigger==='auto'){
+        const current=(await ReaderAttachments.collectItems([att])).entries[0],file=current?.pdfs.find(f=>f.key===att.key);
+        if(!current||current.issue||!current.mainKey)throw NoteCore.error('ATTACHMENT_SELECTION',current?.issue||'开始前无法确认正文，请重新选择。');
+        if(file?.supplement||file?.duplicateOf||current.mainKey!==att.key)throw CodexCore.error('CANCELLED','开始前附件选择已变化，本次未重复读取或将补充材料作为正文。');
+      }
       job.deliveryMode=job.deliveryMode||ReaderPreferences.delivery();
       MineruCore.cancelled(signal);
       app.controller=codex.controller;
@@ -535,6 +551,7 @@ var ReaderAutomation={
     }catch(e){if(this.state.jobs[job.id]===job&&job.resumePending===pending){delete job.resumePending;job.message='未开始续检：'+this.app.safeError(e);job.updatedAt=Date.now();await this.persist();this.refreshViews();}}
   },
   async continueJob(id,{repair=false}={}){
+    this.app.assertIndexes?.();
     if(ReaderCleanup.completedActive)await ReaderCleanup.completedActive;
     const job=this.state.jobs[id];if(job&&this.isRunning(job))return this.running.get(id)?.promise;
     if(!job||!job.workflowPath||!['verification_incomplete','needs_review','failed','cancelled'].includes(job.state)||job.languageSkipped)throw NoteCore.error('NOTE_STATE','当前任务没有可续检的草稿。');

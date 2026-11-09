@@ -30,6 +30,7 @@ var ReaderNotes={
     if(!record||record.runID!==runID||record.status!=='checked'||note.libraryID!==attachment.libraryID||(note.parentID||false)!==(attachment.parentID||false)||!record.inputs.some(s=>s.role==='main'&&s.key===attachment.key)||await this.app.sha256Text(SavedCore.body(note.getNote()))!==record.bodySHA256)throw NoteCore.error('NOTE_BULK_REVIEW','已有笔记经过修改或无法确认核验状态，请单独查看，未重复保存。');
   },
   save(workflowPath,attachment,options={}){
+    try{this.app?.assertIndexes?.();}catch(e){return Promise.reject(e);}
     if(typeof ReaderAttachmentMaintenance!=='undefined'&&ReaderAttachmentMaintenance.active)return Promise.reject(NoteCore.error('BUSY','正在整理附件，请稍后保存。'));
     if(typeof ReaderAutomation!=='undefined'&&[...ReaderAutomation.historyClearing||[]].some(id=>ReaderAutomation.state.jobs[id]?.workflowPath===workflowPath))return Promise.reject(NoteCore.error('BUSY','正在清理此篇完成记录，请稍后保存。'));
     if(ReaderCleanup.active)return Promise.reject(NoteCore.error('BUSY','正在清理生成缓存，请稍后导入。'));
@@ -90,6 +91,7 @@ var ReaderNotes={
     const coordination=typeof ReaderCoordination!=='undefined'?await ReaderCoordination.beforeSave(attachment,workflowPath,workflow):null;
     try{await Zotero.DB.executeTransaction(async()=>{
       if(coordination)await ReaderCoordination.check(coordination.h);
+      this.app?.assertIndexes?.();
       options.validateTask?.();
       if(importedMarkdownPath&&await this.app.sha256(importedMarkdownPath)!==importedMarkdownSHA256)throw NoteCore.error('NOTE_CHANGED','保存前稿件发生变化，本次跳过，原稿保留。');
       // Recheck target immediately before writes. Never overwrite a user-edited note.

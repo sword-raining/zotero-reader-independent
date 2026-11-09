@@ -31,6 +31,7 @@ var ReaderCoordination={
   return {read,write,async prepare(){const r=await request('MKCOL','');if(![201,405].includes(r.status))throw CoordinationCore.error('COORD_HTTP','无法创建独立协作目录（HTTP '+r.status+'）。');},async removeProbe(key){if(!key.startsWith('probe-'))throw Error('Only probe resources may be deleted');const s=await read(key);if(s.record&&s.etag)await request('DELETE',path(key),null,{'If-Match':s.etag});}};
  },
  async connect({verify=false}={}){
+  this.app.assertIndexes?.();
   if(this.corrupt)throw CoordinationCore.error('COORD_LOCAL','本机协作回执损坏，已暂停；原文件保留。');
   const cfg=await this.configuration();
   if(!verify&&Zotero.Prefs.get(this.app.pref+'coordination.verified',true)!==cfg.id)throw CoordinationCore.error('COORD_VERIFY','WebDAV 或账号设置已改变，请重新检测协作能力。');
@@ -112,6 +113,7 @@ var ReaderCoordination={
  async rollbackSave(guard){if(!guard)return;try{await guard.h.client.rollback(guard.h);}catch(e){this.error=e.message;}if(guard.standalone)await this.leave(guard.h,{park:true});},
  async saved(guard,key){if(!guard)return;guard.h.noteKey=key;if(guard.standalone)await this.leave(guard.h,{noteKey:key});},
  async archive(p,action){
+  this.app.assertIndexes?.();
   if(!this.enabled())return action();
   // The reading owner retains a non-expiring commit guard until automatic archive finishes.
   const readingKey=await this.app.sha256Text(String(Zotero.Users.getCurrentUserID())+':'+p.itemKey),h=this.active.get(readingKey);

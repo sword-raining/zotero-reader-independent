@@ -10,6 +10,7 @@ var ReaderApp = {
   windows: new Set(),
   taskWindows: new Set(),
   state: { busy: false, title: "", message: "就绪", preview: "", resultDir: "", detail: "" },
+  previewHashes: new Map(), previewHashTTL:60000, previewHashLimit:512,
   controller: null,
   activeRun: null,
   async startup(rootURI) {
@@ -99,6 +100,7 @@ var ReaderApp = {
     ReaderClassifier.bind(win);
     ReaderCoordination.bind(win);
     ReaderLanguage.bind(win);
+    ReaderIndexes.bind(win);
     ReaderPreferences.bind(win);
     const clean=get('cleanup-saved'),cleanupStatus=get('cleanup-status');clean.addEventListener('click',async()=>{
       clean.disabled=true;clean.textContent='正在清理…';cleanupStatus.textContent='正在核对已保存笔记与生成记录…';
@@ -240,20 +242,36 @@ var ReaderApp = {
     const bytes=new TextEncoder().encode(text),hash=Components.classes['@mozilla.org/security/hash;1'].createInstance(Components.interfaces.nsICryptoHash);
     hash.init(hash.SHA256);hash.update(bytes,bytes.length);return Array.from(hash.finish(false),c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
   },
-  async source(attachment, signal) {
+  async preflightSHA256(path,info,signal){
+    MineruCore.cancelled(signal);
+    const now=Date.now(),stamp=String(info.size)+':'+String(info.lastModified),saved=this.previewHashes.get(path);
+    if(saved&&saved.stamp===stamp&&now-saved.at>=0&&now-saved.at<this.previewHashTTL)return saved.hash;
+    this.previewHashes.delete(path);
+    const hash=await this.sha256(path,signal),after=await IOUtils.stat(path);
+    MineruCore.cancelled(signal);
+    if(after.size!==info.size||after.lastModified!==info.lastModified)throw MineruCore.error('PDF_CHANGED','预检时 PDF 仍在变化，请稍后重试。');
+    if(this.previewHashes.size>=this.previewHashLimit)this.previewHashes.delete(this.previewHashes.keys().next().value);
+    this.previewHashes.set(path,{stamp,hash,at:now});return hash;
+  },
+  async source(attachment, signal, {preflight=false}={}) {
     const path = await attachment.getFilePathAsync();
     if (!path || !await IOUtils.exists(path)) throw MineruCore.error("PDF_MISSING", "PDF 尚未下载到本机，请先在 Zotero 中打开或下载附件。");
     const info = await IOUtils.stat(path);
     if (!info.size) throw MineruCore.error("EMPTY", "PDF 文件为空。");
     if (info.size > MineruCore.MAX_PDF_BYTES) throw MineruCore.error("SIZE", "PDF 超过 200 MB，请拆分后再解析。");
     const source = { libraryID: attachment.libraryID, key: attachment.key, name: PathUtils.filename(path),
-      size: info.size, sha256: await this.sha256(path, signal) };
+      size: info.size, sha256: preflight?await this.preflightSHA256(path,info,signal):await this.sha256(path, signal) };
+    const after=await IOUtils.stat(path);
+    if(info.size!==after.size||info.lastModified!==after.lastModified||path!==await attachment.getFilePathAsync())throw MineruCore.error('PDF_CHANGED','PDF 在读取期间发生变化，本次未继续。');
     return { source, path };
   },
+  assertIndexes(){if(typeof ReaderIndexes!=='undefined')ReaderIndexes.assertHealthy();},
   async readJSON(path) {
+    if(typeof ReaderIndexes!=='undefined'){const name=ReaderIndexes.name(path);if(name)return ReaderIndexes.store.open(path,name);}
     try { return JSON.parse(await IOUtils.readUTF8(path)); } catch (_) { return null; }
   },
   async writeJSON(path, value) {
+    if(typeof ReaderIndexes!=='undefined'){const name=ReaderIndexes.name(path);if(name)return ReaderIndexes.store.save(path,name,value);}
     await IOUtils.writeUTF8(path, JSON.stringify(value, null, 2), { tmpPath: path + ".tmp" });
   },
   async readModelSource(cache,signal){

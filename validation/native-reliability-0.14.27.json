@@ -1,0 +1,67 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "repeated automatic queue preflight reuses hashes without scanning unrelated library PDFs",
+      "ok": true
+    },
+    {
+      "name": "a changed file invalidates preflight while authoritative execution always rehashes",
+      "ok": true
+    },
+    {
+      "name": "standalone classification uses the configured two-minute limit on both engines",
+      "ok": true
+    },
+    {
+      "name": "standalone timeout and cancellation preserve the saved note and memberships",
+      "ok": true
+    },
+    {
+      "name": "corrupt queue.json remains intact and blocks empty replacement plus note writes",
+      "ok": true
+    },
+    {
+      "name": "corrupt saved-notes.json remains intact and blocks empty replacement plus note writes",
+      "ok": true
+    },
+    {
+      "name": "corrupt classification-proposals.json remains intact and blocks empty replacement plus note writes",
+      "ok": true
+    },
+    {
+      "name": "corrupt coordination-local.json remains intact and blocks empty replacement plus note writes",
+      "ok": true
+    },
+    {
+      "name": "restart with a damaged index remains usable for diagnostics and cannot persist an empty queue",
+      "ok": true
+    },
+    {
+      "name": "a real restored index becomes writable only after reload and keeps the restored snapshot",
+      "ok": true
+    },
+    {
+      "name": "permission errors remain distinct from a missing index",
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "preflight": {
+      "pdfs": 2,
+      "repeatedTicks": 5,
+      "fullHashCalls": 2
+    },
+    "authoritativeRehash": true,
+    "archiveTimeoutsMs": [
+      120000,
+      120000
+    ]
+  },
+  "simulatedEngineCalls": 4,
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "0.14.27",
+  "zoteroVersion": "10.0.8"
+}

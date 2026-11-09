@@ -48,9 +48,9 @@ var ReaderSaved={
     }
     return result.sort((a,b)=>String(b.record?.createdAt||b.note.dateModified||'').localeCompare(String(a.record?.createdAt||a.note.dateModified||'')));
   },
-  async matching(attachment,selection){
+  async matching(attachment,selection,{preflight=false}={}){
     const candidates=await this.candidates(attachment);if(!candidates.some(c=>c.record))return null;
-    let sources;try{sources=await ReaderAttachments.sources(attachment,selection);}catch(_){return null;}
+    let sources;try{sources=await ReaderAttachments.sources(attachment,selection,undefined,{preflight});}catch(_){return null;}
     return candidates.find(c=>c.record&&SavedCore.matches(c.record,sources))||null;
   },
   async open(win,note){

@@ -84,6 +84,7 @@ var ReaderCleanup={
     return true;
   },
   async afterSave(workflowPath,attachment){
+    this.app.assertIndexes?.();
     const id=PathUtils.filename(PathUtils.parent(workflowPath));
     if(!SavedCore.validID(id)||workflowPath!==PathUtils.join(this.root(),'readings',id,'workflow.json'))return {state:'retained',message:'结果路径无法确认，临时内容已保留。'};
     try{
@@ -126,6 +127,7 @@ var ReaderCleanup={
     }catch(e){return {state:'retained',message:'笔记已保存，临时内容暂未清理：'+this.app.safeError(e)};}
   },
   async sweepCompleted(){
+    this.app.assertIndexes?.();
     if(this.completedActive)return this.completedActive;
     if(this.active)throw NoteCore.error('BUSY','生成缓存正在清理，请稍后再试。');
     this.completedActive=Promise.resolve().then(async()=>{
@@ -170,6 +172,7 @@ var ReaderCleanup={
     try{return await this.completedActive;}finally{this.completedActive=null;ReaderAutomation.refreshViews();ReaderAutomation.schedule();}
   },
   async sweep(){
+    this.app.assertIndexes?.();
     if(this.completedActive)throw NoteCore.error('BUSY','正在清理已完成任务，请稍后重试。');
     if(this.active)return this.active;
     if(ReaderCodex.active||ReaderAutomation.active||ReaderNotes.pending||this.app.state.busy)throw NoteCore.error('BUSY','请等待当前精读、导入或解析结束后再清理。');

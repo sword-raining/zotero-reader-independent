@@ -35,12 +35,13 @@ parser.add_argument('--existing-classification',action='store_true',help='Test c
 parser.add_argument('--batch-selection',action='store_true',help='Test actionable main-PDF selection blockers in a long synthetic batch')
 parser.add_argument('--attachment-selection',action='store_true',help='Verify automatic role and published-version selection using real local extraction of synthetic PDFs')
 parser.add_argument('--attachment-maintenance',action='store_true',help='Test exact duplicate trash and DOI-confirmed reparenting with synthetic annotated PDFs')
+parser.add_argument('--reliability',action='store_true',help='Test index corruption, queue hash caching and archive timeout with synthetic data')
 parser.add_argument('--multidevice',action='store_true',help='Test three isolated clients against a loopback synthetic WebDAV coordinator')
 parser.add_argument('--note-consistency',action='store_true',help='Test conflicting same-run saves, edited recovery and interrupted archive confirmation using synthetic data')
 args = parser.parse_args()
 
 project = Path(__file__).resolve().parents[1]
-profile = project.parent / ('.work/multidevice-profile' if args.multidevice else '.work/note-consistency-profile' if args.note_consistency else '.work/attachment-maintenance-profile' if args.attachment_maintenance else '.work/attachment-selection-profile' if args.attachment_selection else '.work/batch-selection-profile' if args.batch_selection else '.work/existing-classification-profile' if args.existing_classification else '.work/queue-toggle-profile' if args.queue_toggle else '.work/bulk-resume-profile' if args.bulk_resume else '.work/bulk-save-profile' if args.bulk_save else '.work/cancel-resume-profile' if args.cancel_resume else '.work/auto-archive-profile' if args.auto_archive else '.work/batch-language-profile' if args.batch_language else '.work/footnote-source-profile' if args.footnote_source else '.work/completed-cleanup-profile' if args.completed_cleanup else '.work/attribution-profile' if args.attribution else '.work/settings-ui-profile' if args.settings_ui else '.work/archive-ui-profile' if args.archive_ui else '.work/reader-ui-profile' if args.reader_ui else '.work/workflow-profile' if args.workflow else '.work/collection-watch-profile' if args.collection_watch else '.work/live-cli-status-profile' if args.live_cli_status else '.work/cli-detection-profile' if args.cli_detection else 'zotero-reader-smoke-profile')
+profile = project.parent / ('.work/reliability-profile' if args.reliability else '.work/multidevice-profile' if args.multidevice else '.work/note-consistency-profile' if args.note_consistency else '.work/attachment-maintenance-profile' if args.attachment_maintenance else '.work/attachment-selection-profile' if args.attachment_selection else '.work/batch-selection-profile' if args.batch_selection else '.work/existing-classification-profile' if args.existing_classification else '.work/queue-toggle-profile' if args.queue_toggle else '.work/bulk-resume-profile' if args.bulk_resume else '.work/bulk-save-profile' if args.bulk_save else '.work/cancel-resume-profile' if args.cancel_resume else '.work/auto-archive-profile' if args.auto_archive else '.work/batch-language-profile' if args.batch_language else '.work/footnote-source-profile' if args.footnote_source else '.work/completed-cleanup-profile' if args.completed_cleanup else '.work/attribution-profile' if args.attribution else '.work/settings-ui-profile' if args.settings_ui else '.work/archive-ui-profile' if args.archive_ui else '.work/reader-ui-profile' if args.reader_ui else '.work/workflow-profile' if args.workflow else '.work/collection-watch-profile' if args.collection_watch else '.work/live-cli-status-profile' if args.live_cli_status else '.work/cli-detection-profile' if args.cli_detection else 'zotero-reader-smoke-profile')
 profile.mkdir(parents=True,exist_ok=True)
 if args.visual:
     record=project.parent/'live-engines-011-verified.json'
@@ -128,7 +129,9 @@ startup = async function(data, reason) {
     smoke += '\n'+(project/'tests/batch-smoke.js').read_text(encoding='utf-8')
     smoke += '\n'+(project/'tests/attachments-smoke.js').read_text(encoding='utf-8')
     smoke += '\n'+(project/'tests/settings-smoke.js').read_text(encoding='utf-8')
-    if args.multidevice:
+    if args.reliability:
+        smoke=(project/'tests/reliability-smoke.js').read_text(encoding='utf-8')
+    elif args.multidevice:
         smoke=(project/'tests/multidevice-smoke.js').read_text(encoding='utf-8')
     elif args.note_consistency:
         smoke=(project/'tests/note-consistency-smoke.js').read_text(encoding='utf-8')

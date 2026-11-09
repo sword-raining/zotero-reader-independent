@@ -47,6 +47,7 @@ var ReaderAttachmentMaintenance={
   try{return await Promise.race([notification,new Promise(resolve=>{timer=ReaderTimers.setTimeout(()=>resolve({done:false}),this.notifyTimeoutMs);})]);}finally{if(timer)ReaderTimers.clearTimeout(timer);}
  },
  async locked(action){
+  this.app.assertIndexes?.();
   if(this.active)throw NoteCore.error('BUSY','附件正在整理，请稍候。');if(this.busy())throw NoteCore.error('BUSY','请先暂停精读并等待保存结束，再整理附件。');
   this.active=Promise.resolve().then(async()=>{const refs=await ReaderCleanup.protectedCacheKeys('');if(refs.uncertain)throw NoteCore.error('ATTACHMENT_DRAFT','存在无法核对的本地草稿，暂未整理附件。');this.protectedKeys=refs.protectedKeys;this.notifications=[];const result=await action();const refreshed=await this.flushNotifications(this.notifications);if(!refreshed.done){result.refreshPending=true;result.details.push('数据整理已完成；Zotero 分类树刷新尚未结束，可关闭并重新打开列表查看。');}return result;});ReaderAutomation.refreshViews();try{return await this.active;}finally{this.notifications=[];this.protectedKeys=null;this.active=null;ReaderAutomation.refreshViews();ReaderAutomation.schedule();}
  },
