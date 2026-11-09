@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "date": "2026-11-09",
+  "change": "Version-only promotion of 0.14.29; default GitHub Latest release",
+  "automated": {
+    "version": "1.0.0",
+    "passed": 348,
+    "failed": 0,
+    "syntaxAndXML": true,
+    "packageMatchesSource": true,
+    "matchesBundledRelease": true,
+    "xpiSHA256": "d2b3e5edef3551eccda7495ccdc1e9ea3273a340f3bfa0a67b09bba8905aaf93",
+    "modelRequests": 0,
+    "zoteroLaunched": false
+  },
+  "productionChanges": [
+    "manifest.json",
+    "content/engine-core.js",
+    "content/preferences.xhtml"
+  ],
+  "productionEquivalentExceptVersion": true,
+  "nativeEvidence": {
+    "version": "0.14.29",
+    "checks": 20,
+    "rerun": false
+  },
+  "personalLibraryWritten": false,
+  "realModelRequests": 0,
+  "xpiSHA256": "d2b3e5edef3551eccda7495ccdc1e9ea3273a340f3bfa0a67b09bba8905aaf93"
+}
