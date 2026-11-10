@@ -1,6 +1,15 @@
 # 开发状态与下一步
 
-记录日期：2026-11-10；版本：1.0.1；扩展 ID：`zotero-reader-independent@local`。
+记录日期：2026-11-10；版本：1.0.2；扩展 ID：`zotero-reader-independent@local`。
+
+## 1.0.2 原生插件更新（2026-11-10）
+
+- 用户在 Zotero 检查不到新版本。已核实 1.0.1 及此前 manifest.update_url 一直为 .invalid 占位地址，GitHub Releases 上传本身不构成更新通道。
+- 新版改为公开固定地址 https://raw.githubusercontent.com/sword-raining/zotero-reader-independent/main/updates.json；根目录更新清单使用 Zotero 官方 JSON 格式，含精确版本、Release XPI 地址、SHA256 和兼容范围。使用 Zotero 自带更新器，不添加后台自定义下载安装逻辑。
+- tools/update_manifest.py 从当前 release XPI 生成清单；tools/check.py 验证地址、版本、兼容范围及包哈希，防止以后只发安装包却漏更新清单。发布前先构建包，再生成更新清单，完成自动检查；上传包后才将对应更新入口对外提供。
+- 旧占位地址无法自动迁移。1.0.1 及更早用户必须手动安装一次 1.0.2；之后是否自动下载更新遵循 Zotero 中用户的自动更新设置，并依赖 GitHub 可访问。
+- 352 项自动检查及更新清单/打包一致性检查通过。准备 tools/run_update_smoke.py 在独立空白 profile 使用原生更新器验收公开地址；结果另行记录，不用个人文库或模型。正式旧版仍不能自己更新：测试仅给 1.0.1 测试副本补上新版 update_url，以模拟已有正确更新入口的客户端。
+- 工作区 .work/auto-update-102，分支 fix/auto-update-102。生产变更只有更新 URL 和版本字符串；1.0.1 队列修复保留，未操作真实任务。
 
 ## 1.0.1 一键恢复中断任务（2026-11-10）
 

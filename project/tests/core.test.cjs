@@ -123,11 +123,11 @@ test('unknown task states and missing Markdown download URL fail explicitly', as
   const noURL = harness([ok({ extract_result: [{ data_id: dataID, state: 'done' }] })]);
   await assert.rejects(noURL.client.parse({ ...noURL.args, resume: { batchID: 'x' } }), { code: 'URL' });
 });
-test('Zotero manifest has mandatory fields and a secure reserved update address', () => {
+test('Zotero manifest has mandatory fields and the public HTTPS update manifest', () => {
   const manifest = require('../manifest.json');
   const app = manifest.applications.zotero;
   assert.ok(app.id && app.strict_min_version && app.strict_max_version && app.update_url);
   const url = new URL(app.update_url);
   assert.equal(url.protocol, 'https:');
-  assert.ok(url.hostname.endsWith('.invalid'));
+  assert.equal(url.href, 'https://raw.githubusercontent.com/sword-raining/zotero-reader-independent/main/updates.json');
 });

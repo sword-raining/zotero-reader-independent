@@ -1,12 +1,12 @@
 {
   "manifest_version": 2,
   "name": "Zotero Reader 独立版",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "文献精读、后台检查与自动修正，只保留一篇清晰的研究笔记。",
   "applications": {
     "zotero": {
       "id": "zotero-reader-independent@local",
-      "update_url": "https://zotero-reader-independent.invalid/updates.json",
+      "update_url": "https://raw.githubusercontent.com/sword-raining/zotero-reader-independent/main/updates.json",
       "strict_min_version": "7.0",
       "strict_max_version": "10.*"
     }

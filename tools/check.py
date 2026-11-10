@@ -67,7 +67,18 @@ release = root / 'release' / f'zotero-reader-independent-{version}.xpi'
 baseline_match = release.exists() and hashlib.sha256(release.read_bytes()).hexdigest() == digest
 if args.baseline and not baseline_match:
     raise SystemExit('Rebuilt XPI differs from the bundled release.')
+# Validate the public feed against the immutable bundled release, not an unpublished dev build.
+manifest = json.loads((project / 'manifest.json').read_text(encoding='utf-8'))
+addon = manifest['applications']['zotero']
+assert addon['update_url'] == 'https://raw.githubusercontent.com/sword-raining/zotero-reader-independent/main/updates.json'
+updates = json.loads((root / 'updates.json').read_text(encoding='utf-8'))['addons'][addon['id']]['updates']
+matching = [entry for entry in updates if entry['version'] == version]
+assert len(matching) == 1, 'Regenerate updates.json for this version with tools/update_manifest.py'
+update = matching[0]
+assert update['update_link'] == f'https://github.com/sword-raining/zotero-reader-independent/releases/download/v{version}/{release.name}'
+assert release.exists() and update['update_hash'] == 'sha256:' + hashlib.sha256(release.read_bytes()).hexdigest(), 'Update feed/release checksum mismatch'
+assert update['applications']['zotero'] == {key: addon[key] for key in ('strict_min_version', 'strict_max_version')}
 record = {'version': version, 'passed': int(passed.group(1)), 'failed': 0, 'syntaxAndXML': True, 'packageMatchesSource': True,
-          'matchesBundledRelease': baseline_match, 'xpiSHA256': digest, 'modelRequests': 0, 'zoteroLaunched': False}
+          'matchesBundledRelease': baseline_match, 'xpiSHA256': digest, 'modelRequests': 0, 'zoteroLaunched': False, 'updateManifestValid': True}
 (work / 'check-result.json').write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding='utf-8')
 print(json.dumps(record, ensure_ascii=True))
