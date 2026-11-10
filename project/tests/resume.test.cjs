@@ -116,3 +116,37 @@ test('the first cancellation request keeps its source when shutdown follows',()=
 test('plugin shutdown records its own cancellation source',()=>fixture(async f=>{
  await f.setup();let stopped=0;f.auto.running.set(f.job.id,{job:f.job,codex:{controller:{abort(){stopped++;}}}});f.auto.active=Promise.resolve();await f.auto.shutdown();assert.equal(stopped,1);assert.equal(f.job.cancelReason,'shutdown');assert.ok(f.job.cancelRequestedAt);f.auto.running.clear();
 }));
+
+
+test('one-click start refreshes stale no-draft flags and queues existing incomplete and review drafts',async()=>{
+ for(const status of ['verification_incomplete','needs_review'])await fixture(async f=>{
+  const file=await f.setup(),w=await f.readJSON(file);w.status=status;await f.app.writeJSON(file,w);
+  f.job.state=status;f.job.hasReadingDraft=false;f.job.resumeAvailable=false;f.auto.started=true;f.auto.schedule=()=>{};
+  const before=f.calls.length,hash=await f.sha256(path.join(path.dirname(file),'draft.json'));
+  const result=await f.auto.startAll();assert.equal(result.queued,1);assert.equal(f.job.hasReadingDraft,true);assert.equal(f.job.resumePending.repair,status==='needs_review');assert.equal(f.calls.length,before);assert.equal(await f.sha256(path.join(path.dirname(file),'draft.json')),hash);
+ });
+});
+test('normal queue completion refreshes the draft flags before displaying incomplete or review work',async()=>{
+ for(const status of ['verification_incomplete','needs_review'])await fixture(async f=>{
+  const file=await f.setup(),w=await f.readJSON(file);w.status=status;await f.app.writeJSON(file,w);
+  f.job.state='running';f.job.hasReadingDraft=false;f.job.resumeAvailable=false;f.auto.started=true;f.auto.schedule=()=>{};f.scope.ReaderCodex.syncWorker=()=>{};
+  f.auto.execute=async()=>({status,message:'Synthetic checkpoint'});const worker={job:f.job,codex:{}};f.auto.running.set(f.job.id,worker);
+  await f.auto.runJob(worker);assert.equal(f.job.state,status);assert.equal(f.job.hasReadingDraft,true);assert.equal(f.auto.canResumeJob(f.job),true);assert.equal(f.job.resumeNeedsRepair,status==='needs_review');
+ });
+});
+test('explicit Start requeues shutdown interruptions before draft generation and retains the previous workflow',()=>fixture(async f=>{
+ const file=await f.setup(),w=await f.readJSON(file);w.status='generation_failed';w.errorCode='CANCELLED';await f.app.writeJSON(file,w);
+ await fs.unlink(path.join(path.dirname(file),'draft.json'));await fs.unlink(path.join(path.dirname(file),'draft.md'));
+ f.job.state='cancelled';f.job.cancelReason='shutdown';f.job.cancelRequested=true;f.job.hasReadingDraft=false;f.auto.started=true;f.auto.schedule=()=>{};
+ const before=await fs.readFile(file,'utf8'),result=await f.auto.startAll();assert.equal(result.restarted,1);assert.equal(f.job.state,'waiting_file');assert.equal(f.job.workflowPath,file);assert.equal(await fs.readFile(file,'utf8'),before);assert.equal(f.job.cancelRequested,false);
+}));
+test('restart protects edited files and does not revive language or scope exclusions',async()=>{
+ for(const mode of ['edited','language','scope','saved','broken-workflow'])await fixture(async f=>{
+  const file=await f.setup(),w=await f.readJSON(file);w.status='generation_failed';await f.app.writeJSON(file,w);await fs.unlink(path.join(path.dirname(file),'draft.json'));
+  f.job.state='cancelled';f.job.cancelReason='shutdown';f.job.hasReadingDraft=false;f.auto.started=true;f.auto.schedule=()=>{};
+  if(mode==='edited')await fs.appendFile(path.join(path.dirname(file),'draft.md'),'manual edit');
+  if(mode==='language')f.job.languageSkipped=true;if(mode==='scope')f.job.scopeCancelled=true;if(mode==='saved')w.zoteroNotes={reading:{key:'SAVED001'}};
+  await f.app.writeJSON(file,w);if(mode==='broken-workflow')await fs.writeFile(file,'{broken');
+  await f.auto.startAll();assert.equal(f.job.state,'cancelled');assert.equal(f.job.resumePending,undefined);
+ });
+});

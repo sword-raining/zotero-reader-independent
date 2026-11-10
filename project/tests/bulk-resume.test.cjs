@@ -3,7 +3,7 @@ const B=require('../content/batch-core.js');
 const N=require('../content/note-core.js'),Q=require('../content/queue-core.js');
 function fixture(){
  const scope={NoteCore:N,CodexCore:N,QueueCore:Q,ReaderCodex:{state:{},syncWorker(){}},ReaderCleanup:{active:null,completedActive:null},ReaderNotes:{pending:0,saving:()=>false},ReaderPreferences:{workflow:()=>({papers:2}),delivery:()=> 'manual'},Zotero:{Prefs:{get:()=>false}}};vm.createContext(scope);vm.runInContext(fs.readFileSync(require.resolve('../content/automation.js'),'utf8'),scope);
- const a=scope.ReaderAutomation;a.started=true;a.app={state:{},pref:'test.',safeError:e=>e.message,readJSON:async()=>({status:'checked'})};a.persist=async()=>{};a.refreshViews=()=>{};a.schedule=()=>{};a.refreshResumeState=async job=>(job.resumeAvailable=job.valid!==false);a.checkResumeMarkdown=async job=>{if(job.edited)throw N.error('MANUAL_EDIT','edited draft');};
+ const a=scope.ReaderAutomation;a.started=true;a.app={state:{},pref:'test.',safeError:e=>e.message,readJSON:async()=>({status:'checked'})};a.persist=async()=>{};a.refreshViews=()=>{};a.schedule=()=>{};a.refreshResumeState=async job=>(job.hasReadingDraft=job.resumeAvailable=job.valid!==false);a.checkResumeMarkdown=async job=>{if(job.edited)throw N.error('MANUAL_EDIT','edited draft');};
  const add=(id,state='verification_incomplete')=>a.state.jobs[id]={id,title:id,key:id,state,trigger:'manual',workflowPath:'/readings/'+id+'/workflow.json',resumeAvailable:true,resumeNeedsRepair:false};
  const calls=[],releases={};a.createWorker=job=>({job,codex:{resumeVerification:async(path,{repair})=>{calls.push({id:job.id,repair});await new Promise(r=>releases[job.id]=r);}}});
  return {a,scope,add,calls,releases};

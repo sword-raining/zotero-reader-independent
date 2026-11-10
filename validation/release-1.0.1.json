@@ -1,0 +1,13 @@
+{
+  "version": "1.0.1",
+  "passed": 352,
+  "failed": 0,
+  "syntaxAndXML": true,
+  "packageMatchesSource": true,
+  "matchesBundledRelease": true,
+  "xpiSHA256": "705e955bec40ccfa1442c92e869c260142095af78d66e92a9cd04328ac1b1ab5",
+  "modelRequests": 0,
+  "zoteroLaunched": false,
+  "nativeChecks": 9,
+  "nativeEvidence": "validation/native-queue-recovery-1.0.1.json"
+}

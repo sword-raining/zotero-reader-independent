@@ -58,7 +58,7 @@ var ReaderAutomation={
       const workflow=await app.readJSON(job.workflowPath);
       if(workflow?.status==='verification_incomplete'){job.state='verification_incomplete';job.message=ReadingCore.incompleteMessage(workflow.errorCode);}
     }
-    for(const job of Object.values(this.state.jobs))if(['cancelled','failed'].includes(job.state))await this.refreshResumeState(job);
+    for(const job of Object.values(this.state.jobs))if(['cancelled','failed','verification_incomplete','needs_review'].includes(job.state))await this.refreshResumeState(job);
     let recovered=false;
     if(typeof ReaderClassifier!=='undefined')for(const p of ReaderClassifier.recovered?.values?.()||[]){const job=this.state.jobs[p.jobID];if(!job||!['done','imported'].includes(job.state)||job.notes?.reading?.key!==p.noteKey)continue;job.classificationPending=false;job.classificationForce=false;job.classificationStatus=p.status;job.message=p.recoveryMessage;if(p.noteStatus==='edited')job.state='imported';if(p.status==='confirmed')job.archiveConfirmedAt=p.confirmedAt;recovered=true;}
     if(recovered)try{await this.persist();}catch(_){}
@@ -311,7 +311,7 @@ var ReaderAutomation={
       await this.suggestAfterSave(job,result,worker);
       return result;
     }catch(e){if(worker.coordination?.lost)e=worker.coordination.error;job.state=e.code==='LANGUAGE_SKIPPED'?'cancelled':!this.started&&!job.cancelRequested?'failed':e.code==='CANCELLED'||job.cancelRequested?'cancelled':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.errorCode=e.code||'LOCAL';job.message=this.app.safeError(e);if(job.state==='cancelled'||job.state==='failed')await this.refreshResumeState(job);}
-    finally{if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);job.updatedAt=Date.now();this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
+    finally{if(['verification_incomplete','needs_review'].includes(job.state))await this.refreshResumeState(job);if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);job.updatedAt=Date.now();this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
   },
   async tick(){
     this.app.assertIndexes?.();
@@ -512,9 +512,11 @@ var ReaderAutomation={
     }
     await this.persist();
   },
-  resumeCandidate(job){
+  resumeCandidate(job,{probe=false}={}){
     const view=ReaderCodex.state||{};
-    return this.canResumeJob(job)&&!this.historyClearing.has(job.id)&&!ReaderNotes.saving?.(job.workflowPath)&&!(view.editing&&(view.followJobID===job.id||view.output===job.workflowPath));
+    // Persisted draft flags may predate generation; inspect disk before trusting them.
+    const eligible=probe?!!job.workflowPath&&!job.notes?.reading?.key&&!job.languageSkipped&&!job.resumePending&&!this.isRunning(job)&&['verification_incomplete','needs_review','cancelled','failed'].includes(job.state):this.canResumeJob(job);
+    return eligible&&!this.historyClearing.has(job.id)&&!ReaderNotes.saving?.(job.workflowPath)&&!(view.editing&&(view.followJobID===job.id||view.output===job.workflowPath));
   },
   async checkResumeMarkdown(job){
     const w=await this.app.readJSON(job.workflowPath),name=w?.resultFile||'draft.md';
@@ -524,7 +526,7 @@ var ReaderAutomation={
   },
   async continueAll(){
     if(this.resumeEnqueueing)return this.resumeEnqueueing;
-    const epoch=this.resumeEpoch,snapshots=Object.values(this.state.jobs).filter(j=>this.resumeCandidate(j)).map(job=>({job,path:job.workflowPath,state:job.state}));
+    const epoch=this.resumeEpoch,snapshots=Object.values(this.state.jobs).filter(j=>this.resumeCandidate(j,{probe:true})).map(job=>({job,path:job.workflowPath,state:job.state}));
     this.state.paused=false;this.bulkResumeMessage='正在核对可继续的草稿…';
     this.resumeEnqueueing=Promise.resolve().then(async()=>{
       const result={queued:0,skipped:0,details:[]};
@@ -532,11 +534,11 @@ var ReaderAutomation={
       if(ReaderCleanup.active)await ReaderCleanup.active;
       for(const {job,path,state}of snapshots){
         try{
-          const valid=()=>this.started&&epoch===this.resumeEpoch&&this.state.jobs[job.id]===job&&job.workflowPath===path&&job.state===state&&this.resumeCandidate(job);
+          const valid=()=>this.started&&epoch===this.resumeEpoch&&this.state.jobs[job.id]===job&&job.workflowPath===path&&job.state===state&&this.resumeCandidate(job,{probe:true});
           if(!valid())throw NoteCore.error('NOTE_STATE','任务已变化或续检已停止，本次跳过。');
           if(!await this.refreshResumeState(job))throw NoteCore.error('NOTE_STATE','缺少可继续检查的完整草稿，本次保留。');
           await this.checkResumeMarkdown(job);
-          if(!valid())throw NoteCore.error('NOTE_STATE','任务已变化或正在编辑，本次跳过。');
+          if(!valid()||!this.canResumeJob(job))throw NoteCore.error('NOTE_STATE','任务已变化或正在编辑，本次跳过。');
           job.resumePending={path,repair:job.state==='needs_review'||job.resumeNeedsRepair||!!(job.pauseRequested&&job.resumeRepair)};job.cancelRequested=false;delete job.cancelReason;delete job.cancelRequestedAt;
           job.message=job.resumePending.repair?'已排队，等待自动修订并复查':'已排队，等待继续检查现有草稿';job.updatedAt=Date.now();result.queued++;
         }catch(e){result.skipped++;result.details.push((job.title||job.key)+'：'+this.app.safeError(e));}
@@ -589,7 +591,7 @@ var ReaderAutomation={
           else{const att=await this.attachment(job),result=await this.notes.save(job.workflowPath,att,{validateTask:()=>{if(job.cancelRequested)throw CodexCore.error('CANCELLED','任务已暂停或停止，完整结果保留。');}});job.state='done';job.notes=result.notes;job.message='复查通过，笔记已保存';await this.compactImported(job.workflowPath,result);await this.suggestAfterSave(job,result,worker);}
         }else{job.state='needs_review';job.message='仍有需要修订的内容，草稿已保留';}
       }catch(e){if(worker.coordination?.lost)e=worker.coordination.error;const w=await this.app.readJSON(job.workflowPath);if(w&&this.app.errorDiagnostic){w.lastResumeFailure={at:new Date().toISOString(),...this.app.errorDiagnostic(e)};try{await this.app.writeJSON(job.workflowPath,w);}catch(_){}}job.state=e.code==='LANGUAGE_SKIPPED'||e.code==='CANCELLED'||job.cancelRequested?'cancelled':w?.status==='verification_incomplete'?'verification_incomplete':'failed';job.languageSkipped=e.code==='LANGUAGE_SKIPPED';job.message=this.app.safeError(e);job.errorCode=e.code||'INTERNAL';await this.refreshResumeState(job);}
-      finally{if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);if(!job.pauseRequested)delete job.resumeRepair;this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);job.updatedAt=Date.now();await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
+      finally{if(['verification_incomplete','needs_review'].includes(job.state))await this.refreshResumeState(job);if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);if(!job.pauseRequested)delete job.resumeRepair;this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);job.updatedAt=Date.now();await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
     })();this.updateActivity();this.refreshViews();return worker;
   },
   historyHidden(job){return !!job.historyClearedAt&&['done','imported'].includes(job.state)&&!this.isRunning(job)&&!job.classificationPending;},
@@ -619,22 +621,33 @@ var ReaderAutomation={
     if(this.starting)return this.starting;if(this.pausing)return this.pausing;
     const epoch=this.resumeEpoch;this.state.paused=false;this.lastMessage='';
     this.starting=Promise.resolve().then(async()=>{
+      let restarted=0;const restartSkipped=[];
       for(const job of Object.values(this.state.jobs)){
         if(!this.started||this.state.paused||epoch!==this.resumeEpoch)return;
-        if(!job.pausedByControl||this.isRunning(job)||job.resumePending||job.notes?.reading?.key||job.languageSkipped)continue;
+        if(!(job.pausedByControl||['cancelled','failed'].includes(job.state))||this.isRunning(job)||job.resumePending||job.notes?.reading?.key||job.languageSkipped||job.scopeCancelled||['scope-change','out-of-scope','auto-disabled'].includes(job.cancelReason)||job.trigger==='auto'&&!this.enabled())continue;
+        const view=ReaderCodex.state||{};
+        if(this.historyClearing.has(job.id)||ReaderNotes.saving?.(job.workflowPath)||view.editing&&(view.followJobID===job.id||view.output===job.workflowPath))continue;
         const path=job.workflowPath;
         await this.refreshResumeState(job);
         if(!this.started||this.state.paused||epoch!==this.resumeEpoch||this.state.jobs[job.id]!==job||job.workflowPath!==path)return;
         if(job.resumeAvailable)continue;
         const w=path?await this.app.readJSON(path):null;
         if(!this.started||this.state.paused||epoch!==this.resumeEpoch)return;
+        if(w?.zoteroNotes)continue;
         if(w?.status==='checked'||!job.hasReadingDraft&&(!path||['generating','generation_failed'].includes(w?.status))){
+          try{if(path)await this.checkResumeMarkdown(job);}catch(e){restartSkipped.push((job.title||job.key)+'：'+this.app.safeError(e));continue;}
+          const latestView=ReaderCodex.state||{};
+          if(!this.started||this.state.paused||epoch!==this.resumeEpoch||this.state.jobs[job.id]!==job||job.workflowPath!==path)return;
+          if(this.isRunning(job)||job.resumePending||job.notes?.reading?.key||ReaderNotes.saving?.(path)||latestView.editing&&(latestView.followJobID===job.id||latestView.output===path))continue;
           job.state='waiting_file';job.cancelRequested=false;delete job.pauseRequested;delete job.pausedByControl;delete job.cancelReason;delete job.cancelRequestedAt;job.fileStamp=null;job.stableSince=null;
-          job.message=w?.status==='checked'?'等待保存已完成的结果':'等待继续；尚未完成的初稿将重新生成';job.updatedAt=Date.now();
+          job.message=w?.status==='checked'?'等待保存已完成的结果':'等待继续；尚未完成的初稿将重新生成';job.updatedAt=Date.now();restarted++;
         }
       }
       if(!this.started||this.state.paused||epoch!==this.resumeEpoch)return;
-      return this.continueAll();
+      const result=await this.continueAll();result.restarted=restarted;result.skipped+=restartSkipped.length;result.details.push(...restartSkipped);
+      if(restarted)this.bulkResumeMessage+=` 已重新排队 ${restarted} 篇中断任务。`;
+      if(restartSkipped.length)this.bulkResumeMessage+='\n'+restartSkipped.join('\n');
+      return result;
     });
     this.refreshViews();try{return await this.starting;}finally{this.starting=null;this.refreshViews();this.schedule();}
   },
