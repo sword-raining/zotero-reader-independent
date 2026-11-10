@@ -130,3 +130,9 @@ test('an early failed child does not deadlock while stdin is being written', asy
     args: ['-e', 'process.stderr.write("not logged in"); process.exit(1)'], input: 'x'.repeat(200000), timeoutMs: 3000 });
   assert.equal(r.exitCode, 1);
 });
+
+
+test('Gemini function parameter rejection is classified without exposing raw diagnostics',()=>{
+ const raw='AGY_ERROR: INVALID_ARGUMENT (code 400): GenerateContentRequest.tools[12].function_declarations[0].parameters.properties[archive].properties[adjustments].items.properties[collectionKey].enum[0]: cannot be empty';
+ const e=C.classifyFailure(raw,3);assert.equal(e.code,'OUTPUT_SCHEMA');assert.ok(!e.message.includes('GenerateContentRequest'));
+});

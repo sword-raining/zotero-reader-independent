@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "exitCode": 0,
+  "status": "SUCCESS",
+  "model": "gemini-3.8-flash-high",
+  "effort": "high",
+  "elapsedSeconds": 38.66,
+  "emptyAdjustmentsAccepted": true,
+  "cliInvocations": 2,
+  "realModelRequests": 1,
+  "priorFixtureError": "First test used conflicting high-model/low-effort settings; rejected before inference. Corrected fixture to high/high.",
+  "syntheticInput": true,
+  "paperTextSent": false,
+  "personalLibraryTouched": false
+}

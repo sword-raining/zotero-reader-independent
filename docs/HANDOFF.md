@@ -1,6 +1,14 @@
 # 开发状态与下一步
 
-记录日期：2026-11-10；版本：1.0.2；扩展 ID：`zotero-reader-independent@local`。
+记录日期：2026-11-10；版本：1.0.3；扩展 ID：`zotero-reader-independent@local`。
+
+## 1.0.3 修复空分类请求参数（2026-11-10）
+
+- 用户截图显示 Antigravity 退出码 3。只读关联本地任务与 CLI 日志，确认核验请求被 Gemini 400 INVALID_ARGUMENT 拒绝：archive.adjustments.items.properties.collectionKey.enum[0] cannot be empty。失败请求参数中确有 enum:[""]，根因是本次可调整分类列表为空时的占位处理。
+- archiveSchema 的空候选列表改为 maxItems:0，items 中保留 string 类型，不提供空枚举；有候选时仍限定真实 collectionKey。推荐和调整均覆盖；本地 archiveSuggestion 继续拒绝不在允许列表内的编号，归档权限及核验通过条件不放宽。
+- 请求参数被模型拒绝时识别为 OUTPUT_SCHEMA，避免仅显示通用退出码。未保存原始提示词、stderr 或用户分类编号到仓库；本次真实错误只保留脱敏原因。
+- 354 项自动检查通过。真实短合成模型验证结果见 validation/live-archive-schema-1.0.3.json；未提交用户论文，未续跑真实任务或修改个人草稿。现有草稿升级后可点继续检查，无需重新生成或删除文献。
+- 工作区 .work/archive-schema-103，分支 fix/archive-schema-103。沿用原生更新通道；先公开 1.0.3 XPI，再更新 main/updates.json，保留旧包和旧标签。
 
 ## 1.0.2 原生插件更新（2026-11-10）
 

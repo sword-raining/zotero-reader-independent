@@ -133,3 +133,16 @@ test('generated Markdown formatting is idempotent and leaves headings, quotes, i
  const text='## 【作者解释】\r\n- 【作者解释】【作者解释】 正文。\r\n> 【作者解释】【作者解释】引句\r\n- 正文中的【读后推断】【读后推断】不删。\r\n- 【待核实】【读后判断】【读后判断】 保留检查标记。\r\n'.replaceAll('\\r\\n','\r\n');
  const result=R.normalizeGeneratedMarkdown(text);assert.equal(result,text.replace('- 【作者解释】【作者解释】 正文。','- 【作者解释】 正文。').replace('- 【待核实】【读后判断】【读后判断】 保留检查标记。','- 【待核实】【读后判断】 保留检查标记。'));assert.equal(R.normalizeGeneratedMarkdown(result),result);
 });
+
+
+test('archive schemas express no eligible collections as an empty array without empty enum values',()=>{
+ const known=[{key:'COLL0001',path:'Synthetic collection'}];
+ for(const [c,current] of [[known,[]],[[],known],[[],[]]]){
+  const schema=R.reviewSchemaForArchive(c,current),archive=schema.properties.archive;
+  const visit=node=>{if(!node||typeof node!=='object')return;if(Array.isArray(node.enum))assert.ok(node.enum.length&&node.enum.every(x=>typeof x==='string'&&x.length));for(const value of Object.values(node))if(value&&typeof value==='object')Array.isArray(value)?value.forEach(visit):visit(value);};visit(schema);
+  assert.equal(archive.properties.recommendations.maxItems,c.length?5:0);assert.equal(archive.properties.adjustments.maxItems,current.length?5:0);
+  if(current.length)assert.deepEqual(archive.properties.adjustments.items.properties.collectionKey.enum,['COLL0001']);
+  assert.ok(R.archiveSuggestion({archive:{recommendations:[],adjustments:[],reason:'No eligible changes'}},c,current));
+  assert.equal(R.archiveSuggestion({archive:{recommendations:[],adjustments:[{collectionKey:'FAKE0001',reason:'Invented'}],reason:'Invalid change'}},c,current),null);
+ }
+});

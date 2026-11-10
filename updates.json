@@ -3,9 +3,9 @@
     "zotero-reader-independent@local": {
       "updates": [
         {
-          "version": "1.0.2",
-          "update_link": "https://github.com/sword-raining/zotero-reader-independent/releases/download/v1.0.2/zotero-reader-independent-1.0.2.xpi",
-          "update_hash": "sha256:180cdc553531ad61d35a6158d9e80c73b2c9e78e4e06a0a3d65096c7fa95f8fb",
+          "version": "1.0.3",
+          "update_link": "https://github.com/sword-raining/zotero-reader-independent/releases/download/v1.0.3/zotero-reader-independent-1.0.3.xpi",
+          "update_hash": "sha256:3334a9f5212e246e45c28304e7d392956f96c4f511ead83d7d673927024d5741",
           "applications": {
             "zotero": {
               "strict_min_version": "7.0",

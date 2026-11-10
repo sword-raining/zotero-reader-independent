@@ -114,7 +114,7 @@ var EngineCore;
     });
     const response=await run(executable,["app-server","--listen","stdio://","--disable","plugins","--disable","plugin_discovery_prefetch","--disable","shell_snapshot"],{timeoutMs:45000,signal,onStdout:receive,
       writeInput:async stdin=>{
-        send=stdin;await request("initialize",{clientInfo:{name:"zotero_reader_independent",title:"Zotero Reader",version:"1.0.2"}});
+        send=stdin;await request("initialize",{clientInfo:{name:"zotero_reader_independent",title:"Zotero Reader",version:"1.0.3"}});
         await stdin.write(JSON.stringify({method:"initialized"})+"\n");
         let cursor=null;
         for(let page=0;page<10;page++){

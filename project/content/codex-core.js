@@ -47,7 +47,7 @@ var CodexCore;
     if (/not logged|log in|login required|unauthorized|authentication|invalid.?api.?key|\b401\b/.test(t)) return error("LOGIN", "Codex 尚未登录或登录状态已失效，请先在本机 Codex CLI 中完成登录。");
     if (/context.*(exceed|length|window)|too many tokens|maximum context/.test(t)) return error("CONTEXT", "正文超过所选模型的上下文容量；没有将截断内容当作完整论文处理。");
     if (/model.*(not found|not supported|does not exist|not available)|unsupported model/.test(t)) return error("MODEL_UNAVAILABLE", "当前账户无法使用该模型，请检查模型 ID 或留空使用 Codex 默认模型。");
-    if (/invalid schema|schema.*(invalid|not supported)|json_schema/.test(t)) return error("OUTPUT_SCHEMA", "Codex 拒绝了结构化输出要求，核验没有完成。请检查 CLI 或模型对输出结构的支持。");
+    if (/invalid schema|schema.*(invalid|not supported)|json_schema|invalid_argument[\s\S]*(parameters|schema)|enum.*cannot be empty/.test(t)) return error("OUTPUT_SCHEMA", "Codex 拒绝了结构化输出要求，核验没有完成。请检查 CLI 或模型对输出结构的支持。");
     if (/unexpected argument|unrecognized|unknown (option|flag|feature)|invalid.*config/.test(t)) return error("CLI_VERSION", "当前 Codex CLI 不支持所需参数或配置，请更新 CLI 后重试。");
     if (/connect|network|dns|tls|certificate|stream disconnected|timed out/.test(t)) return error("NETWORK", "Codex 网络连接失败，请检查本机 CLI 的网络或代理设置。");
     return error("EXIT", `Codex 未正常完成（退出码 ${Number.isInteger(exitCode) ? exitCode : "未知"}），没有保存为成功结果。`);

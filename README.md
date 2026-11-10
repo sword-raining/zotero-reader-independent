@@ -2,9 +2,9 @@
 
 在 Zotero 中完成 **PDF 解析 → 文献精读 → 独立检查与修订 → 保存笔记 → 按需归档**。
 
-当前版本：**1.0.2**。支持在任意分类中单篇或批量精读，也可以监听一个待处理分类。普通轮换电脑使用不需要开启多机协作。
+当前版本：**1.0.3**。支持在任意分类中单篇或批量精读，也可以监听一个待处理分类。普通轮换电脑使用不需要开启多机协作。
 
-**[获取最新版（Latest）](https://github.com/sword-raining/zotero-reader-independent/releases/latest)** · [直接下载 1.0.2 安装包](https://github.com/sword-raining/zotero-reader-independent/releases/download/v1.0.2/zotero-reader-independent-1.0.2.xpi) · [版本说明](docs/RELEASE-1.0.2.md) · [历史版本](https://github.com/sword-raining/zotero-reader-independent/releases) · [反馈问题](https://github.com/sword-raining/zotero-reader-independent/issues)
+**[获取最新版（Latest）](https://github.com/sword-raining/zotero-reader-independent/releases/latest)** · [直接下载 1.0.3 安装包](https://github.com/sword-raining/zotero-reader-independent/releases/download/v1.0.3/zotero-reader-independent-1.0.3.xpi) · [版本说明](docs/RELEASE-1.0.3.md) · [历史版本](https://github.com/sword-raining/zotero-reader-independent/releases) · [反馈问题](https://github.com/sword-raining/zotero-reader-independent/issues)
 
 > 这是第三方插件。扩展声明兼容 Zotero 7–10，目前主要在 Windows / Zotero 10.0.8 上验证。多设备同时运行的任务标记仍需在你自己的 WebDAV 服务上检测通过；它不是日常使用的前提。
 
@@ -153,7 +153,7 @@ cd zotero-reader-independent
 python tools/check.py --baseline
 ```
 
-开发检查需要 Node.js 和 Python，不需要 `npm install`。修改后运行 `python tools/check.py`，可重建 XPI 输出至 `.work/`。基础检查不启动 Zotero、不调用模型；真实调用和原生测试必须另行明确执行。当前验证范围见[版本说明](docs/RELEASE-1.0.2.md)。
+开发检查需要 Node.js 和 Python，不需要 `npm install`。修改后运行 `python tools/check.py`，可重建 XPI 输出至 `.work/`。基础检查不启动 Zotero、不调用模型；真实调用和原生测试必须另行明确执行。当前验证范围见[版本说明](docs/RELEASE-1.0.3.md)。
 
 发布维护：构建 `release/` 中的新版 XPI 后运行 `python tools/update_manifest.py`，将生成的 `updates.json`、安装包与校验清单一同发布。更新清单只指向已公开的安装包；不要改写旧版本文件。
 

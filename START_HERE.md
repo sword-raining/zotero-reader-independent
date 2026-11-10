@@ -1,6 +1,6 @@
 # Zotero Reader 开发交接
 
-当前是 2026-11-10 的 **1.0.2 公开版本**，从 0.14.1 交接基线继续维护，用于在另一台 Windows 电脑继续开发。可克隆此公开仓库继续开发，也可使用交接压缩包；不需要复制旧电脑的整个 Codex 工作目录。
+当前是 2026-11-10 的 **1.0.3 公开版本**，从 0.14.1 交接基线继续维护，用于在另一台 Windows 电脑继续开发。可克隆此公开仓库继续开发，也可使用交接压缩包；不需要复制旧电脑的整个 Codex 工作目录。
 
 ## 在新电脑上开始
 
@@ -12,11 +12,13 @@
    python tools/check.py --baseline
    ```
 
-   这会运行 352 项自动检查、校验源码并重建安装包。不会启动 Zotero、请求模型或读取个人论文。
+   这会运行 354 项自动检查、校验源码并重建安装包。不会启动 Zotero、请求模型或读取个人论文。
 4. 用新电脑的 Codex 打开**这个根目录**，让它先读 `AGENTS.md`、`docs/HANDOFF.md` 和 `docs/WINDOWS.md`。
-5. 需要实际使用时，将 `release/zotero-reader-independent-1.0.2.xpi` 安装到 Zotero 并重启。
+5. 需要实际使用时，将 `release/zotero-reader-independent-1.0.3.xpi` 安装到 Zotero 并重启。
 
 ## 本次调整
+
+1.0.3 修复可调整分类为空时生成非法空字符串枚举、导致 Gemini 400 和 Antigravity 退出码 3 的问题。改为空数组约束，并保留本地分类白名单校验；升级后可直接继续检查旧草稿。
 
 1.0.2 接入 Zotero 原生更新：公开 HTTPS updates.json 指向 GitHub Release XPI，带版本、兼容范围与 SHA256。旧版需要手动安装一次，再由 Zotero 检查及自动更新。以后发布必须运行 python tools/update_manifest.py 并同步 updates.json。
 
@@ -93,6 +95,6 @@
 
 ## 可以直接发给新电脑 Codex 的话
 
-> 接手这个 Zotero Reader 插件。先读取根目录 AGENTS.md、docs/HANDOFF.md、docs/WINDOWS.md，再运行 python tools/check.py --baseline。当前版本是 1.0.2，自动清理与跨机笔记识别已实现并通过隔离测试；先验证真实双机同步效果，再处理主笔记版本管理和 Wiki 入库。不要开发草稿、核验进度或解析缓存同步，不改第三方 dsh-kb，不把开发文件放进知识库。一次完成一部分，并清楚说明实际验证范围。
+> 接手这个 Zotero Reader 插件。先读取根目录 AGENTS.md、docs/HANDOFF.md、docs/WINDOWS.md，再运行 python tools/check.py --baseline。当前版本是 1.0.3，自动清理与跨机笔记识别已实现并通过隔离测试；先验证真实双机同步效果，再处理主笔记版本管理和 Wiki 入库。不要开发草稿、核验进度或解析缓存同步，不改第三方 dsh-kb，不把开发文件放进知识库。一次完成一部分，并清楚说明实际验证范围。
 
 包内 `project/` 是唯一开发源码；`release/` 是已发布安装包；`validation/` 是测试依据。源码不包含文献库、真实论文、MinerU 密钥或 CLI 登录凭据。个人文献与笔记请按 `docs/WINDOWS.md` 的同步说明另行处理。
