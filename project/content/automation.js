@@ -594,7 +594,12 @@ var ReaderAutomation={
       finally{if(['verification_incomplete','needs_review'].includes(job.state))await this.refreshResumeState(job);if(typeof ReaderCoordination!=='undefined')await ReaderCoordination.exitJob(job,worker);if(!job.pauseRequested)delete job.resumeRepair;this.running.delete(job.id);this.updateActivity();ReaderCodex.syncWorker?.(job,worker.codex);job.updatedAt=Date.now();await this.persist();this.refreshViews();if(typeof ReaderClassifier!=='undefined')ReaderClassifier.render();this.schedule();}
     })();this.updateActivity();this.refreshViews();return worker;
   },
-  historyHidden(job){return !!job.historyClearedAt&&['done','imported'].includes(job.state)&&!this.isRunning(job)&&!job.classificationPending;},
+  reusedNoteSkip(job){
+    // Old and new deduplication hits own no workflow. Keep their minimal receipt, not a visible task.
+    if(!job||job.notes?.reading?.reused!==true||job.workflowPath||job.savedRunID||job.classificationPending||job.classificationStatus&&job.classificationStatus!=='skipped'||typeof ReaderClassifier==='undefined')return false;
+    return !Object.values(ReaderClassifier.proposals).some(p=>p.jobID===job.id&&p.noteKey===job.notes.reading.key);
+  },
+  historyHidden(job){return (!!job.historyClearedAt||this.reusedNoteSkip(job))&&['done','imported'].includes(job.state)&&!this.isRunning(job)&&!job.classificationPending;},
   completedProposal(job){
     if(!job||this.historyHidden(job)||!['done','imported'].includes(job.state)||!job.notes?.reading?.key||this.isRunning(job)||job.classificationPending||job.classificationStatus==='running')return null;
     if(typeof ReaderClassifier==='undefined')return null;

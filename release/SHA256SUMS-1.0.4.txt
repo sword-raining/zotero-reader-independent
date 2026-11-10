@@ -1,0 +1,1 @@
+ef0353b2e5095f2c4bcbcc3e2e3e405e60a3260eee4b308a722c8f589fb8fd4f  zotero-reader-independent-1.0.4.xpi

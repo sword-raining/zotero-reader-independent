@@ -43,3 +43,16 @@ test('concurrent cleanup requests share the operation and release their locks',a
 });
 
 test('cleaning an edited saved note preserves the edited task status',async()=>{const f=fixture();f.scope.ReaderSaved.noteState=async()=>({status:'edited'});const r=await f.clean.sweepCompleted();assert.equal(r.cleaned,1);assert.equal(f.auto.state.jobs[f.job.id].state,'imported');});
+
+
+test('old and new existing-note skips stay out of the queue and cleanup totals without changing any file',async()=>{
+ const f=fixture();delete f.job.workflowPath;f.job.notes.reading.reused=true;f.scope.ReaderClassifier.proposals={};f.setModified();const before=f.note.getNote(),record=JSON.stringify(f.job);
+ assert.ok(f.auto.historyHidden(f.job));const r=await f.clean.sweepCompleted();assert.equal(r.cleaned,0);assert.equal(r.skipped,0);assert.equal(r.retained,0);assert.equal(f.cleaned(),0);assert.equal(f.records(),0);assert.ok(f.data.has(f.file));assert.equal(f.note.getNote(),before);assert.equal(JSON.stringify(f.job),record);
+ const reload=JSON.parse(record);assert.ok(f.auto.historyHidden(reload));assert.equal(Q.enqueue(f.auto.state,{libraryID:1,key:f.job.key},{trigger:'auto'}).created,false);
+ const explicit=Q.enqueue(f.auto.state,{libraryID:1,key:f.job.key},{trigger:'manual'});assert.equal(explicit.created,true);assert.equal(f.auto.historyHidden(explicit.job),false);
+});
+test('real work, local drafts and explicit archive requests are not hidden as existing-note skips',()=>{
+ for(const mutate of [f=>f.job.state='running',f=>f.job.notes.reading.reused=false,f=>f.job.workflowPath=f.file,f=>f.job.savedRunID=f.runID,f=>f.job.classificationPending=true,f=>f.job.classificationStatus='failed',f=>f.scope.ReaderClassifier.proposals={pending:{jobID:f.job.id,noteKey:f.note.key,status:'pending'}}]){
+  const f=fixture();delete f.job.workflowPath;f.job.notes.reading.reused=true;f.scope.ReaderClassifier.proposals={};mutate(f);assert.equal(f.auto.historyHidden(f.job),false);
+ }
+});

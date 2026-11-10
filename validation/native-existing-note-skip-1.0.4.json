@@ -1,0 +1,85 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "each queue item exposes one appropriate primary action with secondary actions collapsed",
+      "ok": true
+    },
+    {
+      "name": "task menu survives progress refresh, keyboard dismissal and a narrow window",
+      "ok": true
+    },
+    {
+      "name": "the native context submenu has three entries and adapts to single or multiple papers",
+      "ok": true
+    },
+    {
+      "name": "the unified reading entry reopens an existing draft or routes multiple papers to the picker without starting work",
+      "ok": true
+    },
+    {
+      "name": "one native button clears finished cache and history without interrupting another running task",
+      "ok": true
+    },
+    {
+      "name": "PDF, saved note, memberships, unconfirmed and unimported tasks stay intact",
+      "ok": true
+    },
+    {
+      "name": "local receipt suppresses duplicate intake and note discovery survives without local history",
+      "ok": true
+    },
+    {
+      "name": "modified drafts and missing-note lookups retain both their histories and caches with reasons",
+      "ok": true
+    },
+    {
+      "name": "an edited old review is kept and the exact blocking filename is reported",
+      "ok": true
+    },
+    {
+      "name": "cache referenced by a running paper is preserved while finished history can be cleared",
+      "ok": true
+    },
+    {
+      "name": "cleaned history stays hidden after reloading the persisted queue and no model calls occur",
+      "ok": true
+    },
+    {
+      "name": "existing-note duplicates skip the queue and batch intake, preserving notes, files and memberships",
+      "ok": true
+    },
+    {
+      "name": "only an explicit archive reopen brings a cleared task back without rereading",
+      "ok": true
+    }
+  ],
+  "shots": [
+    {
+      "name": "01-before-cleanup.png",
+      "width": 1200,
+      "height": 1050
+    },
+    {
+      "name": "03-task-menu-narrow.png",
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "name": "02-after-cleanup.png",
+      "width": 1200,
+      "height": 1050
+    },
+    {
+      "name": "04-existing-note-skipped.png",
+      "width": 1200,
+      "height": 1050
+    }
+  ],
+  "realModelRequests": 0,
+  "syntheticData": true,
+  "missingNoteSimulated": true,
+  "personalLibraryTouched": false,
+  "pluginVersion": "1.0.4",
+  "zoteroVersion": "10.0.8"
+}
