@@ -1,0 +1,32 @@
+{
+  "completed": true,
+  "tests": [
+    {
+      "name": "seed retains 1.0.1 production code with only its update URL changed for the bootstrap test",
+      "ok": true
+    },
+    {
+      "name": "native updater discovers the published 1.0.2 release through the public HTTPS feed",
+      "ok": true
+    },
+    {
+      "name": "native updater downloads and installs the public XPI with its update hash",
+      "ok": true
+    },
+    {
+      "name": "Zotero permits automatic updates when the user enables that setting",
+      "ok": true
+    },
+    {
+      "name": "checking the installed latest version offers no duplicate update",
+      "ok": true
+    }
+  ],
+  "personalLibraryTouched": false,
+  "realModelRequests": 0,
+  "zoteroVersion": "10.0.8",
+  "downloadURL": "https://github.com/sword-raining/zotero-reader-independent/releases/download/v1.0.2/zotero-reader-independent-1.0.2.xpi",
+  "installedVersion": "1.0.2",
+  "installedXPISHA256": "180cdc553531ad61d35a6158d9e80c73b2c9e78e4e06a0a3d65096c7fa95f8fb",
+  "seedNote": "The 1.0.1 test seed alone was given the valid update URL; real 1.0.1 still requires one manual upgrade."
+}
